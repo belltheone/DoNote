@@ -1,15 +1,15 @@
 "use client";
-// 랜딩페이지 - 도노트 메인 페이지
-// 히어로 섹션, 특징 소개, 사용 방법, Footer로 구성
+// 랜딩페이지 - 도노트 메인 페이지 (Digital Analog 디자인)
+// "친구의 책상에 응원의 포스트잇을 붙이는 경험"
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 // 애니메이션 설정
 const fadeInUp = {
-  initial: { opacity: 0, y: 40 },
+  initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: "easeOut" }
+  transition: { duration: 0.5, ease: "easeOut" }
 };
 
 const staggerContainer = {
@@ -18,23 +18,25 @@ const staggerContainer = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-[#F9F9F9]">
       {/* 네비게이션 */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass-card !rounded-none !border-x-0 !border-t-0">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold gradient-text">
-            도노트
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="flex items-center gap-2">
+            {/* 로고: 도넛 + 쪽지 컨셉 */}
+            <span className="text-2xl">🍩</span>
+            <span className="text-xl font-bold text-[#333]">도노트</span>
           </Link>
           <div className="flex gap-4">
             <Link
               href="/demo"
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-[#666] hover:text-[#333] transition-colors"
             >
               데모 보기
             </Link>
             <Link
               href="#start"
-              className="px-6 py-2 gradient-bg rounded-full text-white font-medium hover:opacity-90 transition-opacity"
+              className="px-6 py-2 bg-[#FFD95A] rounded-lg text-[#333] font-medium hover:bg-[#FFCE3A] transition-all shadow-sm"
             >
               시작하기
             </Link>
@@ -44,45 +46,46 @@ export default function Home() {
 
       {/* 히어로 섹션 */}
       <section className="relative min-h-screen flex items-center justify-center px-6 pt-20 overflow-hidden">
-        {/* 배경 그라데이션 효과 */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-3xl"></div>
+        {/* 배경 데코 - 포스트잇들 */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 left-10 w-24 h-24 bg-[#FFFACD] rounded shadow-md transform rotate-6 opacity-40"></div>
+          <div className="absolute top-40 right-20 w-20 h-20 bg-[#FFE4E1] rounded shadow-md transform -rotate-3 opacity-40"></div>
+          <div className="absolute bottom-40 left-1/4 w-28 h-28 bg-[#E6F3FF] rounded shadow-md transform rotate-2 opacity-30"></div>
+          <div className="absolute bottom-20 right-10 w-16 h-16 bg-[#E8F5E9] rounded shadow-md transform -rotate-6 opacity-40"></div>
         </div>
 
         <motion.div
-          className="relative z-10 max-w-4xl mx-auto text-center"
+          className="relative z-10 max-w-3xl mx-auto text-center"
           initial="initial"
           animate="animate"
           variants={staggerContainer}
         >
           {/* 배지 */}
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 glass-card text-sm text-gray-300 mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full text-sm text-[#666] mb-6 shadow-sm border border-gray-100"
             variants={fadeInUp}
           >
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            한국 크리에이터를 위한 마이크로 후원 플랫폼
+            <span>✉️</span>
+            <span>한국 크리에이터를 위한 따뜻한 후원 플랫폼</span>
           </motion.div>
 
           {/* 메인 타이틀 */}
           <motion.h1
-            className="text-5xl md:text-7xl font-bold leading-tight mb-6"
+            className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-[#333]"
             variants={fadeInUp}
           >
             마음을 적는<br />
-            <span className="gradient-text">가장 가벼운 후원</span>
+            <span className="text-[#FF6B6B]">가장 가벼운 후원</span>
           </motion.h1>
 
           {/* 서브 타이틀 */}
           <motion.p
-            className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
+            className="text-lg text-[#666] max-w-xl mx-auto mb-10"
             variants={fadeInUp}
           >
             회원가입 없이 10초 만에 크리에이터를 응원하세요.
             <br />
-            토스, 카카오페이, 네이버페이로 간편하게.
+            친구의 책상에 포스트잇을 붙이듯, 따뜻한 쪽지와 함께.
           </motion.p>
 
           {/* CTA 버튼들 */}
@@ -92,35 +95,36 @@ export default function Home() {
           >
             <Link
               href="#start"
-              className="group relative px-8 py-4 gradient-bg rounded-full text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              className="px-8 py-4 bg-[#FFD95A] rounded-xl text-[#333] font-semibold text-lg shadow-md hover:bg-[#FFCE3A] hover:-translate-y-1 transition-all"
             >
-              <span className="relative z-10">크리에이터로 시작하기</span>
-              <div className="absolute inset-0 gradient-bg rounded-full opacity-0 group-hover:opacity-100 blur-xl transition-opacity"></div>
+              ✍️ 크리에이터로 시작하기
             </Link>
             <Link
               href="/demo"
-              className="px-8 py-4 glass-card text-white font-semibold text-lg hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-white border-2 border-dashed border-gray-300 rounded-xl text-[#666] font-semibold text-lg hover:border-[#FFD95A] hover:bg-[#FFFACD] transition-all flex items-center justify-center gap-2"
             >
               <span>데모 체험하기</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <span>→</span>
             </Link>
           </motion.div>
 
-          {/* 통계 */}
+          {/* 통계 - 우표 스타일 */}
           <motion.div
-            className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
+            className="mt-16 flex flex-wrap justify-center gap-6"
             variants={fadeInUp}
           >
             {[
-              { value: "10초", label: "평균 후원 시간" },
-              { value: "0원", label: "가입비용" },
-              { value: "5%", label: "최저 수수료" },
+              { value: "10초", label: "평균 후원 시간", emoji: "⏱️" },
+              { value: "0원", label: "가입비용", emoji: "🆓" },
+              { value: "5%", label: "최저 수수료", emoji: "💰" },
             ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold gradient-text">{stat.value}</div>
-                <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+              <div
+                key={index}
+                className="px-6 py-4 bg-white rounded-lg border-2 border-dashed border-gray-200 text-center shadow-sm"
+              >
+                <div className="text-2xl mb-1">{stat.emoji}</div>
+                <div className="text-2xl font-bold text-[#FF6B6B]">{stat.value}</div>
+                <div className="text-xs text-[#999] mt-1">{stat.label}</div>
               </div>
             ))}
           </motion.div>
@@ -129,68 +133,71 @@ export default function Home() {
         {/* 스크롤 인디케이터 */}
         <motion.div
           className="absolute bottom-10 left-1/2 -translate-x-1/2"
-          animate={{ y: [0, 10, 0] }}
+          animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+          <div className="flex flex-col items-center text-[#999]">
+            <span className="text-sm mb-2">더 알아보기</span>
+            <span>↓</span>
+          </div>
         </motion.div>
       </section>
 
       {/* 특징 섹션 */}
-      <section className="py-32 px-6" id="features">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-24 px-6 bg-white" id="features">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            className="text-center mb-20"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">왜 도노트인가요?</h2>
-            <p className="text-xl text-gray-400">간단하지만 강력한 세 가지 이유</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">왜 도노트인가요?</h2>
+            <p className="text-lg text-[#666]">간단하지만 따뜻한 세 가지 이유</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: "⚡",
-                title: "10초 후원",
+                emoji: "📝",
+                title: "쪽지처럼 간편하게",
                 description: "회원가입 없이 닉네임만 적으면 끝. 응원 메시지와 함께 마음을 전달하세요.",
-                gradient: "from-purple-500 to-violet-500"
+                color: "bg-[#FFFACD]"
               },
               {
-                icon: "💌",
-                title: "마음을 담은 쪽지",
-                description: "단순 송금이 아닌 감성적인 메시지. 받는 사람의 하루를 특별하게 만들어요.",
-                gradient: "from-pink-500 to-rose-500"
+                emoji: "💌",
+                title: "편지처럼 따뜻하게",
+                description: "단순 송금이 아닌 정성 담긴 쪽지. 받는 사람의 하루를 특별하게 만들어요.",
+                color: "bg-[#FFE4E1]"
               },
               {
-                icon: "🇰🇷",
-                title: "한국 결제 최적화",
+                emoji: "🏪",
+                title: "동네 가게처럼 편하게",
                 description: "토스, 카카오페이, 네이버페이. 익숙한 결제 수단으로 3초 만에 결제 완료.",
-                gradient: "from-orange-500 to-amber-500"
+                color: "bg-[#E6F3FF]"
               }
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                className="group relative p-8 glass-card hover:bg-white/10 transition-all cursor-pointer"
+                className={`group relative p-8 ${feature.color} rounded-lg shadow-md hover:-translate-y-2 transition-all cursor-pointer`}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
+                style={{ transform: `rotate(${index === 1 ? 0 : (index === 0 ? -2 : 2)}deg)` }}
+                whileHover={{ rotate: 0 }}
               >
+                {/* 테이프 효과 */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-white/70 rounded shadow-sm"></div>
+
                 {/* 아이콘 */}
-                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform`}>
-                  {feature.icon}
-                </div>
+                <div className="text-4xl mb-4">{feature.emoji}</div>
 
                 {/* 제목 */}
-                <h3 className="text-2xl font-bold mb-3">{feature.title}</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#333]">{feature.title}</h3>
 
                 {/* 설명 */}
-                <p className="text-gray-400 leading-relaxed">{feature.description}</p>
+                <p className="text-[#666] leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -198,21 +205,21 @@ export default function Home() {
       </section>
 
       {/* 사용 방법 섹션 */}
-      <section className="py-32 px-6 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-24 px-6 bg-[#F9F9F9]">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            className="text-center mb-20"
+            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">3분이면 충분해요</h2>
-            <p className="text-xl text-gray-400">시작하는 방법은 정말 간단합니다</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">3분이면 충분해요</h2>
+            <p className="text-lg text-[#666]">시작하는 방법은 정말 간단합니다</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8 relative">
-            {/* 연결선 (데스크톱에서만) */}
-            <div className="hidden md:block absolute top-24 left-[20%] right-[20%] h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 opacity-30"></div>
+            {/* 연결선 */}
+            <div className="hidden md:block absolute top-16 left-[25%] right-[25%] h-0.5 bg-[#FFD95A] opacity-50"></div>
 
             {[
               {
@@ -224,12 +231,12 @@ export default function Home() {
               {
                 step: "02",
                 title: "링크 공유하기",
-                description: "블로그, 깃허브, SNS 어디에든 배지를 달아주세요",
-                emoji: "🔗"
+                description: "블로그, 깃허브, SNS 어디에든 티켓 배지를 달아주세요",
+                emoji: "🎫"
               },
               {
                 step: "03",
-                title: "후원 받기",
+                title: "쪽지 받기",
                 description: "따뜻한 응원 메시지와 함께 커피값을 받아보세요",
                 emoji: "☕"
               }
@@ -242,63 +249,72 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.15 }}
               >
-                {/* 단계 번호 */}
-                <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-[#1e1e26] to-[#16161d] border border-white/10 mb-6">
-                  <span className="text-2xl font-bold gradient-text">{item.step}</span>
-                  <span className="absolute -top-2 -right-2 text-2xl">{item.emoji}</span>
+                {/* 단계 번호 - 우표 스타일 */}
+                <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border-2 border-dashed border-[#FFD95A] mb-6 shadow-sm">
+                  <span className="text-lg font-bold text-[#FF6B6B]">{item.step}</span>
+                  <span className="absolute -top-1 -right-1 text-xl">{item.emoji}</span>
                 </div>
 
                 {/* 제목 */}
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <h3 className="text-lg font-bold mb-2 text-[#333]">{item.title}</h3>
 
                 {/* 설명 */}
-                <p className="text-gray-400">{item.description}</p>
+                <p className="text-[#666] text-sm">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 배지 미리보기 섹션 */}
-      <section className="py-32 px-6">
+      {/* 위젯 미리보기 섹션 */}
+      <section className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">힙한 배지를 달아보세요</h2>
-            <p className="text-xl text-gray-400 mb-12">블로그 디자인 소품처럼 예쁜 위젯</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">예쁜 티켓을 달아보세요</h2>
+            <p className="text-lg text-[#666] mb-12">블로그나 깃허브에 붙이는 입장권처럼</p>
           </motion.div>
 
-          {/* 배지 프리뷰 */}
+          {/* 배지 프리뷰 - 티켓 스타일 */}
           <motion.div
             className="flex flex-wrap justify-center gap-6"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            {/* 스타일 1: 그라데이션 */}
-            <div className="px-6 py-3 gradient-bg rounded-full text-white font-medium flex items-center gap-2 shadow-lg animate-pulse-glow">
-              <span>☕</span>
-              <span>커피 한 잔 사주기</span>
+            {/* 스타일 1: 티켓형 */}
+            <div className="relative px-8 py-4 bg-white rounded-lg border-2 border-dashed border-[#FFD95A] shadow-md">
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-[#F9F9F9] rounded-full"></div>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-[#F9F9F9] rounded-full"></div>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🍩</span>
+                <div className="text-left">
+                  <div className="text-xs text-[#999]">To. Creator</div>
+                  <div className="font-bold text-[#333]">도노트 보내기</div>
+                </div>
+              </div>
             </div>
 
-            {/* 스타일 2: 글래스 */}
-            <div className="px-6 py-3 glass-card text-white font-medium flex items-center gap-2">
-              <span>💜</span>
-              <span>도노트로 응원하기</span>
+            {/* 스타일 2: 포스트잇형 */}
+            <div className="relative px-6 py-4 bg-[#FFFACD] rounded shadow-md transform rotate-2 hover:rotate-0 transition-transform">
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-3 bg-white/70 rounded"></div>
+              <div className="flex items-center gap-2">
+                <span>☕</span>
+                <span className="font-medium text-[#333]">커피 한 잔 사주기</span>
+              </div>
             </div>
 
             {/* 스타일 3: 미니멀 */}
-            <div className="px-6 py-3 bg-white text-gray-900 rounded-full font-medium flex items-center gap-2 shadow-lg">
-              <span>✨</span>
-              <span>Sponsor me on Donote</span>
+            <div className="px-6 py-3 bg-[#FF6B6B] rounded-full text-white font-medium shadow-md hover:bg-[#FF5252] transition-colors">
+              💌 쪽지 보내기
             </div>
           </motion.div>
 
           <motion.p
-            className="text-gray-500 mt-8"
+            className="text-[#999] mt-8 text-sm"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -309,83 +325,67 @@ export default function Home() {
       </section>
 
       {/* CTA 섹션 */}
-      <section className="py-32 px-6" id="start">
-        <div className="max-w-4xl mx-auto">
+      <section className="py-24 px-6 bg-[#FFFACD]" id="start">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            className="relative p-12 md:p-16 rounded-3xl overflow-hidden text-center"
+            className="relative p-12 bg-white rounded-xl shadow-lg text-center"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            {/* 배경 그라데이션 */}
-            <div className="absolute inset-0 gradient-bg opacity-20"></div>
-            <div className="absolute inset-0 bg-[#16161d]/80 backdrop-blur-xl"></div>
+            {/* 테이프 장식 */}
+            <div className="absolute -top-3 left-10 w-20 h-5 bg-[#FFFACD]/80 rounded transform -rotate-3 shadow-sm"></div>
+            <div className="absolute -top-3 right-10 w-20 h-5 bg-[#FFE4E1]/80 rounded transform rotate-3 shadow-sm"></div>
 
-            {/* 보더 그라데이션 */}
-            <div className="absolute inset-0 rounded-3xl border border-white/10"></div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">
+              지금 시작해보세요
+            </h2>
+            <p className="text-lg text-[#666] mb-8">
+              무료로 시작하고, 첫 6개월은 수수료 0%!
+            </p>
 
-            <div className="relative z-10">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                지금 시작해보세요
-              </h2>
-              <p className="text-xl text-gray-400 mb-10">
-                무료로 시작하고, 첫 6개월은 수수료 0%!
-              </p>
-
-              {/* 이메일 입력 폼 */}
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="이메일을 입력하세요"
-                  className="flex-1 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-                />
-                <button className="px-8 py-4 gradient-bg rounded-full text-white font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
-                  무료로 시작
-                </button>
-              </div>
-
-              <p className="text-sm text-gray-500 mt-6">
-                가입 시 <Link href="#" className="text-purple-400 hover:underline">이용약관</Link> 및{" "}
-                <Link href="#" className="text-purple-400 hover:underline">개인정보처리방침</Link>에 동의하게 됩니다.
-              </p>
+            {/* 이메일 입력 폼 */}
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="이메일을 입력하세요"
+                className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-200 text-[#333] placeholder-[#999] focus:outline-none focus:border-[#FFD95A] transition-colors"
+              />
+              <button className="px-8 py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-colors whitespace-nowrap shadow-md">
+                무료로 시작
+              </button>
             </div>
+
+            <p className="text-xs text-[#999] mt-6">
+              가입 시 <Link href="#" className="text-[#FF6B6B] hover:underline">이용약관</Link> 및{" "}
+              <Link href="#" className="text-[#FF6B6B] hover:underline">개인정보처리방침</Link>에 동의하게 됩니다.
+            </p>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/10">
-        <div className="max-w-6xl mx-auto">
+      <footer className="py-12 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             {/* 로고 */}
-            <div className="text-2xl font-bold gradient-text">도노트</div>
-
-            {/* 링크 */}
-            <div className="flex gap-8 text-gray-400">
-              <Link href="#" className="hover:text-white transition-colors">서비스 소개</Link>
-              <Link href="#" className="hover:text-white transition-colors">이용약관</Link>
-              <Link href="#" className="hover:text-white transition-colors">개인정보처리방침</Link>
-              <Link href="#" className="hover:text-white transition-colors">문의하기</Link>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🍩</span>
+              <span className="text-xl font-bold text-[#333]">도노트</span>
             </div>
 
-            {/* 소셜 */}
-            <div className="flex gap-4">
-              {["github", "twitter", "instagram"].map((social) => (
-                <Link
-                  key={social}
-                  href="#"
-                  className="w-10 h-10 rounded-full glass-card flex items-center justify-center hover:bg-white/10 transition-colors"
-                >
-                  <span className="sr-only">{social}</span>
-                  <div className="w-5 h-5 bg-gray-400 rounded-sm"></div>
-                </Link>
-              ))}
+            {/* 링크 */}
+            <div className="flex gap-6 text-[#666] text-sm">
+              <Link href="#" className="hover:text-[#333] transition-colors">서비스 소개</Link>
+              <Link href="#" className="hover:text-[#333] transition-colors">이용약관</Link>
+              <Link href="#" className="hover:text-[#333] transition-colors">개인정보처리방침</Link>
+              <Link href="#" className="hover:text-[#333] transition-colors">문의하기</Link>
             </div>
           </div>
 
           {/* 저작권 */}
-          <div className="mt-8 pt-8 border-t border-white/5 text-center text-gray-500 text-sm">
-            © 2024 Donote. All rights reserved. Made with 💜 in Korea
+          <div className="mt-8 pt-8 border-t border-gray-100 text-center text-[#999] text-sm">
+            © 2024 Donote. All rights reserved. Made with 💌 in Korea
           </div>
         </div>
       </footer>

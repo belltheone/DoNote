@@ -42,3 +42,6 @@ next-env.d.ts
 
 # 기획서 (비공개)
 donoteplan.md
+
+# 디자인 가이드
+designguide.md

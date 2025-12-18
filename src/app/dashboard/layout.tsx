@@ -12,6 +12,7 @@ const navItems = [
     { href: "/dashboard", label: "홈", icon: "🏠", exact: true },
     { href: "/dashboard/messages", label: "메시지 월", icon: "📌" },
     { href: "/dashboard/analytics", label: "분석", icon: "📊" },
+    { href: "/dashboard/settlement", label: "수확하기", icon: "🍯" },
     { href: "/dashboard/widget", label: "위젯 생성", icon: "🎫" },
     { href: "/dashboard/settings", label: "설정", icon: "⚙️" },
 ];
@@ -80,8 +81,8 @@ export default function DashboardLayout({
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive(item.href, item.exact)
-                                    ? 'bg-[#FFFACD] text-[#333] font-medium'
-                                    : 'text-[#666] hover:bg-gray-50'
+                                ? 'bg-[#FFFACD] text-[#333] font-medium'
+                                : 'text-[#666] hover:bg-gray-50'
                                 }`}
                         >
                             <span className="text-xl">{item.icon}</span>

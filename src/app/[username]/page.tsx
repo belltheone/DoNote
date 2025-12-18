@@ -153,45 +153,59 @@ export default function CreatorPage({
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333]">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333] font-hand">
                         <span>📌</span>
                         <span>응원 메시지 월</span>
-                        <span className="text-sm font-normal text-[#999]">({creator.notes.length})</span>
+                        <span className="text-sm font-sans font-normal text-[#666]">({creator.notes.length})</span>
                     </h2>
 
                     {/* 코르크보드 배경 */}
-                    <div className="p-6 rounded-xl bg-gradient-to-br from-[#D4A574] to-[#B8956A] min-h-[400px] shadow-inner">
-                        {/* 메모지 그리드 - Masonry 스타일 */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="p-6 md:p-8 rounded-xl bg-[#D4A574] relative shadow-inner overflow-hidden cork-bg">
+                        <div className="absolute inset-0 bg-black/5 pointer-events-none" />
+
+                        {/* 메모지 그리드 - Masonry 스타일 (CSS Columns) */}
+                        <div className="columns-2 md:columns-3 gap-6 space-y-6">
                             {creator.notes.map((note, index) => (
                                 <motion.div
                                     key={note.id}
-                                    className={`relative p-4 rounded ${noteColors[index % noteColors.length]} ${rotations[index % rotations.length]} shadow-md hover:rotate-0 hover:-translate-y-1 transition-all cursor-pointer`}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: 0.1 * index, duration: 0.3 }}
+                                    className={`relative p-5 break-inside-avoid rounded-sm shadow-md transition-all cursor-pointer group ${noteColors[index % noteColors.length]
+                                        }`}
+                                    style={{
+                                        rotate: `${Math.random() * 6 - 3}deg`, // -3deg ~ +3deg
+                                    }}
+                                    whileHover={{
+                                        scale: 1.05,
+                                        rotate: 0,
+                                        zIndex: 10,
+                                        boxShadow: "0 10px 20px rgba(0,0,0,0.15)"
+                                    }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 * index, duration: 0.4 }}
                                 >
-                                    {/* 핀/테이프 */}
-                                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-red-400 shadow-sm"></div>
+                                    {/* 반투명 테이프 */}
+                                    <div className="tape"></div>
 
                                     {/* 스티커 */}
-                                    <div className="absolute -top-1 -right-1 text-xl transform rotate-12">
+                                    <div className="absolute -bottom-2 -right-2 text-3xl transform rotate-12 opacity-80 group-hover:scale-110 transition-transform">
                                         {note.sticker}
                                     </div>
 
                                     {/* 금액 태그 */}
-                                    <div className="text-xs text-[#999] mb-2 font-medium">
+                                    <div className="inline-block px-2 py-0.5 bg-black/5 rounded text-xs font-mono text-[#555] mb-2">
                                         ₩{note.amount.toLocaleString()}
                                     </div>
 
                                     {/* 메시지 */}
-                                    <p className="text-sm font-medium mb-3 text-[#333] line-clamp-3">
+                                    <p className="text-[#333] font-hand text-lg leading-snug mb-4 min-h-[60px]">
                                         {note.message}
                                     </p>
 
-                                    {/* 닉네임 - 손글씨 느낌 */}
-                                    <div className="text-xs text-[#666] italic">
-                                        - {note.nickname}
+                                    {/* 닉네임 */}
+                                    <div className="text-right">
+                                        <span className="text-sm text-[#555] border-b border-[#555]/30 pb-0.5">
+                                            from. {note.nickname}
+                                        </span>
                                     </div>
                                 </motion.div>
                             ))}

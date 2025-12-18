@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Gamja_Flower, Hi_Melody } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 
-// Geist 폰트 설정 (모던하고 깔끔한 산세리프)
+// Geist 폰트 설정 (영문/숫자용 보조)
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -13,6 +13,19 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// 손글씨 폰트 (제목용)
+const gamjaFlower = Gamja_Flower({
+  weight: "400",
+  variable: "--font-gamja",
+  subsets: ["latin"],
+});
+
+const hiMelody = Hi_Melody({
+  weight: "400",
+  variable: "--font-himelody",
   subsets: ["latin"],
 });
 
@@ -52,8 +65,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" as="style" crossOrigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#F9F9F9] dark:bg-gray-900 text-[#333333] dark:text-gray-100 transition-colors`}
+        className={`${geistSans.variable} ${geistMono.variable} ${gamjaFlower.variable} ${hiMelody.variable} antialiased bg-[#F9F9F9] dark:bg-gray-900 text-[#333333] dark:text-gray-100 transition-colors paper-bg`}
       >
         <ThemeProvider
           attribute="class"

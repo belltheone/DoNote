@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { EnvelopeHero } from "@/components/landing/EnvelopeHero";
 
 // 더미 실시간 후원 데이터
 const liveDonations = [
@@ -78,169 +79,90 @@ export default function Home() {
       </div>
 
       {/* 히어로 섹션 - 3D 편지봉투 */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-32 overflow-hidden">
-        {/* 배경 데코 - 떨어지는 쪽지들 */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden paper-bg">
+        {/* 배경 데코 - 떨어지는 포스트잇 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              className={`absolute w-16 h-16 rounded shadow-md opacity-30 ${['bg-[#FFFACD]', 'bg-[#FFE4E1]', 'bg-[#E6F3FF]', 'bg-[#E8F5E9]'][i % 4]
-                }`}
+              className={`absolute w-12 h-12 shadow-md opacity-40 ${['bg-[#FFFACD]', 'bg-[#FFE4E1]', 'bg-[#E6F3FF]'][i % 3]}`}
               style={{
-                left: `${10 + (i * 12)}%`,
-                top: `${10 + (i % 3) * 30}%`,
-                transform: `rotate(${-10 + i * 5}deg)`
+                left: `${15 + (i * 15)}%`,
+                top: `${20 + (i % 2) * 40}%`,
               }}
               animate={{
-                y: [0, 15, 0],
-                rotate: [-10 + i * 5, -5 + i * 5, -10 + i * 5]
+                y: [0, 20, 0],
+                rotate: [Math.random() * -10, Math.random() * 10, Math.random() * -10]
               }}
               transition={{
-                duration: 3 + i * 0.5,
+                duration: 4 + i,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-            />
+            >
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-2 bg-white/50 rotate-3" />
+            </motion.div>
           ))}
         </div>
 
         <motion.div
-          className="relative z-10 max-w-4xl mx-auto text-center"
+          className="relative z-10 w-full max-w-4xl mx-auto text-center"
           initial="initial"
           animate="animate"
           variants={staggerContainer}
         >
-          {/* 3D 편지봉투 */}
-          <motion.div
-            className="relative w-80 h-56 mx-auto mb-12"
-            style={{ y: envelopeY, rotate: envelopeRotate, scale: envelopeScale }}
-          >
-            {/* 봉투 본체 */}
-            <div className="absolute inset-0 bg-[#FFF8E7] rounded-xl shadow-2xl border-2 border-[#E8D5B7]">
-              {/* 봉투 안쪽 (뚜껑 열리면 보임) */}
-              <motion.div
-                className="absolute inset-4 bg-white rounded-lg p-4 shadow-inner"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isEnvelopeOpen ? 1 : 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className="h-full flex flex-col items-center justify-center text-center">
-                  <motion.span
-                    className="text-4xl mb-2"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  >
-                    💌
-                  </motion.span>
-                  <p className="text-sm text-[#666]">마음을 담은 쪽지가<br />도착했습니다</p>
-                </div>
-              </motion.div>
-            </div>
+          <div className="mb-12 scale-110 md:scale-125">
+            <EnvelopeHero />
+          </div>
 
-            {/* 봉투 뚜껑 (삼각형) */}
-            <motion.div
-              className="absolute -top-8 left-0 right-0 h-24 bg-[#F5DEB3] origin-bottom"
-              style={{
-                clipPath: "polygon(0 100%, 50% 20%, 100% 100%)",
-              }}
-              animate={{
-                rotateX: isEnvelopeOpen ? 180 : 0,
-                y: isEnvelopeOpen ? -30 : 0,
-              }}
-              transition={{ duration: 0.8, delay: 1 }}
-            />
-
-            {/* 실링 왁스 */}
-            <motion.div
-              className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF6B6B] rounded-full flex items-center justify-center shadow-lg z-10"
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              <span className="text-2xl">🍩</span>
-            </motion.div>
-
-            {/* 튀어나오는 도넛과 쪽지들 */}
-            {isEnvelopeOpen && (
-              <>
-                {[...Array(5)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute text-3xl"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                    }}
-                    initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
-                    animate={{
-                      opacity: [0, 1, 1, 0],
-                      x: -80 + i * 40,
-                      y: -100 - Math.random() * 50,
-                      scale: [0, 1.2, 1, 0.5],
-                      rotate: Math.random() * 360,
-                    }}
-                    transition={{
-                      duration: 2,
-                      delay: 1.5 + i * 0.1,
-                      repeat: Infinity,
-                      repeatDelay: 3,
-                    }}
-                  >
-                    {['🍩', '💌', '☕', '💜', '✨'][i]}
-                  </motion.div>
-                ))}
-              </>
-            )}
-          </motion.div>
-
-          {/* 타이틀 */}
           <motion.h1
-            className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-[#333]"
+            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] font-hand"
             variants={fadeInUp}
           >
             당신의 글이<br />
-            누군가에게는 <span className="text-[#FF6B6B]">영감</span>이 되었습니다
+            누군가에게는 <span className="text-[#FF6B6B] underline-hand">영감</span>이 되었습니다
           </motion.h1>
 
-          {/* 서브 타이틀 */}
           <motion.p
-            className="text-lg text-[#666] max-w-xl mx-auto mb-10"
+            className="text-xl text-[#666] max-w-xl mx-auto mb-12 font-sans leading-relaxed"
             variants={fadeInUp}
           >
             돈이 아닌 온기를 보냅니다.<br />
-            회원가입 없이 10초 만에 따뜻한 쪽지와 함께 후원하세요.
+            10초 만에 <b>따뜻한 쪽지</b>와 함께 마음을 전하세요.
           </motion.p>
 
-          {/* CTA 버튼들 */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
             variants={fadeInUp}
           >
+            {/* 마스킹 테이프 스타일 버튼 */}
             <Link
               href="/auth"
-              className="px-8 py-4 bg-[#FFD95A] rounded-xl text-[#333] font-semibold text-lg shadow-md hover:bg-[#FFCE3A] hover:-translate-y-1 transition-all"
+              className="relative group"
             >
-              🍩 내 우체통 만들기
+              <div className="absolute inset-0 bg-[#FFD95A] rotate-1 group-hover:rotate-2 transition-transform rounded-sm shadow-md"
+                style={{ clipPath: 'polygon(2% 0%, 98% 1%, 100% 98%, 1% 100%)' }} />
+              <div className="relative px-10 py-4 bg-[#FFD95A] text-[#333] text-xl font-hand font-bold flex items-center gap-2 hover:-translate-y-1 transition-transform border-2 border-dashed border-[#dcb028]/30">
+                <span>🍩 내 우체통 만들기</span>
+              </div>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/40 rotate-2 backdrop-blur-sm" style={{ clipPath: 'polygon(0% 0%, 100% 2%, 98% 100%, 2% 98%)' }} />
             </Link>
+
             <Link
-              href="/demo"
-              className="px-8 py-4 bg-white border-2 border-dashed border-gray-300 rounded-xl text-[#666] font-semibold text-lg hover:border-[#FFD95A] hover:bg-[#FFFACD] transition-all flex items-center justify-center gap-2"
+              href="/donate/demo"
+              className="px-8 py-3 text-[#666] font-medium text-lg border-b-2 border-gray-300 hover:border-[#FF6B6B] hover:text-[#FF6B6B] transition-colors"
             >
-              <span>데모 체험하기</span>
-              <span>→</span>
+              데모 체험하기 →
             </Link>
           </motion.div>
         </motion.div>
 
-        {/* 스크롤 인디케이터 */}
         <motion.div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          className="absolute bottom-10"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <div className="flex flex-col items-center text-[#999]">
-            <span className="text-sm mb-2">스크롤하여 더 알아보기</span>
-            <span>↓</span>
-          </div>
+          <span className="text-gray-400 font-hand text-xl">Scroll Down</span>
         </motion.div>
       </section>
 

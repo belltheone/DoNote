@@ -1,26 +1,18 @@
 "use client";
-// 서비스 소개 페이지
+// 서비스 소개 페이지 - 공통 Header/Footer 적용
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-[#F9F9F9]">
-            {/* 네비게이션 */}
-            <nav className="bg-white border-b border-gray-100 px-6 py-4">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl">🍩</span>
-                        <span className="text-xl font-bold text-[#333]">도노트</span>
-                    </Link>
-                    <Link href="/auth" className="px-4 py-2 bg-[#FFD95A] rounded-lg text-[#333] font-medium hover:bg-[#FFCE3A] transition-all">
-                        시작하기
-                    </Link>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+            {/* 공통 헤더 */}
+            <Header />
 
-            <main className="max-w-4xl mx-auto px-6 py-12">
+            <main className="flex-1 max-w-4xl mx-auto px-6 py-12 w-full">
                 {/* 히어로 */}
                 <motion.div
                     className="text-center mb-16"
@@ -78,12 +70,39 @@ export default function AboutPage() {
                                 description: "블로그, 깃허브, SNS 어디든. 예쁜 티켓 배지로 후원 유도."
                             }
                         ].map((item, i) => (
-                            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                                 <span className="text-3xl mb-4 block">{item.emoji}</span>
                                 <h3 className="font-bold text-[#333] mb-2">{item.title}</h3>
                                 <p className="text-sm text-[#666]">{item.description}</p>
                             </div>
                         ))}
+                    </div>
+                </motion.section>
+
+                {/* 수수료 안내 */}
+                <motion.section
+                    className="mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                >
+                    <h2 className="text-2xl font-bold text-[#333] mb-6">💰 수수료 정책</h2>
+                    <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-8 text-white shadow-lg">
+                        <div className="flex items-center justify-center gap-8 mb-6">
+                            <div className="text-center">
+                                <p className="text-sm opacity-80 mb-1">플랫폼 수수료</p>
+                                <p className="text-5xl font-bold">0%</p>
+                            </div>
+                            <div className="w-px h-16 bg-white/30" />
+                            <div className="text-center">
+                                <p className="text-sm opacity-80 mb-1">PG 수수료</p>
+                                <p className="text-5xl font-bold">~3%</p>
+                            </div>
+                        </div>
+                        <p className="text-center text-white/90 text-sm">
+                            크리에이터에게 최대한 많은 금액이 전달되도록,<br />
+                            플랫폼 수수료 없이 운영합니다.
+                        </p>
                     </div>
                 </motion.section>
 
@@ -96,7 +115,7 @@ export default function AboutPage() {
                 >
                     <h2 className="text-2xl font-bold text-[#333] mb-6">👥 누구를 위한 서비스인가요?</h2>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-[#FFE4E1] rounded-xl p-6 shadow-md">
+                        <div className="bg-[#FFE4E1] rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                             <h3 className="font-bold text-[#333] mb-3">크리에이터</h3>
                             <ul className="text-[#666] space-y-2 text-sm">
                                 <li>• 블로그/개발 블로그 운영자</li>
@@ -105,7 +124,7 @@ export default function AboutPage() {
                                 <li>• 작가, 아티스트</li>
                             </ul>
                         </div>
-                        <div className="bg-[#E6F3FF] rounded-xl p-6 shadow-md">
+                        <div className="bg-[#E6F3FF] rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                             <h3 className="font-bold text-[#333] mb-3">후원자</h3>
                             <ul className="text-[#666] space-y-2 text-sm">
                                 <li>• 좋은 컨텐츠에 감사를 표현하고 싶은 분</li>
@@ -128,7 +147,7 @@ export default function AboutPage() {
                         <p className="text-[#666] mb-6">3초면 내 우체통을 만들 수 있어요.</p>
                         <Link
                             href="/auth"
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-md"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-md hover:scale-105"
                         >
                             <span>무료로 시작하기</span>
                             <span>→</span>
@@ -137,12 +156,8 @@ export default function AboutPage() {
                 </motion.section>
             </main>
 
-            {/* 푸터 */}
-            <footer className="bg-[#333] text-white py-8 mt-16">
-                <div className="max-w-4xl mx-auto px-6 text-center">
-                    <p className="text-white/50">© 2024 Donote. Made with 💌 in Korea</p>
-                </div>
-            </footer>
+            {/* 공통 푸터 */}
+            <Footer />
         </div>
     );
 }

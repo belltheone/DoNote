@@ -1,23 +1,18 @@
 "use client";
-// 이용약관 페이지
+// 이용약관 페이지 - 공통 Header/Footer 적용
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 export default function TermsPage() {
     return (
-        <div className="min-h-screen bg-[#F9F9F9]">
-            {/* 네비게이션 */}
-            <nav className="bg-white border-b border-gray-100 px-6 py-4">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl">🍩</span>
-                        <span className="text-xl font-bold text-[#333]">도노트</span>
-                    </Link>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+            {/* 공통 헤더 */}
+            <Header />
 
-            <main className="max-w-4xl mx-auto px-6 py-12">
+            <main className="flex-1 max-w-4xl mx-auto px-6 py-12 w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -93,14 +88,6 @@ export default function TermsPage() {
                             </p>
                         </section>
 
-                        <section>
-                            <h2 className="text-xl font-bold text-[#333] mb-4">제8조 (분쟁해결)</h2>
-                            <p className="text-[#666] leading-relaxed">
-                                본 약관과 관련하여 분쟁이 발생한 경우, 회사와 이용자는 신의성실의 원칙에 따라
-                                협의하여 해결하도록 합니다. 협의가 이루어지지 않는 경우 관할법원에 소를 제기할 수 있습니다.
-                            </p>
-                        </section>
-
                         <section className="pt-6 border-t border-gray-200">
                             <p className="text-[#999] text-sm">
                                 시행일: 2024년 12월 1일<br />
@@ -117,6 +104,9 @@ export default function TermsPage() {
                     </Link>
                 </div>
             </main>
+
+            {/* 공통 푸터 */}
+            <Footer />
         </div>
     );
 }

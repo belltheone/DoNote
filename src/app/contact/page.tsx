@@ -1,9 +1,12 @@
 "use client";
-// 문의하기 페이지
+// 문의하기 페이지 - 공통 Header/Footer 적용
 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { toast } from "sonner";
 
 export default function ContactPage() {
     const [formData, setFormData] = useState({
@@ -23,22 +26,16 @@ export default function ContactPage() {
         setTimeout(() => {
             setIsSubmitting(false);
             setIsSubmitted(true);
+            toast.success("문의가 접수되었습니다!");
         }, 1500);
     };
 
     return (
-        <div className="min-h-screen bg-[#F9F9F9]">
-            {/* 네비게이션 */}
-            <nav className="bg-white border-b border-gray-100 px-6 py-4">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl">🍩</span>
-                        <span className="text-xl font-bold text-[#333]">도노트</span>
-                    </Link>
-                </div>
-            </nav>
+        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+            {/* 공통 헤더 */}
+            <Header />
 
-            <main className="max-w-2xl mx-auto px-6 py-12">
+            <main className="flex-1 max-w-2xl mx-auto px-6 py-12 w-full">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -158,16 +155,10 @@ export default function ContactPage() {
                         </div>
                     )}
                 </motion.div>
-
-                {/* 뒤로가기 */}
-                {!isSubmitted && (
-                    <div className="mt-8 text-center">
-                        <Link href="/" className="text-[#666] hover:text-[#333] transition-colors">
-                            ← 홈으로 돌아가기
-                        </Link>
-                    </div>
-                )}
             </main>
+
+            {/* 공통 푸터 */}
+            <Footer />
         </div>
     );
 }

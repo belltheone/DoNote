@@ -1,99 +1,236 @@
 "use client";
-// 분석 페이지 - 후원 통계, 차트, 인사이트
+// 분석 페이지 - 후원 통계, recharts 차트, 인사이트
+// 다크 모드 지원
 
 import { motion } from "framer-motion";
-import { getStats, getHourlyAnalysis, getTopFans, mockDonations } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import {
+    AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from "recharts";
+import { getStats, getHourlyAnalysis, getTopFans, mockDonations, getAllDonations, type Donation } from "@/lib/supabase";
+import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/skeleton";
+
+// 차트 색상
+const CHART_COLORS = ["#FF6B6B", "#FFD95A", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"];
 
 export default function AnalyticsPage() {
-    const stats = getStats();
-    const hourlyData = getHourlyAnalysis();
-    const topFans = getTopFans();
+    const [donations, setDonations] = useState<Donation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // 최대 시간대 값 (차트 스케일용)
-    const maxHour = Math.max(...hourlyData);
+    // 데이터 로드
+    useEffect(() => {
+        const loadData = async () => {
+            const data = await getAllDonations();
+            setDonations(data.length > 0 ? data : mockDonations);
+            setIsLoading(false);
+        };
+        loadData();
+    }, []);
+
+    // 통계 계산
+    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+    const avgAmount = donations.length > 0 ? Math.round(totalAmount / donations.length) : 0;
+    const tipCount = donations.filter(d => d.isTipIncluded).length;
+
+    // 시간대별 데이터 (recharts용)
+    const hourlyData = Array(24).fill(0).map((_, hour) => {
+        const count = donations.filter(d => new Date(d.createdAt).getHours() === hour).length;
+        return { hour: `${hour}시`, count, amount: donations.filter(d => new Date(d.createdAt).getHours() === hour).reduce((sum, d) => sum + d.amount, 0) };
+    });
+
+    // 금액별 분포 (파이 차트용)
+    const amountDistribution = [
+        { name: "3,000원", value: donations.filter(d => d.amount === 3000).length, color: "#FFD95A" },
+        { name: "5,000원", value: donations.filter(d => d.amount === 5000).length, color: "#FF6B6B" },
+        { name: "10,000원+", value: donations.filter(d => d.amount >= 10000).length, color: "#4ECDC4" },
+        { name: "기타", value: donations.filter(d => d.amount !== 3000 && d.amount !== 5000 && d.amount < 10000).length, color: "#96CEB4" },
+    ].filter(d => d.value > 0);
+
+    // 최근 7일 트렌드
+    const last7Days = Array(7).fill(0).map((_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const dayDonations = donations.filter(d => {
+            const dDate = new Date(d.createdAt);
+            return dDate.toDateString() === date.toDateString();
+        });
+        return {
+            date: date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+            count: dayDonations.length,
+            amount: dayDonations.reduce((sum, d) => sum + d.amount, 0) / 1000,
+        };
+    });
+
+    // 최고의 팬
+    const topFans = (() => {
+        const fanMap = new Map<string, { name: string; amount: number; count: number }>();
+        donations.forEach(d => {
+            const existing = fanMap.get(d.donorName) || { name: d.donorName, amount: 0, count: 0 };
+            fanMap.set(d.donorName, { ...existing, amount: existing.amount + d.amount, count: existing.count + 1 });
+        });
+        return Array.from(fanMap.values()).sort((a, b) => b.amount - a.amount).slice(0, 5);
+    })();
+
+    // 로딩 중
+    if (isLoading) {
+        return (
+            <div className="max-w-6xl mx-auto space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                    <StatCardSkeleton />
+                </div>
+                <div className="grid lg:grid-cols-2 gap-6">
+                    <ChartSkeleton />
+                    <ChartSkeleton />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-6xl mx-auto">
             {/* 통계 요약 카드 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {[
-                    { label: "총 후원금", value: `₩${stats.totalAmount.toLocaleString()}`, icon: "💰", desc: "지금까지 받은 모든 후원" },
-                    { label: "평균 후원액", value: `₩${Math.round(stats.totalAmount / stats.totalNotes).toLocaleString()}`, icon: "📊", desc: "쪽지 1개당 평균" },
-                    { label: "플랫폼 팁", value: `₩${(mockDonations.filter(d => d.isTipIncluded).length * 500).toLocaleString()}`, icon: "🍩", desc: "도노트에 보내주신 사랑" },
+                    { label: "총 후원금", value: `₩${totalAmount.toLocaleString()}`, icon: "💰", desc: "지금까지 받은 모든 후원", color: "from-yellow-400 to-orange-500" },
+                    { label: "평균 후원액", value: `₩${avgAmount.toLocaleString()}`, icon: "📊", desc: "쪽지 1개당 평균", color: "from-blue-400 to-purple-500" },
+                    { label: "플랫폼 팁", value: `₩${(tipCount * 500).toLocaleString()}`, icon: "🍩", desc: "도노트에 보내주신 사랑", color: "from-pink-400 to-red-500" },
                 ].map((stat, index) => (
                     <motion.div
                         key={index}
-                        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+                        className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
                     >
+                        {/* 그라데이션 배경 */}
+                        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full`} />
+
                         <div className="flex items-center gap-3 mb-4">
                             <span className="text-2xl">{stat.icon}</span>
-                            <span className="text-sm text-[#666]">{stat.label}</span>
+                            <span className="text-sm text-[#666] dark:text-gray-400">{stat.label}</span>
                         </div>
-                        <p className="text-3xl font-bold text-[#333] mb-1">{stat.value}</p>
-                        <p className="text-xs text-[#999]">{stat.desc}</p>
+                        <p className="text-3xl font-bold text-[#333] dark:text-white mb-1">{stat.value}</p>
+                        <p className="text-xs text-[#999] dark:text-gray-500">{stat.desc}</p>
                     </motion.div>
                 ))}
             </div>
 
             <div className="grid lg:grid-cols-2 gap-6">
-                {/* 시간대별 후원 차트 */}
+                {/* 7일 트렌드 차트 (Area Chart) */}
                 <motion.div
-                    className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+                    className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
-                        <span>🕐</span> 시간대별 후원
+                    <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                        <span>📈</span> 최근 7일 트렌드
                     </h3>
-                    <p className="text-sm text-[#666] mb-6">언제 가장 많은 응원을 받았을까요?</p>
-
-                    {/* 막대 차트 */}
-                    <div className="flex items-end gap-1 h-40">
-                        {hourlyData.map((count, hour) => (
-                            <div key={hour} className="flex-1 flex flex-col items-center">
-                                <motion.div
-                                    className={`w-full rounded-t transition-colors ${count === maxHour && maxHour > 0
-                                            ? 'bg-[#FF6B6B]'
-                                            : count > 0
-                                                ? 'bg-[#FFD95A]'
-                                                : 'bg-gray-100'
-                                        }`}
-                                    initial={{ height: 0 }}
-                                    animate={{ height: maxHour > 0 ? `${(count / maxHour) * 100}%` : '4px' }}
-                                    transition={{ delay: 0.5 + hour * 0.02, duration: 0.3 }}
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={last7Days}>
+                                <defs>
+                                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#FF6B6B" stopOpacity={0.8} />
+                                        <stop offset="95%" stopColor="#FF6B6B" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(255,255,255,0.9)',
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    }}
+                                    formatter={(value) => [`₩${(Number(value) * 1000).toLocaleString()}`, '후원금']}
                                 />
-                                {hour % 6 === 0 && (
-                                    <span className="text-xs text-[#999] mt-2">{hour}시</span>
-                                )}
-                            </div>
-                        ))}
+                                <Area type="monotone" dataKey="amount" stroke="#FF6B6B" fillOpacity={1} fill="url(#colorAmount)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </div>
-
-                    {/* 인사이트 */}
-                    {maxHour > 0 && (
-                        <div className="mt-6 p-4 bg-[#FFFACD]/50 rounded-lg">
-                            <p className="text-sm text-[#333]">
-                                💡 <strong>{hourlyData.indexOf(maxHour)}시</strong>에 가장 많은 후원을 받았어요!
-                            </p>
-                        </div>
-                    )}
                 </motion.div>
 
-                {/* 최고의 팬 */}
+                {/* 시간대별 후원 (Bar Chart) */}
                 <motion.div
-                    className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+                    className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                        <span>🕐</span> 시간대별 후원
+                    </h3>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={hourlyData.filter((_, i) => i % 2 === 0)}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                                <XAxis dataKey="hour" tick={{ fontSize: 10 }} />
+                                <YAxis tick={{ fontSize: 12 }} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(255,255,255,0.9)',
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                    }}
+                                />
+                                <Bar dataKey="count" fill="#FFD95A" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </motion.div>
+
+                {/* 금액 분포 (Pie Chart) */}
+                <motion.div
+                    className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                >
+                    <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                        <span>🍰</span> 금액별 분포
+                    </h3>
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={amountDistribution}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                    label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                                    labelLine={false}
+                                >
+                                    {amountDistribution.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </motion.div>
+
+                {/* 최고의 팬 */}
+                <motion.div
+                    className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                >
+                    <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                         <span>🏆</span> 최고의 팬
                     </h3>
-                    <p className="text-sm text-[#666] mb-6">가장 많이 응원해주신 분들이에요</p>
 
                     <div className="space-y-4">
                         {topFans.map((fan, index) => (
@@ -102,90 +239,28 @@ export default function AnalyticsPage() {
                                 className="flex items-center gap-4"
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 + index * 0.1 }}
+                                transition={{ delay: 0.7 + index * 0.1 }}
                             >
-                                {/* 순위 */}
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-[#FFD95A] text-[#333]' :
-                                        index === 1 ? 'bg-gray-200 text-[#666]' :
-                                            index === 2 ? 'bg-[#CD7F32]/30 text-[#8B4513]' :
-                                                'bg-gray-100 text-[#999]'
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white' :
+                                    index === 1 ? 'bg-gray-200 dark:bg-gray-600 text-[#666] dark:text-gray-300' :
+                                        index === 2 ? 'bg-[#CD7F32]/30 text-[#8B4513]' :
+                                            'bg-gray-100 dark:bg-gray-700 text-[#999] dark:text-gray-400'
                                     }`}>
                                     {index === 0 ? '👑' : index + 1}
                                 </div>
-
-                                {/* 정보 */}
                                 <div className="flex-1">
-                                    <p className="font-medium text-[#333]">{fan.name}</p>
-                                    <p className="text-xs text-[#999]">{fan.count}회 후원</p>
+                                    <p className="font-medium text-[#333] dark:text-white">{fan.name}</p>
+                                    <p className="text-xs text-[#999] dark:text-gray-400">{fan.count}회 후원</p>
                                 </div>
-
-                                {/* 금액 */}
-                                <p className="font-bold text-[#FF6B6B]">
-                                    ₩{fan.amount.toLocaleString()}
-                                </p>
+                                <p className="font-bold text-[#FF6B6B]">₩{fan.amount.toLocaleString()}</p>
                             </motion.div>
                         ))}
-                    </div>
-
-                    {topFans.length === 0 && (
-                        <div className="text-center py-8">
-                            <span className="text-4xl mb-2 block">🤔</span>
-                            <p className="text-[#666]">아직 데이터가 부족해요</p>
-                        </div>
-                    )}
-                </motion.div>
-
-                {/* 월별 트렌드 */}
-                <motion.div
-                    className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-gray-100"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                >
-                    <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
-                        <span>📈</span> 인사이트 요약
-                    </h3>
-
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {/* 가장 인기 있는 금액 */}
-                        <div className="p-4 bg-[#E6F3FF] rounded-xl">
-                            <p className="text-sm text-[#666] mb-2">가장 인기 있는 금액</p>
-                            <p className="text-2xl font-bold text-[#333]">
-                                ₩{(() => {
-                                    const amounts = mockDonations.map(d => d.amount);
-                                    const counts = amounts.reduce((acc, val) => {
-                                        acc[val] = (acc[val] || 0) + 1;
-                                        return acc;
-                                    }, {} as Record<number, number>);
-                                    const mostCommon = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-                                    return mostCommon ? parseInt(mostCommon[0]).toLocaleString() : 0;
-                                })()}
-                            </p>
-                        </div>
-
-                        {/* 가장 많이 사용된 스티커 */}
-                        <div className="p-4 bg-[#FFE4E1] rounded-xl">
-                            <p className="text-sm text-[#666] mb-2">가장 많이 사용된 스티커</p>
-                            <p className="text-2xl">
-                                {(() => {
-                                    const stickers = mockDonations.map(d => d.sticker);
-                                    const counts = stickers.reduce((acc, val) => {
-                                        acc[val] = (acc[val] || 0) + 1;
-                                        return acc;
-                                    }, {} as Record<string, number>);
-                                    const mostCommon = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-                                    return mostCommon ? mostCommon[0] : '❓';
-                                })()}
-                            </p>
-                        </div>
-
-                        {/* 평균 메시지 길이 */}
-                        <div className="p-4 bg-[#E8F5E9] rounded-xl">
-                            <p className="text-sm text-[#666] mb-2">평균 메시지 길이</p>
-                            <p className="text-2xl font-bold text-[#333]">
-                                {Math.round(mockDonations.reduce((sum, d) => sum + d.message.length, 0) / mockDonations.length)}자
-                            </p>
-                        </div>
+                        {topFans.length === 0 && (
+                            <div className="text-center py-8">
+                                <span className="text-4xl mb-2 block">🤔</span>
+                                <p className="text-[#666] dark:text-gray-400">아직 데이터가 부족해요</p>
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </div>

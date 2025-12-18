@@ -1,6 +1,6 @@
 "use client";
 // 공통 헤더 컴포넌트
-// 로그인 상태에 따라 다르게 표시
+// 로그인 상태에 따라 다르게 표시 + 다크 모드 지원
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Header() {
     const router = useRouter();
@@ -55,19 +56,22 @@ export function Header() {
 
                     {/* 네비게이션 */}
                     <nav className="hidden md:flex items-center gap-6">
-                        <Link href="/about" className="text-[#666] hover:text-[#333] transition-colors text-sm">
+                        <Link href="/about" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
                             서비스 소개
                         </Link>
-                        <Link href="/widget" className="text-[#666] hover:text-[#333] transition-colors text-sm">
+                        <Link href="/widget" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
                             위젯 데모
                         </Link>
                     </nav>
 
                     {/* 우측 메뉴 */}
                     <div className="flex items-center gap-3">
+                        {/* 다크 모드 토글 */}
+                        <ThemeToggle />
+
                         {isLoading ? (
                             // 로딩 중
-                            <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
+                            <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
                         ) : user ? (
                             // 로그인 상태
                             <>

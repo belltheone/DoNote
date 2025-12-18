@@ -44,10 +44,13 @@ export default function DashboardPage() {
                 setRecentDonations(prev => [
                     {
                         id: donation.id,
+                        creatorId: donation.creator_id,
                         donorName: donation.donor_name,
                         amount: donation.amount,
                         message: donation.message,
                         sticker: donation.sticker,
+                        isTipIncluded: false,
+                        status: 'paid' as const,
                         createdAt: donation.created_at,
                         isPinned: false,
                     },

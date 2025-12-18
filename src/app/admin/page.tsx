@@ -1,16 +1,14 @@
 "use client";
 // 관리자 페이지 - 전체 사이트 관리
-// 보안: 하드코딩된 관리자 계정으로 인증
+// 보안: 환경 변수에서 관리자 계정 정보 가져옴
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { mockDonations } from "@/lib/supabase";
 
-// 관리자 계정 (보안상 환경변수 또는 DB로 이동 권장)
-const ADMIN_CREDENTIALS = {
-    id: 'admin',
-    password: 'fraizerkenzie33!'
-};
+// 관리자 계정 (환경 변수에서 가져옴)
+const ADMIN_ID = process.env.NEXT_PUBLIC_ADMIN_ID || 'admin';
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '';
 
 // Mock 크리에이터 데이터
 const mockCreators = [
@@ -43,7 +41,7 @@ export default function AdminPage() {
     // 로그인 처리
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        if (loginId === ADMIN_CREDENTIALS.id && loginPw === ADMIN_CREDENTIALS.password) {
+        if (loginId === ADMIN_ID && loginPw === ADMIN_PASSWORD) {
             setIsAuthenticated(true);
             sessionStorage.setItem('donote_admin', 'authenticated');
             setLoginError('');
@@ -143,8 +141,8 @@ export default function AdminPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as typeof activeTab)}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === tab.id
-                                    ? 'bg-[#e94560] text-white'
-                                    : 'bg-[#16213e] text-gray-400 hover:text-white'
+                                ? 'bg-[#e94560] text-white'
+                                : 'bg-[#16213e] text-gray-400 hover:text-white'
                                 }`}
                         >
                             <span>{tab.icon}</span>

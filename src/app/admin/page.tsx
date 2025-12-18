@@ -1,149 +1,200 @@
 "use client";
-// 관리자 페이지 - 전체 사이트 관리
-// 보안: 환경 변수에서 관리자 계정 정보 가져옴
+// 관리자 페이지 - Digital Analog 디자인 적용
+// Supabase 인증 통합 (admin@admin.admin)
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { mockDonations } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuthStore } from "@/store/auth";
+import { supabase, mockDonations } from "@/lib/supabase";
+import { Header } from "@/components/layout/Header";
 
-// 관리자 계정 (환경 변수에서 가져옴)
-const ADMIN_ID = process.env.NEXT_PUBLIC_ADMIN_ID || 'admin';
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || '';
+// 관리자 이메일
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
 
 // Mock 크리에이터 데이터
 const mockCreators = [
-    { id: '1', handle: 'devminsu', displayName: '개발하는 민수', email: 'minsu@test.com', totalDonations: 39000, joinedAt: '2024-11-01' },
-    { id: '2', handle: 'designsuji', displayName: '디자인하는 수지', email: 'suji@test.com', totalDonations: 25000, joinedAt: '2024-11-05' },
-    { id: '3', handle: 'contentchulsu', displayName: '글쓰는 철수', email: 'chulsu@test.com', totalDonations: 18000, joinedAt: '2024-11-10' },
+    { id: '1', handle: 'devminsu', displayName: '개발하는 민수', email: 'minsu@test.com', totalDonations: 39000, fee: 1950, joinedAt: '2024-11-01' },
+    { id: '2', handle: 'designsuji', displayName: '디자인하는 수지', email: 'suji@test.com', totalDonations: 25000, fee: 1250, joinedAt: '2024-11-05' },
+    { id: '3', handle: 'contentchulsu', displayName: '글쓰는 철수', email: 'chulsu@test.com', totalDonations: 18000, fee: 900, joinedAt: '2024-11-10' },
 ];
 
 // Mock 정산 요청 데이터
 const mockSettlements = [
-    { id: '1', creatorHandle: 'devminsu', amount: 50000, status: 'pending', requestedAt: '2024-12-15' },
-    { id: '2', creatorHandle: 'designsuji', amount: 25000, status: 'completed', requestedAt: '2024-12-10', completedAt: '2024-12-13' },
+    { id: '1', creatorHandle: 'devminsu', grossAmount: 50000, fee: 2500, netAmount: 47500, status: 'pending', requestedAt: '2024-12-15' },
+    { id: '2', creatorHandle: 'designsuji', grossAmount: 25000, fee: 1250, netAmount: 23750, status: 'completed', requestedAt: '2024-12-10', completedAt: '2024-12-13' },
 ];
 
+// 수수료율 5%
+const FEE_RATE = 0.05;
+
 export default function AdminPage() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loginId, setLoginId] = useState('');
+    const router = useRouter();
+    const { user, isLoading } = useAuthStore();
+    const [activeTab, setActiveTab] = useState<'dashboard' | 'creators' | 'donations' | 'settlements' | 'revenue'>('dashboard');
+    const [loginEmail, setLoginEmail] = useState('');
     const [loginPw, setLoginPw] = useState('');
     const [loginError, setLoginError] = useState('');
-    const [activeTab, setActiveTab] = useState<'dashboard' | 'creators' | 'donations' | 'settlements'>('dashboard');
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    // 세션 체크
-    useEffect(() => {
-        const adminSession = sessionStorage.getItem('donote_admin');
-        if (adminSession === 'authenticated') {
-            setIsAuthenticated(true);
-        }
-    }, []);
+    // 관리자 권한 체크
+    const isAdmin = user?.email === ADMIN_EMAIL;
 
-    // 로그인 처리
-    const handleLogin = (e: React.FormEvent) => {
+    // 관리자 로그인 처리
+    const handleAdminLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (loginId === ADMIN_ID && loginPw === ADMIN_PASSWORD) {
-            setIsAuthenticated(true);
-            sessionStorage.setItem('donote_admin', 'authenticated');
-            setLoginError('');
-        } else {
-            setLoginError('아이디 또는 비밀번호가 올바르지 않습니다.');
+        setIsLoggingIn(true);
+        setLoginError('');
+
+        try {
+            const { error } = await supabase.auth.signInWithPassword({
+                email: loginEmail,
+                password: loginPw,
+            });
+
+            if (error) {
+                setLoginError('이메일 또는 비밀번호가 올바르지 않습니다.');
+            } else if (loginEmail !== ADMIN_EMAIL) {
+                await supabase.auth.signOut();
+                setLoginError('관리자 권한이 없습니다.');
+            }
+        } catch {
+            setLoginError('로그인 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoggingIn(false);
         }
     };
 
     // 로그아웃
-    const handleLogout = () => {
-        setIsAuthenticated(false);
-        sessionStorage.removeItem('donote_admin');
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push('/');
     };
 
-    // 로그인 폼
-    if (!isAuthenticated) {
+    // 통계 계산
+    const totalDonations = mockDonations.reduce((sum, d) => sum + d.amount, 0);
+    const totalFee = Math.floor(totalDonations * FEE_RATE);
+    const pendingSettlements = mockSettlements.filter(s => s.status === 'pending').length;
+
+    // 로딩 중
+    if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#1a1a2e] flex items-center justify-center p-6">
+            <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
                 <motion.div
-                    className="w-full max-w-md bg-[#16213e] rounded-xl p-8 shadow-2xl"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    className="text-4xl"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 >
-                    <div className="text-center mb-8">
-                        <span className="text-4xl mb-4 block">🔐</span>
-                        <h1 className="text-2xl font-bold text-white">관리자 로그인</h1>
-                        <p className="text-gray-400 mt-2">도노트 관리 시스템</p>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-2">아이디</label>
-                            <input
-                                type="text"
-                                value={loginId}
-                                onChange={(e) => setLoginId(e.target.value)}
-                                className="w-full px-4 py-3 bg-[#0f3460] border border-[#1a1a2e] rounded-lg text-white focus:outline-none focus:border-[#e94560]"
-                                placeholder="admin"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm text-gray-400 mb-2">비밀번호</label>
-                            <input
-                                type="password"
-                                value={loginPw}
-                                onChange={(e) => setLoginPw(e.target.value)}
-                                className="w-full px-4 py-3 bg-[#0f3460] border border-[#1a1a2e] rounded-lg text-white focus:outline-none focus:border-[#e94560]"
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        {loginError && (
-                            <p className="text-red-400 text-sm">{loginError}</p>
-                        )}
-
-                        <button
-                            type="submit"
-                            className="w-full py-3 bg-[#e94560] rounded-lg text-white font-semibold hover:bg-[#ff6b6b] transition-colors"
-                        >
-                            로그인
-                        </button>
-                    </form>
+                    🍩
                 </motion.div>
+            </div>
+        );
+    }
+
+    // 로그인 필요 또는 관리자 아님
+    if (!user || !isAdmin) {
+        return (
+            <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+                <Header />
+                <div className="flex-1 flex items-center justify-center p-6">
+                    <motion.div
+                        className="w-full max-w-md bg-white rounded-xl p-8 shadow-lg border border-gray-100"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        {/* 테이프 장식 */}
+                        <div className="absolute -top-2 left-8 w-16 h-3 bg-[#FFD95A]/80 rounded transform -rotate-2" />
+
+                        <div className="text-center mb-8">
+                            <span className="text-5xl mb-4 block">🔐</span>
+                            <h1 className="text-2xl font-bold text-[#333]">관리자 로그인</h1>
+                            <p className="text-[#666] mt-2 text-sm">도노트 관리 시스템</p>
+                        </div>
+
+                        <form onSubmit={handleAdminLogin} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-[#333] mb-2">이메일</label>
+                                <input
+                                    type="email"
+                                    value={loginEmail}
+                                    onChange={(e) => setLoginEmail(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                    placeholder="admin@admin.admin"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[#333] mb-2">비밀번호</label>
+                                <input
+                                    type="password"
+                                    value={loginPw}
+                                    onChange={(e) => setLoginPw(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+
+                            {loginError && (
+                                <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{loginError}</p>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLoggingIn}
+                                className="w-full py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-md disabled:opacity-50"
+                            >
+                                {isLoggingIn ? '로그인 중...' : '관리자 로그인'}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 text-center">
+                            <Link href="/" className="text-[#666] hover:text-[#333] text-sm transition-colors">
+                                ← 홈으로 돌아가기
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
         );
     }
 
     // 관리자 대시보드
     return (
-        <div className="min-h-screen bg-[#1a1a2e]">
-            {/* 헤더 */}
-            <header className="bg-[#16213e] border-b border-[#0f3460] px-6 py-4">
-                <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                        <span className="text-2xl">🍩</span>
-                        <h1 className="text-xl font-bold text-white">도노트 관리자</h1>
+        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+            <Header />
+
+            <div className="flex-1 max-w-7xl mx-auto px-6 py-8 w-full">
+                {/* 페이지 헤더 */}
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-2xl font-bold text-[#333]">🍩 관리자 대시보드</h1>
+                        <p className="text-[#666] text-sm mt-1">도노트 관리 시스템</p>
                     </div>
                     <button
                         onClick={handleLogout}
-                        className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                        className="px-4 py-2 text-[#666] hover:text-[#333] transition-colors"
                     >
                         로그아웃
                     </button>
                 </div>
-            </header>
 
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                {/* 탭 네비게이션 */}
-                <div className="flex gap-2 mb-8 overflow-x-auto">
+                {/* 탭 네비게이션 - 포스트잇 스타일 */}
+                <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
                     {[
                         { id: 'dashboard', label: '대시보드', icon: '📊' },
+                        { id: 'revenue', label: '수익 현황', icon: '💰' },
                         { id: 'creators', label: '크리에이터', icon: '👥' },
                         { id: 'donations', label: '후원 내역', icon: '💌' },
-                        { id: 'settlements', label: '정산 관리', icon: '💰' },
+                        { id: 'settlements', label: '정산 관리', icon: '🏦' },
                     ].map((tab) => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === tab.id
-                                ? 'bg-[#e94560] text-white'
-                                : 'bg-[#16213e] text-gray-400 hover:text-white'
+                            className={`flex items-center gap-2 px-5 py-3 rounded-t-lg font-medium transition-all ${activeTab === tab.id
+                                    ? 'bg-[#FFD95A] text-[#333] shadow-md -mb-1'
+                                    : 'bg-white text-[#666] hover:bg-gray-50'
                                 }`}
+                            style={{ transform: activeTab === tab.id ? 'rotate(-1deg)' : 'none' }}
                         >
                             <span>{tab.icon}</span>
                             <span>{tab.label}</span>
@@ -154,46 +205,48 @@ export default function AdminPage() {
                 {/* 대시보드 탭 */}
                 {activeTab === 'dashboard' && (
                     <div className="space-y-6">
-                        {/* 통계 카드 */}
+                        {/* 통계 카드 - 포스트잇 스타일 */}
                         <div className="grid md:grid-cols-4 gap-4">
                             {[
-                                { label: '총 크리에이터', value: mockCreators.length, icon: '👥', color: 'from-blue-500 to-blue-600' },
-                                { label: '총 후원 건수', value: mockDonations.length, icon: '💌', color: 'from-pink-500 to-pink-600' },
-                                { label: '총 거래액', value: `₩${mockDonations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}`, icon: '💰', color: 'from-green-500 to-green-600' },
-                                { label: '대기 중 정산', value: mockSettlements.filter(s => s.status === 'pending').length, icon: '⏳', color: 'from-yellow-500 to-yellow-600' },
+                                { label: '총 크리에이터', value: mockCreators.length, icon: '👥', color: 'bg-[#E6F3FF]' },
+                                { label: '총 후원 건수', value: mockDonations.length, icon: '💌', color: 'bg-[#FFE4E1]' },
+                                { label: '총 거래액', value: `₩${totalDonations.toLocaleString()}`, icon: '💵', color: 'bg-[#E8F5E9]' },
+                                { label: '총 수수료 수익', value: `₩${totalFee.toLocaleString()}`, icon: '🍩', color: 'bg-[#FFFACD]' },
                             ].map((stat, i) => (
                                 <motion.div
                                     key={i}
-                                    className={`bg-gradient-to-br ${stat.color} rounded-xl p-6 shadow-lg`}
+                                    className={`${stat.color} rounded-xl p-6 shadow-sm border border-gray-100 relative`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.1 }}
+                                    style={{ transform: `rotate(${(i % 2 === 0 ? -1 : 1)}deg)` }}
                                 >
+                                    <div className="absolute -top-1 left-4 w-6 h-2 bg-[#FF6B6B]/50 rounded" />
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="text-2xl">{stat.icon}</span>
                                     </div>
-                                    <p className="text-white/80 text-sm">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                                    <p className="text-[#666] text-sm">{stat.label}</p>
+                                    <p className="text-2xl font-bold text-[#333]">{stat.value}</p>
                                 </motion.div>
                             ))}
                         </div>
 
                         {/* 최근 활동 */}
-                        <div className="bg-[#16213e] rounded-xl p-6">
-                            <h3 className="text-lg font-bold text-white mb-4">최근 후원</h3>
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                            <h3 className="text-lg font-bold text-[#333] mb-4">📮 최근 후원</h3>
                             <div className="space-y-3">
                                 {mockDonations.slice(0, 5).map((donation) => (
-                                    <div key={donation.id} className="flex items-center justify-between p-3 bg-[#0f3460] rounded-lg">
+                                    <div key={donation.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">
                                             <span className="text-xl">{donation.sticker}</span>
                                             <div>
-                                                <p className="text-white font-medium">{donation.donorName}</p>
-                                                <p className="text-gray-400 text-sm truncate max-w-xs">{donation.message}</p>
+                                                <p className="text-[#333] font-medium">{donation.donorName}</p>
+                                                <p className="text-[#666] text-sm truncate max-w-xs">{donation.message}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[#e94560] font-bold">₩{donation.amount.toLocaleString()}</p>
-                                            <p className="text-gray-500 text-xs">{new Date(donation.createdAt).toLocaleDateString('ko-KR')}</p>
+                                            <p className="text-[#FF6B6B] font-bold">₩{donation.amount.toLocaleString()}</p>
+                                            <p className="text-[#999] text-xs">수수료: ₩{Math.floor(donation.amount * FEE_RATE).toLocaleString()}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -202,27 +255,83 @@ export default function AdminPage() {
                     </div>
                 )}
 
+                {/* 수익 현황 탭 */}
+                {activeTab === 'revenue' && (
+                    <div className="space-y-6">
+                        {/* 수익 요약 */}
+                        <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-8 text-white shadow-lg">
+                            <h2 className="text-xl font-bold mb-6">🍩 플랫폼 수익 현황</h2>
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div className="bg-white/20 rounded-xl p-6 backdrop-blur">
+                                    <p className="text-white/80 text-sm mb-1">총 거래액</p>
+                                    <p className="text-3xl font-bold">₩{totalDonations.toLocaleString()}</p>
+                                </div>
+                                <div className="bg-white/20 rounded-xl p-6 backdrop-blur">
+                                    <p className="text-white/80 text-sm mb-1">수수료 수익 (5%)</p>
+                                    <p className="text-3xl font-bold">₩{totalFee.toLocaleString()}</p>
+                                </div>
+                                <div className="bg-white/20 rounded-xl p-6 backdrop-blur">
+                                    <p className="text-white/80 text-sm mb-1">대기 중 정산</p>
+                                    <p className="text-3xl font-bold">{pendingSettlements}건</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 크리에이터별 수익 */}
+                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                            <h3 className="text-lg font-bold text-[#333] mb-4">👥 크리에이터별 수수료 현황</h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b border-gray-100">
+                                            <th className="text-left text-[#666] font-medium px-4 py-3">크리에이터</th>
+                                            <th className="text-right text-[#666] font-medium px-4 py-3">총 후원</th>
+                                            <th className="text-right text-[#666] font-medium px-4 py-3">수수료 (5%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {mockCreators.map((creator) => (
+                                            <tr key={creator.id} className="border-b border-gray-50 hover:bg-gray-50">
+                                                <td className="px-4 py-4">
+                                                    <p className="font-medium text-[#333]">{creator.displayName}</p>
+                                                    <p className="text-sm text-[#666]">@{creator.handle}</p>
+                                                </td>
+                                                <td className="px-4 py-4 text-right font-medium text-[#333]">
+                                                    ₩{creator.totalDonations.toLocaleString()}
+                                                </td>
+                                                <td className="px-4 py-4 text-right font-bold text-[#FF6B6B]">
+                                                    ₩{creator.fee.toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* 크리에이터 탭 */}
                 {activeTab === 'creators' && (
-                    <div className="bg-[#16213e] rounded-xl overflow-hidden">
+                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                         <table className="w-full">
-                            <thead className="bg-[#0f3460]">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">크리에이터</th>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">핸들</th>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">이메일</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">총 후원</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">가입일</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">크리에이터</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">핸들</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">이메일</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">총 후원</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">가입일</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {mockCreators.map((creator) => (
-                                    <tr key={creator.id} className="border-t border-[#0f3460]">
-                                        <td className="px-6 py-4 text-white font-medium">{creator.displayName}</td>
-                                        <td className="px-6 py-4 text-gray-400">@{creator.handle}</td>
-                                        <td className="px-6 py-4 text-gray-400">{creator.email}</td>
-                                        <td className="px-6 py-4 text-right text-[#e94560] font-bold">₩{creator.totalDonations.toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-right text-gray-500">{creator.joinedAt}</td>
+                                    <tr key={creator.id} className="border-t border-gray-100 hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-[#333] font-medium">{creator.displayName}</td>
+                                        <td className="px-6 py-4 text-[#666]">@{creator.handle}</td>
+                                        <td className="px-6 py-4 text-[#666]">{creator.email}</td>
+                                        <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">₩{creator.totalDonations.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-[#999]">{creator.joinedAt}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -232,33 +341,35 @@ export default function AdminPage() {
 
                 {/* 후원 내역 탭 */}
                 {activeTab === 'donations' && (
-                    <div className="bg-[#16213e] rounded-xl overflow-hidden">
+                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                         <table className="w-full">
-                            <thead className="bg-[#0f3460]">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">후원자</th>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">메시지</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">금액</th>
-                                    <th className="text-center text-gray-400 font-medium px-6 py-4">상태</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">일시</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">후원자</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">메시지</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">금액</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">수수료</th>
+                                    <th className="text-center text-[#666] font-medium px-6 py-4">상태</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {mockDonations.map((donation) => (
-                                    <tr key={donation.id} className="border-t border-[#0f3460]">
+                                    <tr key={donation.id} className="border-t border-gray-100 hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
                                                 <span>{donation.sticker}</span>
-                                                <span className="text-white">{donation.donorName}</span>
+                                                <span className="text-[#333]">{donation.donorName}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-400 max-w-xs truncate">{donation.message}</td>
-                                        <td className="px-6 py-4 text-right text-[#e94560] font-bold">₩{donation.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-[#666] max-w-xs truncate">{donation.message}</td>
+                                        <td className="px-6 py-4 text-right text-[#333] font-medium">₩{donation.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">₩{Math.floor(donation.amount * FEE_RATE).toLocaleString()}</td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${donation.status === 'paid' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                                                }`}>{donation.status === 'paid' ? '완료' : '대기'}</span>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${donation.status === 'paid' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
+                                                }`}>
+                                                {donation.status === 'paid' ? '완료' : '대기'}
+                                            </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-gray-500">{new Date(donation.createdAt).toLocaleDateString('ko-KR')}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -268,30 +379,34 @@ export default function AdminPage() {
 
                 {/* 정산 관리 탭 */}
                 {activeTab === 'settlements' && (
-                    <div className="bg-[#16213e] rounded-xl overflow-hidden">
+                    <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
                         <table className="w-full">
-                            <thead className="bg-[#0f3460]">
+                            <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="text-left text-gray-400 font-medium px-6 py-4">크리에이터</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">정산 금액</th>
-                                    <th className="text-center text-gray-400 font-medium px-6 py-4">상태</th>
-                                    <th className="text-right text-gray-400 font-medium px-6 py-4">신청일</th>
-                                    <th className="text-center text-gray-400 font-medium px-6 py-4">액션</th>
+                                    <th className="text-left text-[#666] font-medium px-6 py-4">크리에이터</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">총액</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">수수료 (5%)</th>
+                                    <th className="text-right text-[#666] font-medium px-6 py-4">정산액</th>
+                                    <th className="text-center text-[#666] font-medium px-6 py-4">상태</th>
+                                    <th className="text-center text-[#666] font-medium px-6 py-4">액션</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {mockSettlements.map((settlement) => (
-                                    <tr key={settlement.id} className="border-t border-[#0f3460]">
-                                        <td className="px-6 py-4 text-white">@{settlement.creatorHandle}</td>
-                                        <td className="px-6 py-4 text-right text-[#e94560] font-bold">₩{settlement.amount.toLocaleString()}</td>
+                                    <tr key={settlement.id} className="border-t border-gray-100 hover:bg-gray-50">
+                                        <td className="px-6 py-4 text-[#333]">@{settlement.creatorHandle}</td>
+                                        <td className="px-6 py-4 text-right text-[#333]">₩{settlement.grossAmount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-[#FF6B6B]">-₩{settlement.fee.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-[#333] font-bold">₩{settlement.netAmount.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className={`px-2 py-1 rounded-full text-xs ${settlement.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                                                }`}>{settlement.status === 'completed' ? '완료' : '대기'}</span>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${settlement.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
+                                                }`}>
+                                                {settlement.status === 'completed' ? '완료' : '대기'}
+                                            </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right text-gray-500">{settlement.requestedAt}</td>
                                         <td className="px-6 py-4 text-center">
                                             {settlement.status === 'pending' && (
-                                                <button className="px-3 py-1 bg-[#e94560] text-white rounded text-sm hover:bg-[#ff6b6b] transition-colors">
+                                                <button className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg text-sm font-medium hover:bg-[#FF5252] transition-colors">
                                                     승인
                                                 </button>
                                             )}

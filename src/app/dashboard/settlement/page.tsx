@@ -28,9 +28,11 @@ export default function SettlementPage() {
     const settledAmount = settlementHistory.reduce((sum, s) => sum + s.amount, 0);
     const availableAmount = stats.totalAmount - settledAmount;
 
-    // PG 수수료 계산 (약 3%)
-    const pgFee = Math.round(availableAmount * 0.03);
-    const netAmount = availableAmount - pgFee;
+    // 플랫폼 수수료 5% + PG 수수료 3% = 총 8%
+    const platformFee = Math.round(availableAmount * 0.05); // 플랫폼 5%
+    const pgFee = Math.round(availableAmount * 0.03);       // PG 3%
+    const totalFee = platformFee + pgFee;
+    const netAmount = availableAmount - totalFee;
 
     // 정산 신청 처리
     const handleSubmit = () => {
@@ -132,6 +134,9 @@ export default function SettlementPage() {
                         <p className="text-sm text-[#666]">
                             💡 <strong>정산 안내</strong>: 정산 신청 후 영업일 기준 3일 이내에 입금됩니다. 최소 정산 금액은 ₩10,000입니다.
                         </p>
+                        <p className="text-xs text-[#999] mt-2">
+                            ※ 플랫폼 수수료 5% + PG 수수료 3% = 총 8%가 차감됩니다.
+                        </p>
                     </div>
                 </motion.div>
             )}
@@ -208,7 +213,11 @@ export default function SettlementPage() {
                                 <span>정산 요청 금액</span>
                                 <span>₩{availableAmount.toLocaleString()}</span>
                             </div>
-                            <div className="flex justify-between text-[#666]">
+                            <div className="flex justify-between text-[#999] text-sm">
+                                <span>플랫폼 수수료 (5%)</span>
+                                <span className="text-red-500">-₩{platformFee.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-[#999] text-sm">
                                 <span>PG 수수료 (3%)</span>
                                 <span className="text-red-500">-₩{pgFee.toLocaleString()}</span>
                             </div>

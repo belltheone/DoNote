@@ -57,12 +57,14 @@ export default function DonatePage({
     const [amount, setAmount] = useState<number | null>(null);
     const [customAmount, setCustomAmount] = useState("");
     const [nickname, setNickname] = useState("");
-    const [tipEnabled, setTipEnabled] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentError, setPaymentError] = useState("");
 
-    // 실제 결제 금액 계산 (팁 포함)
-    const finalAmount = (amount || 0) + (tipEnabled ? 500 : 0);
+    // 플랫폼 수수료 5% 계산
+    const platformFeeRate = 0.05; // 5%
+    const platformFee = Math.round((amount || 0) * platformFeeRate);
+    const creatorAmount = (amount || 0) - platformFee; // 크리에이터 수령액
+    const finalAmount = amount || 0; // 총 결제금액 = 후원금액 (수수료는 후원금에서 차감)
 
     // 크리에이터 정보 로드
     useEffect(() => {
@@ -129,7 +131,7 @@ export default function DonatePage({
                 creatorId,
                 message,
                 sticker: selectedSticker,
-                isTipIncluded: tipEnabled,
+                isTipIncluded: false, // 5% 수수료 모델로 변경
             });
 
             if (result.success) {
@@ -305,25 +307,24 @@ export default function DonatePage({
                             </div>
                             <p className="text-xs text-[#999] mt-2">최소 1,000원부터</p>
 
-                            {/* 플랫폼 팁 (선택) */}
-                            <div className="mt-6 p-4 rounded-xl bg-[#FFFACD]/30 border-2 border-dashed border-[#FFD95A]">
-                                <label className="flex items-center justify-between cursor-pointer">
-                                    <div>
-                                        <span className="font-medium text-[#333]">🍩 도노트 후원</span>
-                                        <p className="text-sm text-[#666] mt-1">
-                                            플랫폼 운영비 500원 더 내기
-                                        </p>
+                            {/* 플랫폼 수수료 안내 */}
+                            {amount && (
+                                <div className="mt-6 p-4 rounded-xl bg-[#F0F9FF] border-2 border-dashed border-[#87CEEB]">
+                                    <div className="flex items-start gap-3">
+                                        <span className="text-xl">💸</span>
+                                        <div>
+                                            <span className="font-medium text-[#333]">플랫폼 수수료 안내</span>
+                                            <p className="text-sm text-[#666] mt-1">
+                                                후원금의 <span className="font-bold text-[#FF6B6B]">5%</span>가 도노트 운영비로 사용됩니다.
+                                            </p>
+                                            <div className="mt-2 text-sm">
+                                                <span className="text-[#999]">크리에이터 수령액:</span>
+                                                <span className="ml-2 font-bold text-[#333]">₩{creatorAmount.toLocaleString()}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => setTipEnabled(!tipEnabled)}
-                                        className={`w-12 h-7 rounded-full transition-colors ${tipEnabled ? "bg-[#FF6B6B]" : "bg-gray-300"
-                                            }`}
-                                    >
-                                        <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${tipEnabled ? "translate-x-6" : "translate-x-1"
-                                            }`} />
-                                    </button>
-                                </label>
-                            </div>
+                                </div>
+                            )}
 
                             <div className="flex gap-3 mt-6">
                                 <button
@@ -375,12 +376,14 @@ export default function DonatePage({
                                     <span>후원금</span>
                                     <span>₩{(amount || 0).toLocaleString()}</span>
                                 </div>
-                                {tipEnabled && (
-                                    <div className="flex justify-between text-[#666] mb-2">
-                                        <span>플랫폼 후원</span>
-                                        <span>₩500</span>
-                                    </div>
-                                )}
+                                <div className="flex justify-between text-[#999] mb-2 text-sm">
+                                    <span>플랫폼 수수료 (5%)</span>
+                                    <span>-₩{platformFee.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-green-600 mb-2 text-sm">
+                                    <span>크리에이터 수령액</span>
+                                    <span>₩{creatorAmount.toLocaleString()}</span>
+                                </div>
                                 <div className="pt-3 border-t border-dashed border-gray-300 flex justify-between font-bold text-[#333]">
                                     <span>총 결제금액</span>
                                     <span className="text-[#FF6B6B]">₩{finalAmount.toLocaleString()}</span>

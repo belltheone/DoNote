@@ -1,30 +1,69 @@
 "use client";
-// 로그인 페이지 - 소셜 로그인 (Digital Analog 디자인)
+// 로그인 페이지 - 소셜 로그인 + 이메일 로그인 (Digital Analog 디자인)
 // 편지봉투를 열어 로그인하는 컨셉
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signInWithProvider } from "@/lib/supabase";
+import { signInWithProvider, supabase } from "@/lib/supabase";
 
 export default function AuthPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState<string | null>(null);
     const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
+    const [authMode, setAuthMode] = useState<'social' | 'email'>('social');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [error, setError] = useState('');
 
-    // 로그인 처리
-    const handleLogin = async (provider: 'kakao' | 'google' | 'github') => {
+    // 소셜 로그인 처리
+    const handleSocialLogin = async (provider: 'kakao' | 'google' | 'github' | 'apple') => {
         setIsLoading(provider);
+        setError('');
 
         try {
-            await signInWithProvider(provider);
-            // 로그인 성공 시 대시보드로 이동
+            await signInWithProvider(provider as 'kakao' | 'google' | 'github');
             setTimeout(() => {
                 router.push('/dashboard');
             }, 1000);
-        } catch (error) {
-            console.error('Login error:', error);
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('로그인에 실패했습니다. 다시 시도해주세요.');
+            setIsLoading(null);
+        }
+    };
+
+    // 이메일 로그인/회원가입 처리
+    const handleEmailAuth = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading('email');
+        setError('');
+
+        try {
+            if (isSignUp) {
+                // 회원가입
+                const { error } = await supabase.auth.signUp({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+                setError('확인 이메일을 발송했습니다. 이메일을 확인해주세요.');
+                setIsLoading(null);
+            } else {
+                // 로그인
+                const { error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+                if (error) throw error;
+                router.push('/dashboard');
+            }
+        } catch (err: unknown) {
+            console.error('Auth error:', err);
+            const errorMessage = err instanceof Error ? err.message : '인증에 실패했습니다.';
+            setError(errorMessage);
             setIsLoading(null);
         }
     };
@@ -94,90 +133,171 @@ export default function AuthPage() {
                                 <p className="text-[#666]">3초 만에 내 우체통을 만들어보세요</p>
                             </div>
 
-                            {/* 소셜 로그인 버튼들 */}
-                            <div className="space-y-3">
-                                {/* 카카오 로그인 */}
-                                <motion.button
-                                    onClick={() => { setIsEnvelopeOpen(true); handleLogin('kakao'); }}
-                                    disabled={isLoading !== null}
-                                    className="w-full py-4 px-6 bg-[#FEE500] rounded-xl text-[#333] font-semibold flex items-center justify-center gap-3 hover:bg-[#FDD835] transition-all shadow-sm disabled:opacity-50"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    {isLoading === 'kakao' ? (
-                                        <motion.span
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                        >⏳</motion.span>
-                                    ) : (
-                                        <>
-                                            <span className="text-xl">💬</span>
-                                            <span>카카오로 시작하기</span>
-                                        </>
-                                    )}
-                                </motion.button>
+                            <AnimatePresence mode="wait">
+                                {authMode === 'social' ? (
+                                    <motion.div
+                                        key="social"
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 20 }}
+                                        className="space-y-3"
+                                    >
+                                        {/* 카카오 로그인 */}
+                                        <motion.button
+                                            onClick={() => { setIsEnvelopeOpen(true); handleSocialLogin('kakao'); }}
+                                            disabled={isLoading !== null}
+                                            className="w-full py-4 px-6 bg-[#FEE500] rounded-xl text-[#333] font-semibold flex items-center justify-center gap-3 hover:bg-[#FDD835] transition-all shadow-sm disabled:opacity-50"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            {isLoading === 'kakao' ? (
+                                                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>⏳</motion.span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xl">💬</span>
+                                                    <span>카카오로 시작하기</span>
+                                                </>
+                                            )}
+                                        </motion.button>
 
-                                {/* 구글 로그인 */}
-                                <motion.button
-                                    onClick={() => { setIsEnvelopeOpen(true); handleLogin('google'); }}
-                                    disabled={isLoading !== null}
-                                    className="w-full py-4 px-6 bg-white rounded-xl text-[#333] font-semibold flex items-center justify-center gap-3 hover:bg-gray-50 transition-all shadow-sm border border-gray-200 disabled:opacity-50"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    {isLoading === 'google' ? (
-                                        <motion.span
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                        >⏳</motion.span>
-                                    ) : (
-                                        <>
-                                            <span className="text-xl">🔍</span>
-                                            <span>Google로 시작하기</span>
-                                        </>
-                                    )}
-                                </motion.button>
+                                        {/* 구글 로그인 */}
+                                        <motion.button
+                                            onClick={() => { setIsEnvelopeOpen(true); handleSocialLogin('google'); }}
+                                            disabled={isLoading !== null}
+                                            className="w-full py-4 px-6 bg-white rounded-xl text-[#333] font-semibold flex items-center justify-center gap-3 hover:bg-gray-50 transition-all shadow-sm border border-gray-200 disabled:opacity-50"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            {isLoading === 'google' ? (
+                                                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>⏳</motion.span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xl">🔍</span>
+                                                    <span>Google로 시작하기</span>
+                                                </>
+                                            )}
+                                        </motion.button>
 
-                                {/* 깃허브 로그인 */}
-                                <motion.button
-                                    onClick={() => { setIsEnvelopeOpen(true); handleLogin('github'); }}
-                                    disabled={isLoading !== null}
-                                    className="w-full py-4 px-6 bg-[#24292e] rounded-xl text-white font-semibold flex items-center justify-center gap-3 hover:bg-[#1a1e22] transition-all shadow-sm disabled:opacity-50"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    {isLoading === 'github' ? (
-                                        <motion.span
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                        >⏳</motion.span>
-                                    ) : (
-                                        <>
-                                            <span className="text-xl">🐙</span>
-                                            <span>GitHub로 시작하기</span>
-                                        </>
-                                    )}
-                                </motion.button>
-                            </div>
+                                        {/* Apple 로그인 */}
+                                        <motion.button
+                                            onClick={() => { setIsEnvelopeOpen(true); handleSocialLogin('apple'); }}
+                                            disabled={isLoading !== null}
+                                            className="w-full py-4 px-6 bg-black rounded-xl text-white font-semibold flex items-center justify-center gap-3 hover:bg-gray-800 transition-all shadow-sm disabled:opacity-50"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            {isLoading === 'apple' ? (
+                                                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>⏳</motion.span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xl">🍎</span>
+                                                    <span>Apple로 시작하기</span>
+                                                </>
+                                            )}
+                                        </motion.button>
 
-                            {/* 구분선 */}
-                            <div className="flex items-center gap-4 my-6">
-                                <div className="flex-1 h-px bg-[#E8D5B7]"></div>
-                                <span className="text-sm text-[#999]">또는</span>
-                                <div className="flex-1 h-px bg-[#E8D5B7]"></div>
-                            </div>
+                                        {/* 깃허브 로그인 */}
+                                        <motion.button
+                                            onClick={() => { setIsEnvelopeOpen(true); handleSocialLogin('github'); }}
+                                            disabled={isLoading !== null}
+                                            className="w-full py-4 px-6 bg-[#24292e] rounded-xl text-white font-semibold flex items-center justify-center gap-3 hover:bg-[#1a1e22] transition-all shadow-sm disabled:opacity-50"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            {isLoading === 'github' ? (
+                                                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>⏳</motion.span>
+                                            ) : (
+                                                <>
+                                                    <span className="text-xl">🐙</span>
+                                                    <span>GitHub로 시작하기</span>
+                                                </>
+                                            )}
+                                        </motion.button>
 
-                            {/* 데모 체험 */}
-                            <Link
-                                href="/demo"
-                                className="block w-full py-3 px-6 bg-transparent rounded-xl text-[#666] font-medium text-center border-2 border-dashed border-[#E8D5B7] hover:border-[#FFD95A] hover:bg-[#FFFACD]/30 transition-all"
-                            >
-                                🎪 로그인 없이 데모 체험하기
-                            </Link>
+                                        {/* 구분선 */}
+                                        <div className="flex items-center gap-4 my-6">
+                                            <div className="flex-1 h-px bg-[#E8D5B7]"></div>
+                                            <span className="text-sm text-[#999]">또는</span>
+                                            <div className="flex-1 h-px bg-[#E8D5B7]"></div>
+                                        </div>
+
+                                        {/* 이메일 로그인 전환 */}
+                                        <button
+                                            onClick={() => setAuthMode('email')}
+                                            className="w-full py-3 px-6 bg-transparent rounded-xl text-[#666] font-medium text-center border-2 border-dashed border-[#E8D5B7] hover:border-[#FFD95A] hover:bg-[#FFFACD]/30 transition-all"
+                                        >
+                                            ✉️ 이메일로 시작하기
+                                        </button>
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="email"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                    >
+                                        <form onSubmit={handleEmailAuth} className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm text-[#666] mb-2">이메일</label>
+                                                <input
+                                                    type="email"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    className="w-full px-4 py-3 rounded-xl border-2 border-[#E8D5B7] focus:border-[#FFD95A] focus:outline-none transition-colors bg-white"
+                                                    placeholder="you@example.com"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-[#666] mb-2">비밀번호</label>
+                                                <input
+                                                    type="password"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    className="w-full px-4 py-3 rounded-xl border-2 border-[#E8D5B7] focus:border-[#FFD95A] focus:outline-none transition-colors bg-white"
+                                                    placeholder="••••••••"
+                                                    required
+                                                    minLength={6}
+                                                />
+                                            </div>
+
+                                            {error && (
+                                                <p className={`text-sm ${error.includes('이메일') ? 'text-green-600' : 'text-red-500'}`}>{error}</p>
+                                            )}
+
+                                            <button
+                                                type="submit"
+                                                disabled={isLoading !== null}
+                                                className="w-full py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-sm disabled:opacity-50"
+                                            >
+                                                {isLoading === 'email' ? '처리 중...' : (isSignUp ? '회원가입' : '로그인')}
+                                            </button>
+                                        </form>
+
+                                        {/* 모드 전환 */}
+                                        <div className="mt-4 text-center">
+                                            <button
+                                                onClick={() => setIsSignUp(!isSignUp)}
+                                                className="text-sm text-[#666] hover:text-[#333]"
+                                            >
+                                                {isSignUp ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
+                                            </button>
+                                        </div>
+
+                                        {/* 소셜 로그인으로 돌아가기 */}
+                                        <button
+                                            onClick={() => { setAuthMode('social'); setError(''); }}
+                                            className="w-full mt-4 py-3 text-[#999] text-sm hover:text-[#666] transition-colors"
+                                        >
+                                            ← 소셜 로그인으로 돌아가기
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </div>
 
-                    {/* 봉투 실링 와크스 */}
+                    {/* 봉투 실링 왁스 */}
                     <motion.div
                         className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF6B6B] rounded-full flex items-center justify-center shadow-lg border-4 border-[#FFF8E7]"
                         initial={{ scale: 0 }}
@@ -190,8 +310,8 @@ export default function AuthPage() {
 
                 {/* 하단 안내 */}
                 <p className="text-center text-sm text-[#999] mt-12">
-                    로그인 시 <Link href="#" className="text-[#FF6B6B] hover:underline">이용약관</Link> 및{" "}
-                    <Link href="#" className="text-[#FF6B6B] hover:underline">개인정보처리방침</Link>에 동의하게 됩니다.
+                    로그인 시 <Link href="/terms" className="text-[#FF6B6B] hover:underline">이용약관</Link> 및{" "}
+                    <Link href="/privacy" className="text-[#FF6B6B] hover:underline">개인정보처리방침</Link>에 동의하게 됩니다.
                 </p>
             </div>
         </div>

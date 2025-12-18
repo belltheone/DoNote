@@ -482,10 +482,10 @@ export default function Home() {
             </div>
 
             <div className="flex gap-6 text-sm text-white/70">
-              <Link href="#" className="hover:text-white transition-colors">서비스 소개</Link>
-              <Link href="#" className="hover:text-white transition-colors">이용약관</Link>
-              <Link href="#" className="hover:text-white transition-colors">개인정보처리방침</Link>
-              <Link href="#" className="hover:text-white transition-colors">문의하기</Link>
+              <Link href="/about" className="hover:text-white transition-colors">서비스 소개</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">이용약관</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">문의하기</Link>
             </div>
           </div>
 

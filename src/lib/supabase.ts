@@ -1,7 +1,16 @@
-// Mock Supabase 클라이언트
-// 실제 Supabase 연동 시 이 파일을 수정합니다
+// Supabase 클라이언트 - 실제 연동
+// 인증, 데이터베이스 연동
 
-// Mock 사용자 데이터 타입
+import { createClient, SupabaseClient, User as SupabaseUser } from '@supabase/supabase-js';
+
+// 환경 변수에서 Supabase 설정 가져오기
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Supabase 클라이언트 생성
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+
+// 사용자 타입 정의
 export interface User {
     id: string;
     email: string;
@@ -12,7 +21,7 @@ export interface User {
     createdAt: string;
 }
 
-// Mock 후원 데이터 타입
+// 후원 데이터 타입
 export interface Donation {
     id: string;
     creatorId: string;
@@ -27,54 +36,136 @@ export interface Donation {
     isPinned?: boolean;
 }
 
-// Mock 현재 사용자 (로그인 시뮬레이션)
-let currentUser: User | null = null;
-
-// Mock 로그인 함수
-export async function signInWithProvider(provider: 'kakao' | 'google' | 'github'): Promise<User> {
-    // 실제로는 Supabase Auth 사용
-    const mockUser: User = {
-        id: 'mock-user-123',
-        email: `user@${provider}.com`,
-        displayName: '개발하는 민수',
-        avatar: '👨‍💻',
-        handle: 'devminsu',
-        bio: '프론트엔드 개발자 | 오픈소스 기여자',
-        createdAt: new Date().toISOString(),
-    };
-
-    currentUser = mockUser;
-
-    // 로컬 스토리지에 저장 (Mock)
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('donote_user', JSON.stringify(mockUser));
-    }
-
-    return mockUser;
+// 크리에이터 프로필 타입
+export interface CreatorProfile {
+    id: string;
+    userId: string;
+    handle: string;
+    displayName: string;
+    avatar: string;
+    bio: string;
+    goalTitle?: string;
+    goalTarget?: number;
+    socialLinks?: Record<string, string>;
+    createdAt: string;
 }
 
-// Mock 로그아웃 함수
-export async function signOut(): Promise<void> {
-    currentUser = null;
-    if (typeof window !== 'undefined') {
-        localStorage.removeItem('donote_user');
+// 소셜 로그인 함수
+export async function signInWithProvider(provider: 'kakao' | 'google' | 'github'): Promise<{ user: SupabaseUser | null; error: Error | null }> {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+        },
+    });
+
+    if (error) {
+        console.error('로그인 오류:', error);
+        return { user: null, error };
     }
+
+    // OAuth 리다이렉트 후 세션에서 사용자 가져옴
+    const { data: { user } } = await supabase.auth.getUser();
+    return { user, error: null };
+}
+
+// 로그아웃 함수
+export async function signOut(): Promise<void> {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('로그아웃 오류:', error);
 }
 
 // 현재 사용자 가져오기
-export function getCurrentUser(): User | null {
-    if (currentUser) return currentUser;
+export async function getCurrentUser(): Promise<SupabaseUser | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+}
 
-    if (typeof window !== 'undefined') {
-        const stored = localStorage.getItem('donote_user');
-        if (stored) {
-            currentUser = JSON.parse(stored);
-            return currentUser;
-        }
+// 크리에이터 프로필 가져오기
+export async function getCreatorProfile(handle: string): Promise<CreatorProfile | null> {
+    const { data, error } = await supabase
+        .from('creators')
+        .select('*')
+        .eq('handle', handle)
+        .single();
+
+    if (error) {
+        console.error('프로필 조회 오류:', error);
+        return null;
     }
 
-    return null;
+    return data;
 }
+
+// 크리에이터 프로필 생성/업데이트
+export async function upsertCreatorProfile(profile: Partial<CreatorProfile>): Promise<CreatorProfile | null> {
+    const { data, error } = await supabase
+        .from('creators')
+        .upsert(profile)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('프로필 저장 오류:', error);
+        return null;
+    }
+
+    return data;
+}
+
+// 후원 목록 가져오기
+export async function getDonations(creatorId: string): Promise<Donation[]> {
+    const { data, error } = await supabase
+        .from('donations')
+        .select('*')
+        .eq('creatorId', creatorId)
+        .eq('status', 'paid')
+        .order('createdAt', { ascending: false });
+
+    if (error) {
+        console.error('후원 목록 조회 오류:', error);
+        return [];
+    }
+
+    return data || [];
+}
+
+// 후원 생성
+export async function createDonation(donation: Omit<Donation, 'id' | 'createdAt' | 'status'>): Promise<Donation | null> {
+    const { data, error } = await supabase
+        .from('donations')
+        .insert({
+            ...donation,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('후원 생성 오류:', error);
+        return null;
+    }
+
+    return data;
+}
+
+// 후원 핀 토글
+export async function toggleDonationPin(donationId: string, isPinned: boolean): Promise<boolean> {
+    const { error } = await supabase
+        .from('donations')
+        .update({ isPinned })
+        .eq('id', donationId);
+
+    if (error) {
+        console.error('핀 토글 오류:', error);
+        return false;
+    }
+
+    return true;
+}
+
+// ===== Mock 데이터 (개발용 - DB 연동 전까지 사용) =====
 
 // Mock 후원 데이터
 export const mockDonations: Donation[] = [
@@ -88,7 +179,7 @@ export const mockDonations: Donation[] = [
     { id: '8', creatorId: 'mock-user-123', donorName: '프론트러버', message: 'CSS 팁 감사해요~', amount: 5000, sticker: '❤️', isTipIncluded: false, status: 'paid', createdAt: '2024-12-07T14:20:00Z' },
 ];
 
-// 통계 데이터 가져오기
+// 통계 데이터 가져오기 (Mock)
 export function getStats() {
     const totalAmount = mockDonations.reduce((sum, d) => sum + d.amount, 0);
     const thisMonthDonations = mockDonations.filter(d => {
@@ -106,7 +197,7 @@ export function getStats() {
     };
 }
 
-// 시간대별 후원 분석
+// 시간대별 후원 분석 (Mock)
 export function getHourlyAnalysis() {
     const hours = Array(24).fill(0);
     mockDonations.forEach(d => {
@@ -116,7 +207,7 @@ export function getHourlyAnalysis() {
     return hours;
 }
 
-// 최고의 팬 (가장 많이 후원한 사람)
+// 최고의 팬 (Mock)
 export function getTopFans() {
     const fanMap = new Map<string, { name: string; amount: number; count: number }>();
 

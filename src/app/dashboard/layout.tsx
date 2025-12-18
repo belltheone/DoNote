@@ -29,21 +29,33 @@ export default function DashboardLayout({
 
     // 사용자 정보 가져오기
     useEffect(() => {
-        const currentUser = getCurrentUser();
-        if (!currentUser) {
-            // 로그인 안 된 경우 Mock 사용자 설정 (개발용)
-            setUser({
-                id: 'mock-user-123',
-                email: 'demo@donote.kr',
-                displayName: '개발하는 민수',
-                avatar: '👨‍💻',
-                handle: 'devminsu',
-                bio: '프론트엔드 개발자',
-                createdAt: new Date().toISOString(),
-            });
-        } else {
-            setUser(currentUser);
-        }
+        const fetchUser = async () => {
+            const currentUser = await getCurrentUser();
+            if (!currentUser) {
+                // 로그인 안 된 경우 Mock 사용자 설정 (개발용)
+                setUser({
+                    id: 'mock-user-123',
+                    email: 'demo@donote.kr',
+                    displayName: '개발하는 민수',
+                    avatar: '👨‍💻',
+                    handle: 'devminsu',
+                    bio: '프론트엔드 개발자',
+                    createdAt: new Date().toISOString(),
+                });
+            } else {
+                // Supabase User를 우리 User 타입으로 변환
+                setUser({
+                    id: currentUser.id,
+                    email: currentUser.email || '',
+                    displayName: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || '사용자',
+                    avatar: currentUser.user_metadata?.avatar_url || '👨‍💻',
+                    handle: currentUser.user_metadata?.handle || currentUser.email?.split('@')[0] || 'user',
+                    bio: '',
+                    createdAt: currentUser.created_at,
+                });
+            }
+        };
+        fetchUser();
     }, []);
 
     // 로그아웃 처리

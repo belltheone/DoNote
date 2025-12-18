@@ -1,13 +1,25 @@
 "use client";
 // 후원 페이지 - Guest Checkout (Digital Analog 디자인)
-// "편지 쓰기" 컨셉: 결제창이 아닌 편지지를 띄운다
+// PortOne V2 SDK 결제 연동
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState, use } from "react";
+import { useState, use, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { requestPayment, generateOrderId } from "@/lib/payment";
+import { toast } from "sonner";
 
-// 더미 크리에이터 데이터
+// 크리에이터 타입
+interface Creator {
+    id: string;
+    handle: string;
+    displayName: string;
+    avatar: string;
+}
+
+// 더미 크리에이터 데이터 (폴백용)
 const demoCreator = {
+    id: "demo",
     username: "demo",
     displayName: "개발하는 민수",
     avatar: "👨‍💻",
@@ -32,6 +44,10 @@ export default function DonatePage({
 }) {
     const { username } = use(params);
 
+    // 크리에이터 정보
+    const [creator, setCreator] = useState<Creator | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     // 스텝 상태 (1: 메시지, 2: 금액, 3: 닉네임, 4: 결제, 5: 완료)
     const [step, setStep] = useState(1);
 
@@ -42,9 +58,33 @@ export default function DonatePage({
     const [customAmount, setCustomAmount] = useState("");
     const [nickname, setNickname] = useState("");
     const [tipEnabled, setTipEnabled] = useState(true);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentError, setPaymentError] = useState("");
 
     // 실제 결제 금액 계산 (팁 포함)
     const finalAmount = (amount || 0) + (tipEnabled ? 500 : 0);
+
+    // 크리에이터 정보 로드
+    useEffect(() => {
+        const loadCreator = async () => {
+            const { data } = await supabase
+                .from('creators')
+                .select('id, handle, display_name, avatar')
+                .eq('handle', username)
+                .single();
+
+            if (data) {
+                setCreator({
+                    id: data.id,
+                    handle: data.handle,
+                    displayName: data.display_name,
+                    avatar: data.avatar || '👨‍💻',
+                });
+            }
+            setIsLoading(false);
+        };
+        loadCreator();
+    }, [username]);
 
     // 다음 단계로 이동
     const goNext = () => {
@@ -65,13 +105,49 @@ export default function DonatePage({
         }
     };
 
-    // 결제 처리 (Mock)
-    const handlePayment = () => {
-        // 실제로는 여기서 PG 연동
-        setTimeout(() => {
-            setStep(5);
-        }, 1500);
-        setStep(4);
+    // 결제 처리 (PortOne V2)
+    const handlePayment = async () => {
+        if (!amount || !nickname.trim() || !message.trim()) {
+            toast.error('필수 정보를 입력해주세요');
+            return;
+        }
+
+        setIsProcessing(true);
+        setPaymentError("");
+        setStep(4); // 결제 중 화면
+
+        try {
+            const orderId = generateOrderId();
+            const creatorId = creator?.id || 'demo';
+            const creatorName = creator?.displayName || demoCreator.displayName;
+
+            const result = await requestPayment({
+                orderId,
+                orderName: `${creatorName}님에게 후원`,
+                amount: finalAmount,
+                buyerName: nickname,
+                creatorId,
+                message,
+                sticker: selectedSticker,
+                isTipIncluded: tipEnabled,
+            });
+
+            if (result.success) {
+                toast.success('후원이 완료되었습니다! 🎉');
+                setStep(5); // 완료 화면
+            } else {
+                setPaymentError(result.error || '결제에 실패했습니다');
+                toast.error(result.error || '결제에 실패했습니다');
+                setStep(3); // 다시 결제 시도
+            }
+        } catch (error) {
+            console.error('결제 오류:', error);
+            setPaymentError('결제 처리 중 오류가 발생했습니다');
+            toast.error('결제 처리 중 오류가 발생했습니다');
+            setStep(3);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
@@ -93,8 +169,8 @@ export default function DonatePage({
                                 <div
                                     key={s}
                                     className={`w-3 h-3 rounded-sm transition-all ${s <= step
-                                            ? "bg-[#FFD95A] rotate-45"
-                                            : "bg-gray-200 rotate-0"
+                                        ? "bg-[#FFD95A] rotate-45"
+                                        : "bg-gray-200 rotate-0"
                                         }`}
                                 />
                             ))}
@@ -145,8 +221,8 @@ export default function DonatePage({
                                         key={sticker}
                                         onClick={() => setSelectedSticker(sticker)}
                                         className={`w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all ${selectedSticker === sticker
-                                                ? "bg-[#FFFACD] shadow-md scale-110 ring-2 ring-[#FFD95A]"
-                                                : "bg-gray-100 hover:bg-gray-200"
+                                            ? "bg-[#FFFACD] shadow-md scale-110 ring-2 ring-[#FFD95A]"
+                                            : "bg-gray-100 hover:bg-gray-200"
                                             }`}
                                     >
                                         {sticker}
@@ -205,8 +281,8 @@ export default function DonatePage({
                                         key={preset.value}
                                         onClick={() => { setAmount(preset.value); setCustomAmount(""); }}
                                         className={`py-4 rounded-xl border-2 border-dashed transition-all ${amount === preset.value && !customAmount
-                                                ? "border-[#FF6B6B] bg-[#FFF0F0]"
-                                                : "border-gray-200 hover:border-[#FFD95A] bg-white"
+                                            ? "border-[#FF6B6B] bg-[#FFF0F0]"
+                                            : "border-gray-200 hover:border-[#FFD95A] bg-white"
                                             }`}
                                     >
                                         <div className="text-2xl mb-1">{preset.emoji}</div>

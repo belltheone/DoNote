@@ -1,5 +1,5 @@
 "use client";
-// 관리자 페이지 - Digital Analog 디자인 적용
+// 관리자 페이지 - 실제 데이터 연동
 // Supabase 인증 통합 (admin@admin.admin)
 
 import { motion } from "framer-motion";
@@ -7,27 +7,33 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth";
-import { supabase, mockDonations } from "@/lib/supabase";
+import {
+    supabase,
+    getAllCreators,
+    getAllDonations,
+    getAllSettlements,
+    mockDonations,
+    type CreatorProfile,
+    type Donation
+} from "@/lib/supabase";
 import { Header } from "@/components/layout/Header";
 
 // 관리자 이메일
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
 
-// Mock 크리에이터 데이터
-const mockCreators = [
-    { id: '1', handle: 'devminsu', displayName: '개발하는 민수', email: 'minsu@test.com', totalDonations: 39000, fee: 1950, joinedAt: '2024-11-01' },
-    { id: '2', handle: 'designsuji', displayName: '디자인하는 수지', email: 'suji@test.com', totalDonations: 25000, fee: 1250, joinedAt: '2024-11-05' },
-    { id: '3', handle: 'contentchulsu', displayName: '글쓰는 철수', email: 'chulsu@test.com', totalDonations: 18000, fee: 900, joinedAt: '2024-11-10' },
-];
-
-// Mock 정산 요청 데이터
-const mockSettlements = [
-    { id: '1', creatorHandle: 'devminsu', grossAmount: 50000, fee: 2500, netAmount: 47500, status: 'pending', requestedAt: '2024-12-15' },
-    { id: '2', creatorHandle: 'designsuji', grossAmount: 25000, fee: 1250, netAmount: 23750, status: 'completed', requestedAt: '2024-12-10', completedAt: '2024-12-13' },
-];
-
 // 수수료율 5%
 const FEE_RATE = 0.05;
+
+// 정산 타입
+interface Settlement {
+    id: string;
+    creatorId: string;
+    amount: number;
+    netAmount: number;
+    status: string;
+    requestedAt: string;
+    completedAt?: string;
+}
 
 export default function AdminPage() {
     const router = useRouter();
@@ -38,8 +44,43 @@ export default function AdminPage() {
     const [loginError, setLoginError] = useState('');
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+    // 실제 데이터 상태
+    const [creators, setCreators] = useState<CreatorProfile[]>([]);
+    const [donations, setDonations] = useState<Donation[]>([]);
+    const [settlements, setSettlements] = useState<Settlement[]>([]);
+    const [isDataLoading, setIsDataLoading] = useState(true);
+
     // 관리자 권한 체크
     const isAdmin = user?.email === ADMIN_EMAIL;
+
+    // 실제 데이터 로드
+    useEffect(() => {
+        if (isAdmin) {
+            loadData();
+        }
+    }, [isAdmin]);
+
+    const loadData = async () => {
+        setIsDataLoading(true);
+        try {
+            const [creatorsData, donationsData, settlementsData] = await Promise.all([
+                getAllCreators(),
+                getAllDonations(),
+                getAllSettlements(),
+            ]);
+
+            setCreators(creatorsData);
+            // 실제 데이터가 없으면 Mock 데이터 사용
+            setDonations(donationsData.length > 0 ? donationsData : mockDonations);
+            setSettlements(settlementsData);
+        } catch (error) {
+            console.error('데이터 로드 오류:', error);
+            // 오류 시 Mock 데이터 사용
+            setDonations(mockDonations);
+        } finally {
+            setIsDataLoading(false);
+        }
+    };
 
     // 관리자 로그인 처리
     const handleAdminLogin = async (e: React.FormEvent) => {
@@ -72,10 +113,20 @@ export default function AdminPage() {
         router.push('/');
     };
 
-    // 통계 계산
-    const totalDonations = mockDonations.reduce((sum, d) => sum + d.amount, 0);
-    const totalFee = Math.floor(totalDonations * FEE_RATE);
-    const pendingSettlements = mockSettlements.filter(s => s.status === 'pending').length;
+    // 통계 계산 (실제 데이터 기반)
+    const totalDonationsAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+    const totalFee = Math.floor(totalDonationsAmount * FEE_RATE);
+    const pendingSettlements = settlements.filter(s => s.status === 'pending').length;
+
+    // 크리에이터별 후원 합계 계산
+    const getCreatorStats = (creatorId: string) => {
+        const creatorDonations = donations.filter(d => d.creatorId === creatorId);
+        const totalAmount = creatorDonations.reduce((sum, d) => sum + d.amount, 0);
+        return {
+            totalAmount,
+            fee: Math.floor(totalAmount * FEE_RATE),
+        };
+    };
 
     // 로딩 중
     if (isLoading) {
@@ -99,7 +150,7 @@ export default function AdminPage() {
                 <Header />
                 <div className="flex-1 flex items-center justify-center p-6">
                     <motion.div
-                        className="w-full max-w-md bg-white rounded-xl p-8 shadow-lg border border-gray-100"
+                        className="w-full max-w-md bg-white rounded-xl p-8 shadow-lg border border-gray-100 relative"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
@@ -168,14 +219,22 @@ export default function AdminPage() {
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-[#333]">🍩 관리자 대시보드</h1>
-                        <p className="text-[#666] text-sm mt-1">도노트 관리 시스템</p>
+                        <p className="text-[#666] text-sm mt-1">도노트 관리 시스템 {isDataLoading && '(로딩 중...)'}</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="px-4 py-2 text-[#666] hover:text-[#333] transition-colors"
-                    >
-                        로그아웃
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={loadData}
+                            className="px-4 py-2 bg-[#FFD95A] text-[#333] rounded-lg hover:bg-[#FFCE3A] transition-colors"
+                        >
+                            🔄 새로고침
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 text-[#666] hover:text-[#333] transition-colors"
+                        >
+                            로그아웃
+                        </button>
+                    </div>
                 </div>
 
                 {/* 탭 네비게이션 - 포스트잇 스타일 */}
@@ -208,9 +267,9 @@ export default function AdminPage() {
                         {/* 통계 카드 - 포스트잇 스타일 */}
                         <div className="grid md:grid-cols-4 gap-4">
                             {[
-                                { label: '총 크리에이터', value: mockCreators.length, icon: '👥', color: 'bg-[#E6F3FF]' },
-                                { label: '총 후원 건수', value: mockDonations.length, icon: '💌', color: 'bg-[#FFE4E1]' },
-                                { label: '총 거래액', value: `₩${totalDonations.toLocaleString()}`, icon: '💵', color: 'bg-[#E8F5E9]' },
+                                { label: '총 크리에이터', value: creators.length || '0', icon: '👥', color: 'bg-[#E6F3FF]' },
+                                { label: '총 후원 건수', value: donations.length, icon: '💌', color: 'bg-[#FFE4E1]' },
+                                { label: '총 거래액', value: `₩${totalDonationsAmount.toLocaleString()}`, icon: '💵', color: 'bg-[#E8F5E9]' },
                                 { label: '총 수수료 수익', value: `₩${totalFee.toLocaleString()}`, icon: '🍩', color: 'bg-[#FFFACD]' },
                             ].map((stat, i) => (
                                 <motion.div
@@ -235,7 +294,7 @@ export default function AdminPage() {
                         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                             <h3 className="text-lg font-bold text-[#333] mb-4">📮 최근 후원</h3>
                             <div className="space-y-3">
-                                {mockDonations.slice(0, 5).map((donation) => (
+                                {donations.slice(0, 5).map((donation) => (
                                     <div key={donation.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">
                                             <span className="text-xl">{donation.sticker}</span>
@@ -250,6 +309,9 @@ export default function AdminPage() {
                                         </div>
                                     </div>
                                 ))}
+                                {donations.length === 0 && (
+                                    <p className="text-center text-[#666] py-8">아직 후원 내역이 없습니다.</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -264,7 +326,7 @@ export default function AdminPage() {
                             <div className="grid md:grid-cols-3 gap-6">
                                 <div className="bg-white/20 rounded-xl p-6 backdrop-blur">
                                     <p className="text-white/80 text-sm mb-1">총 거래액</p>
-                                    <p className="text-3xl font-bold">₩{totalDonations.toLocaleString()}</p>
+                                    <p className="text-3xl font-bold">₩{totalDonationsAmount.toLocaleString()}</p>
                                 </div>
                                 <div className="bg-white/20 rounded-xl p-6 backdrop-blur">
                                     <p className="text-white/80 text-sm mb-1">수수료 수익 (5%)</p>
@@ -290,20 +352,30 @@ export default function AdminPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {mockCreators.map((creator) => (
-                                            <tr key={creator.id} className="border-b border-gray-50 hover:bg-gray-50">
-                                                <td className="px-4 py-4">
-                                                    <p className="font-medium text-[#333]">{creator.displayName}</p>
-                                                    <p className="text-sm text-[#666]">@{creator.handle}</p>
-                                                </td>
-                                                <td className="px-4 py-4 text-right font-medium text-[#333]">
-                                                    ₩{creator.totalDonations.toLocaleString()}
-                                                </td>
-                                                <td className="px-4 py-4 text-right font-bold text-[#FF6B6B]">
-                                                    ₩{creator.fee.toLocaleString()}
+                                        {creators.map((creator) => {
+                                            const stats = getCreatorStats(creator.id);
+                                            return (
+                                                <tr key={creator.id} className="border-b border-gray-50 hover:bg-gray-50">
+                                                    <td className="px-4 py-4">
+                                                        <p className="font-medium text-[#333]">{creator.displayName}</p>
+                                                        <p className="text-sm text-[#666]">@{creator.handle}</p>
+                                                    </td>
+                                                    <td className="px-4 py-4 text-right font-medium text-[#333]">
+                                                        ₩{stats.totalAmount.toLocaleString()}
+                                                    </td>
+                                                    <td className="px-4 py-4 text-right font-bold text-[#FF6B6B]">
+                                                        ₩{stats.fee.toLocaleString()}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        {creators.length === 0 && (
+                                            <tr>
+                                                <td colSpan={3} className="text-center py-8 text-[#666]">
+                                                    등록된 크리에이터가 없습니다.
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -319,21 +391,38 @@ export default function AdminPage() {
                                 <tr>
                                     <th className="text-left text-[#666] font-medium px-6 py-4">크리에이터</th>
                                     <th className="text-left text-[#666] font-medium px-6 py-4">핸들</th>
-                                    <th className="text-left text-[#666] font-medium px-6 py-4">이메일</th>
                                     <th className="text-right text-[#666] font-medium px-6 py-4">총 후원</th>
                                     <th className="text-right text-[#666] font-medium px-6 py-4">가입일</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {mockCreators.map((creator) => (
-                                    <tr key={creator.id} className="border-t border-gray-100 hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-[#333] font-medium">{creator.displayName}</td>
-                                        <td className="px-6 py-4 text-[#666]">@{creator.handle}</td>
-                                        <td className="px-6 py-4 text-[#666]">{creator.email}</td>
-                                        <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">₩{creator.totalDonations.toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-right text-[#999]">{creator.joinedAt}</td>
+                                {creators.map((creator) => {
+                                    const stats = getCreatorStats(creator.id);
+                                    return (
+                                        <tr key={creator.id} className="border-t border-gray-100 hover:bg-gray-50">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-2xl">{creator.avatar}</span>
+                                                    <span className="font-medium text-[#333]">{creator.displayName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-[#666]">@{creator.handle}</td>
+                                            <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">
+                                                ₩{stats.totalAmount.toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-right text-[#999]">
+                                                {new Date(creator.createdAt).toLocaleDateString('ko-KR')}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                                {creators.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="text-center py-8 text-[#666]">
+                                            등록된 크리에이터가 없습니다.
+                                        </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -353,7 +442,7 @@ export default function AdminPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mockDonations.map((donation) => (
+                                {donations.map((donation) => (
                                     <tr key={donation.id} className="border-t border-gray-100 hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
@@ -392,11 +481,11 @@ export default function AdminPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mockSettlements.map((settlement) => (
+                                {settlements.map((settlement) => (
                                     <tr key={settlement.id} className="border-t border-gray-100 hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-[#333]">@{settlement.creatorHandle}</td>
-                                        <td className="px-6 py-4 text-right text-[#333]">₩{settlement.grossAmount.toLocaleString()}</td>
-                                        <td className="px-6 py-4 text-right text-[#FF6B6B]">-₩{settlement.fee.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-[#333]">{settlement.creatorId}</td>
+                                        <td className="px-6 py-4 text-right text-[#333]">₩{settlement.amount.toLocaleString()}</td>
+                                        <td className="px-6 py-4 text-right text-[#FF6B6B]">-₩{Math.floor(settlement.amount * FEE_RATE).toLocaleString()}</td>
                                         <td className="px-6 py-4 text-right text-[#333] font-bold">₩{settlement.netAmount.toLocaleString()}</td>
                                         <td className="px-6 py-4 text-center">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${settlement.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
@@ -413,6 +502,13 @@ export default function AdminPage() {
                                         </td>
                                     </tr>
                                 ))}
+                                {settlements.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} className="text-center py-8 text-[#666]">
+                                            정산 요청이 없습니다.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>

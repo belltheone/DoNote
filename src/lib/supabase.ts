@@ -165,7 +165,169 @@ export async function toggleDonationPin(donationId: string, isPinned: boolean): 
     return true;
 }
 
-// ===== Mock 데이터 (개발용 - DB 연동 전까지 사용) =====
+// ===== 실제 데이터 조회 API =====
+
+// 모든 크리에이터 목록 조회 (관리자용)
+export async function getAllCreators(): Promise<CreatorProfile[]> {
+    const { data, error } = await supabase
+        .from('creators')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('크리에이터 목록 조회 오류:', error);
+        return [];
+    }
+
+    // 스네이크 케이스를 카멜 케이스로 변환
+    return (data || []).map(c => ({
+        id: c.id,
+        userId: c.user_id,
+        handle: c.handle,
+        displayName: c.display_name,
+        avatar: c.avatar || '👨‍💻',
+        bio: c.bio || '',
+        goalTitle: c.goal_title,
+        goalTarget: c.goal_target,
+        socialLinks: c.social_links,
+        createdAt: c.created_at,
+    }));
+}
+
+// 모든 후원 목록 조회 (관리자용)
+export async function getAllDonations(): Promise<Donation[]> {
+    const { data, error } = await supabase
+        .from('donations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('후원 목록 조회 오류:', error);
+        return [];
+    }
+
+    // 스네이크 케이스를 카멜 케이스로 변환
+    return (data || []).map(d => ({
+        id: d.id,
+        creatorId: d.creator_id,
+        donorName: d.donor_name,
+        donorEmail: d.donor_email,
+        amount: d.amount,
+        message: d.message,
+        sticker: d.sticker || '💌',
+        isTipIncluded: d.is_tip_included || false,
+        status: d.status,
+        createdAt: d.created_at,
+        isPinned: d.is_pinned || false,
+    }));
+}
+
+// 현재 사용자의 후원 목록 조회 (크리에이터용)
+export async function getMyDonations(creatorId: string): Promise<Donation[]> {
+    const { data, error } = await supabase
+        .from('donations')
+        .select('*')
+        .eq('creator_id', creatorId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('내 후원 목록 조회 오류:', error);
+        return [];
+    }
+
+    return (data || []).map(d => ({
+        id: d.id,
+        creatorId: d.creator_id,
+        donorName: d.donor_name,
+        donorEmail: d.donor_email,
+        amount: d.amount,
+        message: d.message,
+        sticker: d.sticker || '💌',
+        isTipIncluded: d.is_tip_included || false,
+        status: d.status,
+        createdAt: d.created_at,
+        isPinned: d.is_pinned || false,
+    }));
+}
+
+// 실제 통계 데이터 가져오기
+export async function getRealStats(donations: Donation[]) {
+    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+    const thisMonthDonations = donations.filter(d => {
+        const date = new Date(d.createdAt);
+        const now = new Date();
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    });
+    const thisMonthAmount = thisMonthDonations.reduce((sum, d) => sum + d.amount, 0);
+
+    return {
+        totalAmount,
+        thisMonthAmount,
+        totalNotes: donations.length,
+        thisMonthNotes: thisMonthDonations.length,
+    };
+}
+
+// 시간대별 후원 분석 (실제 데이터)
+export function getRealHourlyAnalysis(donations: Donation[]) {
+    const hours = Array(24).fill(0);
+    donations.forEach(d => {
+        const hour = new Date(d.createdAt).getHours();
+        hours[hour]++;
+    });
+    return hours;
+}
+
+// 최고의 팬 (실제 데이터)
+export function getRealTopFans(donations: Donation[]) {
+    const fanMap = new Map<string, { name: string; amount: number; count: number }>();
+
+    donations.forEach(d => {
+        const existing = fanMap.get(d.donorName) || { name: d.donorName, amount: 0, count: 0 };
+        fanMap.set(d.donorName, {
+            name: d.donorName,
+            amount: existing.amount + d.amount,
+            count: existing.count + 1,
+        });
+    });
+
+    return Array.from(fanMap.values())
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, 5);
+}
+
+// 정산 목록 조회
+export async function getAllSettlements(): Promise<{
+    id: string;
+    creatorId: string;
+    amount: number;
+    netAmount: number;
+    status: string;
+    requestedAt: string;
+    completedAt?: string;
+}[]> {
+    const { data, error } = await supabase
+        .from('settlements')
+        .select('*')
+        .order('requested_at', { ascending: false });
+
+    if (error) {
+        console.error('정산 목록 조회 오류:', error);
+        return [];
+    }
+
+    return (data || []).map(s => ({
+        id: s.id,
+        creatorId: s.creator_id,
+        amount: s.amount,
+        netAmount: s.net_amount,
+        status: s.status,
+        requestedAt: s.requested_at,
+        completedAt: s.completed_at,
+    }));
+}
+
+// ===== Mock 데이터 (개발용 - DB에 데이터가 없을 때 사용) =====
 
 // Mock 후원 데이터
 export const mockDonations: Donation[] = [

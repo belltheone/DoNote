@@ -99,9 +99,21 @@ export async function getCreatorProfile(handle: string): Promise<CreatorProfile 
 
 // 크리에이터 프로필 생성/업데이트
 export async function upsertCreatorProfile(profile: Partial<CreatorProfile>): Promise<CreatorProfile | null> {
+    // 카멜 케이스 -> 스네이크 케이스 변환
+    const dbProfile = {
+        ...(profile.userId && { user_id: profile.userId }),
+        ...(profile.handle && { handle: profile.handle }),
+        ...(profile.displayName && { display_name: profile.displayName }),
+        ...(profile.avatar && { avatar: profile.avatar }),
+        ...(profile.bio !== undefined && { bio: profile.bio }),
+        ...(profile.goalTitle && { goal_title: profile.goalTitle }),
+        ...(profile.goalTarget && { goal_target: profile.goalTarget }),
+        ...(profile.socialLinks && { social_links: profile.socialLinks }),
+    };
+
     const { data, error } = await supabase
         .from('creators')
-        .upsert(profile)
+        .upsert(dbProfile)
         .select()
         .single();
 
@@ -110,7 +122,19 @@ export async function upsertCreatorProfile(profile: Partial<CreatorProfile>): Pr
         return null;
     }
 
-    return data;
+    // 스네이크 케이스 -> 카멜 케이스 변환
+    return {
+        id: data.id,
+        userId: data.user_id,
+        handle: data.handle,
+        displayName: data.display_name,
+        avatar: data.avatar,
+        bio: data.bio,
+        goalTitle: data.goal_title,
+        goalTarget: data.goal_target,
+        socialLinks: data.social_links,
+        createdAt: data.created_at,
+    };
 }
 
 // 후원 목록 가져오기

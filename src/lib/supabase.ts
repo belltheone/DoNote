@@ -51,7 +51,7 @@ export interface CreatorProfile {
 }
 
 // 소셜 로그인 함수
-export async function signInWithProvider(provider: 'kakao' | 'google' | 'github'): Promise<{ user: SupabaseUser | null; error: Error | null }> {
+export async function signInWithProvider(provider: 'kakao' | 'google' | 'github' | 'apple'): Promise<{ user: SupabaseUser | null; error: Error | null }> {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {

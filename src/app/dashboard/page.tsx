@@ -314,12 +314,24 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-2">
                             {profile ? (
-                                <Link
-                                    href={`/${handle}`}
-                                    className="block w-full py-2 px-4 bg-[#FFD95A] rounded-lg text-center font-medium text-[#333] hover:bg-[#FFCE3A] transition-colors"
-                                >
-                                    👁️ 내 페이지 보기
-                                </Link>
+                                <>
+                                    <Link
+                                        href={`/${handle}`}
+                                        className="block w-full py-2 px-4 bg-[#FFD95A] rounded-lg text-center font-medium text-[#333] hover:bg-[#FFCE3A] transition-colors"
+                                    >
+                                        👁️ 내 페이지 보기
+                                    </Link>
+                                    <button
+                                        onClick={() => {
+                                            const url = `${window.location.origin}/${handle}`;
+                                            navigator.clipboard.writeText(url);
+                                            alert('링크가 복사되었습니다! 🎉');
+                                        }}
+                                        className="block w-full py-2 px-4 bg-[#E6F3FF] dark:bg-blue-900/30 rounded-lg text-center font-medium text-[#333] dark:text-white hover:bg-[#D0E8FF] dark:hover:bg-blue-900/50 transition-colors"
+                                    >
+                                        📋 내 페이지 공유
+                                    </button>
+                                </>
                             ) : (
                                 <Link
                                     href="/onboarding"

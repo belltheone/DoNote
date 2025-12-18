@@ -8,7 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function AboutPage() {
     return (
-        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
             {/* 공통 헤더 */}
             <Header />
 
@@ -19,10 +19,10 @@ export default function AboutPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <h1 className="text-4xl font-bold text-[#333] mb-4">
+                    <h1 className="text-4xl font-bold text-[#333] dark:text-white mb-4">
                         서비스 소개
                     </h1>
-                    <p className="text-xl text-[#666]">
+                    <p className="text-xl text-[#666] dark:text-gray-400">
                         마음을 적는 가장 가벼운 후원 플랫폼
                     </p>
                 </motion.div>
@@ -34,9 +34,9 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <div className="bg-[#FFFACD] rounded-xl p-8 shadow-md">
-                        <h2 className="text-2xl font-bold text-[#333] mb-4">🍩 도노트란?</h2>
-                        <p className="text-[#666] leading-relaxed">
+                    <div className="bg-[#FFFACD] dark:bg-yellow-900/30 rounded-xl p-8 shadow-md">
+                        <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-4">🍩 도노트란?</h2>
+                        <p className="text-[#666] dark:text-gray-400 leading-relaxed">
                             도노트는 크리에이터와 팬을 연결하는 한국형 마이크로 스폰서십 플랫폼입니다.
                             복잡한 계좌번호 대신, 간단한 링크 하나로 따뜻한 응원을 전달하세요.
                             회원가입 없이 10초 만에 후원할 수 있어요.
@@ -86,22 +86,22 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
                 >
-                    <h2 className="text-2xl font-bold text-[#333] mb-6">💰 수수료 정책</h2>
+                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6">💰 수수료 정책</h2>
                     <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-8 text-white shadow-lg">
                         <div className="flex items-center justify-center gap-8 mb-6">
                             <div className="text-center">
-                                <p className="text-sm opacity-80 mb-1">플랫폼 수수료</p>
-                                <p className="text-5xl font-bold">0%</p>
+                                <p className="text-sm opacity-80 mb-1">도노트 수수료</p>
+                                <p className="text-5xl font-bold">5%</p>
                             </div>
                             <div className="w-px h-16 bg-white/30" />
                             <div className="text-center">
-                                <p className="text-sm opacity-80 mb-1">PG 수수료</p>
-                                <p className="text-5xl font-bold">~3%</p>
+                                <p className="text-sm opacity-80 mb-1">크리에이터 수령</p>
+                                <p className="text-5xl font-bold">95%</p>
                             </div>
                         </div>
                         <p className="text-center text-white/90 text-sm">
-                            크리에이터에게 최대한 많은 금액이 전달되도록,<br />
-                            플랫폼 수수료 없이 운영합니다.
+                            투명한 수수료 정책으로 운영됩니다.<br />
+                            * 별도 PG 수수료(약 3%)가 추가 발생할 수 있습니다.
                         </p>
                     </div>
                 </motion.section>

@@ -56,7 +56,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#F9F9F9]">
+    <div ref={containerRef} className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900">
       {/* 공통 헤더 */}
       <Header />
 
@@ -79,7 +79,7 @@ export default function Home() {
       </div>
 
       {/* 히어로 섹션 - 3D 편지봉투 */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 overflow-hidden paper-bg">
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-16 overflow-hidden paper-bg dark:bg-gray-900">
         {/* 배경 데코 - 떨어지는 포스트잇 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(6)].map((_, i) => (
@@ -116,7 +116,7 @@ export default function Home() {
           </div>
 
           <motion.h1
-            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] font-hand"
+            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] dark:text-white font-hand"
             variants={fadeInUp}
           >
             당신의 글이<br />
@@ -124,7 +124,7 @@ export default function Home() {
           </motion.h1>
 
           <motion.p
-            className="text-xl text-[#666] max-w-xl mx-auto mb-12 font-sans leading-relaxed"
+            className="text-xl text-[#666] dark:text-gray-400 max-w-xl mx-auto mb-12 font-sans leading-relaxed"
             variants={fadeInUp}
           >
             돈이 아닌 온기를 보냅니다.<br />
@@ -162,12 +162,12 @@ export default function Home() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <span className="text-gray-400 font-hand text-xl">Scroll Down</span>
+          <span className="text-gray-400 dark:text-gray-500 font-hand text-xl">Scroll Down</span>
         </motion.div>
       </section>
 
       {/* Problem & Solution 섹션 */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-white dark:bg-gray-800">
         <div className="max-w-4xl mx-auto">
           <motion.div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Problem */}
@@ -310,7 +310,7 @@ export default function Home() {
       </section>
 
       {/* 가격 섹션 */}
-      <section className="py-24 px-6 bg-[#FFFACD]">
+      <section className="py-24 px-6 bg-[#FFFACD] dark:bg-yellow-900/30">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -318,31 +318,26 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333] dark:text-white">
-              플랫폼 수수료 <span className="text-[#FF6B6B]">5%</span>
+              도노트 수수료 <span className="text-[#FF6B6B]">5%</span>
             </h2>
-            <p className="text-lg text-[#666] dark:text-gray-400 mb-8">
+            <p className="text-lg text-[#666] dark:text-gray-300 mb-8">
               투명한 수수료 정책으로 운영됩니다.<br />
-              후원금의 95%가 크리에이터에게 전달됩니다. 💸
+              <span className="text-2xl font-bold text-[#333] dark:text-white">후원금의 95%가 크리에이터에게 전달됩니다.</span> 💸
             </p>
 
-            <div className="inline-block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
-              <div className="flex items-center gap-8">
-                <div className="text-center">
-                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">플랫폼 수수료</p>
-                  <p className="text-4xl font-bold text-[#FF6B6B]">5%</p>
-                </div>
-                <div className="w-px h-12 bg-gray-200 dark:bg-gray-700"></div>
-                <div className="text-center">
-                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">PG 수수료</p>
-                  <p className="text-4xl font-bold text-[#333] dark:text-white">~3%</p>
-                </div>
-                <div className="w-px h-12 bg-gray-200 dark:bg-gray-700"></div>
-                <div className="text-center">
-                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">크리에이터 수령</p>
-                  <p className="text-4xl font-bold text-green-500">~92%</p>
-                </div>
+            <div className="inline-block bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+              <div className="text-center">
+                <p className="text-sm text-[#999] dark:text-gray-500 mb-2">플랫폼 수수료</p>
+                <p className="text-6xl font-bold text-[#FF6B6B] mb-4">5%</p>
+                <p className="text-green-500 font-bold text-xl">
+                  크리에이터 수령: 95%
+                </p>
               </div>
             </div>
+
+            <p className="text-sm text-[#999] dark:text-gray-500 mt-6">
+              * 별도 PG 수수료(약 3%)가 추가로 발생할 수 있습니다.
+            </p>
           </motion.div>
         </div>
       </section>

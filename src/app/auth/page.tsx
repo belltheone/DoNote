@@ -24,7 +24,7 @@ export default function AuthPage() {
         setError('');
 
         try {
-            await signInWithProvider(provider as 'kakao' | 'google' | 'github');
+            await signInWithProvider(provider);
             setTimeout(() => {
                 router.push('/dashboard');
             }, 1000);

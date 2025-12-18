@@ -103,3 +103,45 @@ CREATE INDEX IF NOT EXISTS idx_donations_creator_id ON donations(creator_id);
 CREATE INDEX IF NOT EXISTS idx_donations_status ON donations(status);
 CREATE INDEX IF NOT EXISTS idx_donations_created_at ON donations(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_settlements_creator_id ON settlements(creator_id);
+
+-- =====================================================
+-- 사용자 역할(Role) 시스템
+-- =====================================================
+
+-- user_roles 테이블: 사용자 역할 관리
+CREATE TABLE IF NOT EXISTS user_roles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    role TEXT NOT NULL DEFAULT 'user', -- 'admin', 'creator', 'user'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(user_id)
+);
+
+-- user_roles RLS 정책
+ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
+
+-- 본인 역할 조회 가능
+CREATE POLICY "Users can view own role" ON user_roles
+    FOR SELECT USING (auth.uid() = user_id);
+
+-- 관리자만 역할 생성/수정 가능 (서버 사이드에서 처리)
+CREATE POLICY "Admins can manage roles" ON user_roles
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM user_roles
+            WHERE user_roles.user_id = auth.uid()
+            AND user_roles.role = 'admin'
+        )
+    );
+
+-- user_roles 인덱스
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role);
+
+-- =====================================================
+-- 관리자 계정 초기화 (admin@admin.admin 계정 생성 후 실행)
+-- 아래 쿼리는 관리자 계정 생성 후 별도로 실행하세요:
+-- INSERT INTO user_roles (user_id, role)
+-- SELECT id, 'admin' FROM auth.users WHERE email = 'admin@admin.admin';
+-- =====================================================

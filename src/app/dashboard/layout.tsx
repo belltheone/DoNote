@@ -17,6 +17,9 @@ const navItems = [
     { href: "/dashboard/settings", label: "설정", icon: "⚙️" },
 ];
 
+// 관리자 이메일
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
+
 export default function DashboardLayout({
     children,
 }: {
@@ -26,11 +29,19 @@ export default function DashboardLayout({
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // 사용자 정보 가져오기
+    // 사용자 정보 가져오기 및 관리자 리디렉션
     useEffect(() => {
         const fetchUser = async () => {
             const currentUser = await getCurrentUser();
+
+            // 관리자인 경우 관리자 대시보드로 리디렉션
+            if (currentUser?.email === ADMIN_EMAIL) {
+                router.replace('/admin');
+                return;
+            }
+
             if (!currentUser) {
                 // 로그인 안 된 경우 Mock 사용자 설정 (개발용)
                 setUser({
@@ -54,9 +65,10 @@ export default function DashboardLayout({
                     createdAt: currentUser.created_at,
                 });
             }
+            setIsLoading(false);
         };
         fetchUser();
-    }, []);
+    }, [router]);
 
     // 로그아웃 처리
     const handleLogout = async () => {

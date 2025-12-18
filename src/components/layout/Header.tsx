@@ -33,13 +33,13 @@ export function Header() {
 
     return (
         <motion.header
-            className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100"
+            className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800"
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
             <div className="max-w-6xl mx-auto px-6 py-4">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center relative">
                     {/* 로고 */}
                     <Link href="/" className="flex items-center gap-2 group">
                         <motion.span
@@ -54,13 +54,13 @@ export function Header() {
                         </span>
                     </Link>
 
-                    {/* 네비게이션 */}
-                    <nav className="hidden md:flex items-center gap-6">
+                    {/* 네비게이션 - 중앙 정렬 */}
+                    <nav className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
                         <Link href="/about" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
                             서비스 소개
                         </Link>
                         <Link href="/widget" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
-                            위젯 데모
+                            위젯 미리보기
                         </Link>
                     </nav>
 

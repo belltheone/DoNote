@@ -60,8 +60,8 @@ export default function Home() {
       {/* 공통 헤더 */}
       <Header />
 
-      {/* 실시간 후원 티커 */}
-      <div className="fixed top-20 left-0 right-0 z-40 overflow-hidden bg-[#FFFACD]/80 backdrop-blur-sm py-2">
+      {/* 실시간 후원 티커 - 헤더 아래 고정 */}
+      <div className="sticky top-[72px] z-30 overflow-hidden bg-[#FFFACD]/90 dark:bg-yellow-900/30 backdrop-blur-sm py-2 border-b border-[#FFD95A]/30">
         <motion.div
           className="flex items-center justify-center gap-2 text-sm"
           key={currentDonation}
@@ -70,8 +70,8 @@ export default function Home() {
           exit={{ opacity: 0, y: -10 }}
         >
           <span className="text-lg">🍩</span>
-          <span className="text-[#666]">
-            방금 <strong className="text-[#333]">{liveDonations[currentDonation].donor}</strong>님이{" "}
+          <span className="text-[#666] dark:text-gray-300">
+            방금 <strong className="text-[#333] dark:text-white">{liveDonations[currentDonation].donor}</strong>님이{" "}
             <strong className="text-[#FF6B6B]">{liveDonations[currentDonation].creator}</strong>님에게{" "}
             도넛 {liveDonations[currentDonation].amount / 1000}개를 선물했어요!
           </span>
@@ -317,25 +317,29 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">
-              크리에이터 수수료 <span className="text-[#FF6B6B]">0%</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333] dark:text-white">
+              플랫폼 수수료 <span className="text-[#FF6B6B]">5%</span>
             </h2>
-            <p className="text-lg text-[#666] mb-8">
-              PG 수수료만 내세요. 플랫폼 수수료는 없습니다.<br />
-              대신 후원자가 &quot;도노트에게 커피 한 잔 더&quot; 옵션을 선택하면,<br />
-              저희에게도 작은 응원이 됩니다 ☕
+            <p className="text-lg text-[#666] dark:text-gray-400 mb-8">
+              투명한 수수료 정책으로 운영됩니다.<br />
+              후원금의 95%가 크리에이터에게 전달됩니다. 💸
             </p>
 
-            <div className="inline-block bg-white rounded-xl p-6 shadow-lg">
+            <div className="inline-block bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg">
               <div className="flex items-center gap-8">
                 <div className="text-center">
-                  <p className="text-sm text-[#999] mb-1">플랫폼 수수료</p>
-                  <p className="text-4xl font-bold text-[#FF6B6B]">0%</p>
+                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">플랫폼 수수료</p>
+                  <p className="text-4xl font-bold text-[#FF6B6B]">5%</p>
                 </div>
-                <div className="w-px h-12 bg-gray-200"></div>
+                <div className="w-px h-12 bg-gray-200 dark:bg-gray-700"></div>
                 <div className="text-center">
-                  <p className="text-sm text-[#999] mb-1">PG 수수료</p>
-                  <p className="text-4xl font-bold text-[#333]">~3%</p>
+                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">PG 수수료</p>
+                  <p className="text-4xl font-bold text-[#333] dark:text-white">~3%</p>
+                </div>
+                <div className="w-px h-12 bg-gray-200 dark:bg-gray-700"></div>
+                <div className="text-center">
+                  <p className="text-sm text-[#999] dark:text-gray-500 mb-1">크리에이터 수령</p>
+                  <p className="text-4xl font-bold text-green-500">~92%</p>
                 </div>
               </div>
             </div>

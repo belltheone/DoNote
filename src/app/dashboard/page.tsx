@@ -3,14 +3,76 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { getStats, mockDonations } from "@/lib/supabase";
+import { realtimeManager } from "@/lib/realtime";
+import { NotificationToast } from "@/components/NotificationToast";
+import { useAuthStore } from "@/store/auth";
+
+interface Notification {
+    id: string;
+    donor: string;
+    amount: number;
+    message: string;
+    sticker: string;
+}
 
 export default function DashboardPage() {
+    const { user } = useAuthStore();
     const stats = getStats();
-    const recentDonations = mockDonations.slice(0, 5);
+    const [recentDonations, setRecentDonations] = useState(mockDonations.slice(0, 5));
+    const [notification, setNotification] = useState<Notification | null>(null);
+
+    // Realtime 구독
+    useEffect(() => {
+        if (!user?.id) return;
+
+        // 크리에이터 ID 가져오기 (임시로 user.id 사용, 실제로는 creator_id 조회 필요)
+        const unsubscribe = realtimeManager.subscribeToCreatorDonations(
+            user.id,
+            (donation) => {
+                // 새 후원 알림 표시
+                setNotification({
+                    id: donation.id,
+                    donor: donation.donor_name,
+                    amount: donation.amount,
+                    message: donation.message,
+                    sticker: donation.sticker,
+                });
+
+                // 최근 후원 목록 업데이트
+                setRecentDonations(prev => [
+                    {
+                        id: donation.id,
+                        donorName: donation.donor_name,
+                        amount: donation.amount,
+                        message: donation.message,
+                        sticker: donation.sticker,
+                        createdAt: donation.created_at,
+                        isPinned: false,
+                    },
+                    ...prev.slice(0, 4)
+                ]);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [user]);
+
 
     return (
         <div className="max-w-6xl mx-auto">
+            {/* 실시간 알림 토스트 */}
+            {notification && (
+                <NotificationToast
+                    donor={notification.donor}
+                    amount={notification.amount}
+                    message={notification.message}
+                    sticker={notification.sticker}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+
             {/* 환영 메시지 */}
             <motion.div
                 className="mb-8"

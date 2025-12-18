@@ -29,29 +29,62 @@ const hiMelody = Hi_Melody({
   subsets: ["latin"],
 });
 
-// SEO 메타데이터 설정
+// SEO 메타데이터 설정 (강화)
 export const metadata: Metadata = {
   title: "도노트 (Donote) - 마음을 적는 가장 가벼운 후원",
   description: "한국형 마이크로 후원 플랫폼. 회원가입 없이 10초 만에 크리에이터를 응원하세요. 토스, 카카오, 네이버페이 지원.",
-  keywords: ["후원", "크리에이터", "도노트", "donote", "마이크로 후원", "팁", "개발자 후원"],
+  keywords: ["후원", "크리에이터", "도노트", "donote", "마이크로 후원", "팁", "개발자 후원", "블로거 후원", "작가 후원"],
   authors: [{ name: "Donote Team" }],
+  creator: "Donote",
+  publisher: "Donote",
+
+  // Open Graph (Facebook, LinkedIn etc.)
   openGraph: {
-    title: "도노트 (Donote) - 마음을 적는 가장 가벼운 후원",
-    description: "한국형 마이크로 후원 플랫폼. 회원가입 없이 10초 만에 크리에이터를 응원하세요.",
     type: "website",
     locale: "ko_KR",
-    siteName: "도노트",
     url: "https://donote.site",
+    siteName: "도노트",
+    title: "도노트 (Donote) - 마음을 적는 가장 가벼운 후원",
+    description: "한국형 마이크로 후원 플랫폼. 회원가입 없이 10초 만에 크리에이터를 응원하세요.",
+    images: [
+      {
+        url: "https://donote.site/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "도노트 - 마음을 적는 가장 가벼운 후원",
+      },
+    ],
   },
+
+  // Twitter Card
   twitter: {
     card: "summary_large_image",
+    site: "@donote_kr",
+    creator: "@donote_kr",
     title: "도노트 (Donote)",
     description: "마음을 적는 가장 가벼운 후원",
+    images: ["https://donote.site/og-image.png"],
   },
+
+  // Robots & Indexing
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
+
+  // Verification
+  verification: {
+    google: "google-site-verification-code",
+    // Naver, Bing 등 추가 가능
+  },
+
   alternates: {
     canonical: "https://donote.site",
   },

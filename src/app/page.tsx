@@ -5,6 +5,8 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 // 더미 실시간 후원 데이터
 const liveDonations = [
@@ -54,23 +56,8 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="min-h-screen bg-[#F9F9F9]">
-      {/* 네비게이션 */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl">🍩</span>
-            <span className="text-xl font-bold text-[#333]">도노트</span>
-          </Link>
-          <div className="flex gap-4">
-            <Link href="/demo" className="px-4 py-2 text-[#666] hover:text-[#333] transition-colors">
-              데모 보기
-            </Link>
-            <Link href="/auth" className="px-6 py-2 bg-[#FFD95A] rounded-lg text-[#333] font-medium hover:bg-[#FFCE3A] transition-all shadow-sm">
-              시작하기
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* 공통 헤더 */}
+      <Header />
 
       {/* 실시간 후원 티커 */}
       <div className="fixed top-20 left-0 right-0 z-40 overflow-hidden bg-[#FFFACD]/80 backdrop-blur-sm py-2">
@@ -472,28 +459,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 px-6 bg-[#333] text-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🍩</span>
-              <span className="text-xl font-bold">도노트</span>
-            </div>
-
-            <div className="flex gap-6 text-sm text-white/70">
-              <Link href="/about" className="hover:text-white transition-colors">서비스 소개</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">이용약관</Link>
-              <Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link>
-              <Link href="/contact" className="hover:text-white transition-colors">문의하기</Link>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-white/10 text-center text-white/50 text-sm">
-            © 2024 Donote. Made with 💌 in Korea
-          </div>
-        </div>
-      </footer>
+      {/* 공통 푸터 */}
+      <Footer />
     </div>
   );
 }

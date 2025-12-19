@@ -366,7 +366,7 @@ export default function DashboardPage() {
                     {/* 정산 안내 */}
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
                         <h3 className="text-lg font-bold text-[#333] dark:text-white mb-2 flex items-center gap-2">
-                            <span>💳</span> 정산하기
+                            <span>🍯</span> 수확하기
                         </h3>
                         <p className="text-sm text-[#666] dark:text-gray-400 mb-4">
                             정산 가능 금액: <span className="font-bold text-[#FF6B6B]">₩{stats.totalAmount.toLocaleString()}</span>

@@ -16,7 +16,6 @@ export default function AuthPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isSignUp, setIsSignUp] = useState(false);
-    const [userType, setUserType] = useState<'creator' | 'supporter'>('creator');
     const [error, setError] = useState('');
 
     // 소셜 로그인 처리
@@ -261,39 +260,6 @@ export default function AuthPage() {
                                                     minLength={6}
                                                 />
                                             </div>
-
-                                            {/* 계정 유형 선택 (회원가입 시만) */}
-                                            {isSignUp && (
-                                                <div>
-                                                    <label className="block text-sm text-[#666] mb-2">계정 유형</label>
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setUserType('creator')}
-                                                            className={`p-4 rounded-xl border-2 transition-all text-center ${userType === 'creator'
-                                                                    ? 'border-[#FF6B6B] bg-[#FFF0F0]'
-                                                                    : 'border-[#E8D5B7] hover:border-[#FFD95A]'
-                                                                }`}
-                                                        >
-                                                            <span className="text-2xl block mb-1">🎨</span>
-                                                            <span className="font-bold text-[#333] dark:text-white">크리에이터</span>
-                                                            <p className="text-xs text-[#999] mt-1">후원을 받고 싶어요</p>
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setUserType('supporter')}
-                                                            className={`p-4 rounded-xl border-2 transition-all text-center ${userType === 'supporter'
-                                                                    ? 'border-[#FF6B6B] bg-[#FFF0F0]'
-                                                                    : 'border-[#E8D5B7] hover:border-[#FFD95A]'
-                                                                }`}
-                                                        >
-                                                            <span className="text-2xl block mb-1">❤️</span>
-                                                            <span className="font-bold text-[#333] dark:text-white">후원자</span>
-                                                            <p className="text-xs text-[#999] mt-1">후원만 하고 싶어요</p>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
 
                                             {error && (
                                                 <p className={`text-sm ${error.includes('이메일') ? 'text-green-600' : 'text-red-500'}`}>{error}</p>

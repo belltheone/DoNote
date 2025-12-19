@@ -6,14 +6,14 @@
 -- 1. 테이블 생성
 CREATE TABLE IF NOT EXISTS settlements (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    creator_id UUID REFERENCES creators(id) ON DELETE CASCADE NOT NULL,
     amount INTEGER NOT NULL CHECK (amount > 0),
     fee_amount INTEGER NOT NULL DEFAULT 0,
     net_amount INTEGER NOT NULL,
     bank_name VARCHAR(50),
-    account_number VARCHAR(100),
+    account_number VARCHAR(50),
     account_holder VARCHAR(50),
-    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'completed', 'rejected')),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'rejected')),
     requested_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     processed_at TIMESTAMP WITH TIME ZONE,
     completed_at TIMESTAMP WITH TIME ZONE,
@@ -33,12 +33,16 @@ ALTER TABLE settlements ENABLE ROW LEVEL SECURITY;
 -- 4. RLS 정책: 본인 정산만 조회
 CREATE POLICY "Creators can view own settlements" ON settlements
     FOR SELECT
-    USING (creator_id = auth.uid());
+    USING (creator_id IN (
+        SELECT id FROM creators WHERE user_id = auth.uid()
+    ));
 
 -- 5. RLS 정책: 본인 정산만 신청
 CREATE POLICY "Creators can request settlements" ON settlements
     FOR INSERT
-    WITH CHECK (creator_id = auth.uid());
+    WITH CHECK (creator_id IN (
+        SELECT id FROM creators WHERE user_id = auth.uid()
+    ));
 
 -- 6. RLS 정책: 관리자만 정산 처리
 CREATE POLICY "Admins can manage settlements" ON settlements

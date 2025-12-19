@@ -12,7 +12,7 @@ const navItems = [
     { href: "/dashboard", label: "홈", icon: "🏠", exact: true },
     { href: "/dashboard/messages", label: "메시지 월", icon: "📌" },
     { href: "/dashboard/analytics", label: "분석", icon: "📊" },
-    { href: "/dashboard/settlement", label: "정산하기", icon: "💳" },
+    { href: "/dashboard/settlement", label: "수확하기", icon: "🍯" },
     { href: "/dashboard/widget", label: "위젯 생성", icon: "🎫" },
     { href: "/dashboard/settings", label: "설정", icon: "⚙️" },
 ];

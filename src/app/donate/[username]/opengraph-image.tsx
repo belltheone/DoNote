@@ -3,6 +3,8 @@
 
 import { ImageResponse } from 'next/og';
 
+export const runtime = 'edge';
+
 // 이미지 크기 설정
 export const size = {
     width: 1200,
@@ -12,12 +14,10 @@ export const size = {
 export const contentType = 'image/png';
 
 // OG 이미지 생성 함수
-export default async function OGImage({
-    params
-}: {
+export default async function OGImage(props: {
     params: Promise<{ username: string }>
 }) {
-    const { username } = await params;
+    const { username } = await props.params;
 
     return new ImageResponse(
         (

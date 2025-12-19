@@ -351,6 +351,143 @@ export async function getAllSettlements(): Promise<{
     }));
 }
 
+// ===== 정산 정보 관리 =====
+
+// 정산 정보 타입
+export interface SettlementInfo {
+    id?: string;
+    creatorId: string;
+    realName: string;
+    ssnFront: string;
+    ssnBackEncrypted: string;
+    address: string;
+    phoneNumber: string;
+    bankName: string;
+    accountNumberEncrypted: string;
+    accountHolder: string;
+    isVerified?: boolean;
+}
+
+// 정산 정보 저장/업데이트
+export async function upsertSettlementInfo(info: SettlementInfo): Promise<boolean> {
+    const { error } = await supabase
+        .from('creator_settlement_info')
+        .upsert({
+            creator_id: info.creatorId,
+            real_name: info.realName,
+            ssn_front: info.ssnFront,
+            ssn_back_encrypted: info.ssnBackEncrypted,
+            address: info.address,
+            phone_number: info.phoneNumber,
+            bank_name: info.bankName,
+            account_number_encrypted: info.accountNumberEncrypted,
+            account_holder: info.accountHolder,
+        }, { onConflict: 'creator_id' });
+
+    if (error) {
+        console.error('정산 정보 저장 오류:', error);
+        return false;
+    }
+    return true;
+}
+
+// 정산 정보 조회
+export async function getSettlementInfo(creatorId: string): Promise<SettlementInfo | null> {
+    const { data, error } = await supabase
+        .from('creator_settlement_info')
+        .select('*')
+        .eq('creator_id', creatorId)
+        .single();
+
+    if (error) {
+        if (error.code !== 'PGRST116') {
+            console.error('정산 정보 조회 오류:', error);
+        }
+        return null;
+    }
+
+    return {
+        id: data.id,
+        creatorId: data.creator_id,
+        realName: data.real_name,
+        ssnFront: data.ssn_front,
+        ssnBackEncrypted: data.ssn_back_encrypted,
+        address: data.address,
+        phoneNumber: data.phone_number,
+        bankName: data.bank_name,
+        accountNumberEncrypted: data.account_number_encrypted,
+        accountHolder: data.account_holder,
+        isVerified: data.is_verified,
+    };
+}
+
+// ===== 정산 요청/승인 시스템 =====
+
+export type SettlementStatus = 'pending' | 'approved' | 'completed' | 'rejected';
+
+// 정산 요청 생성
+export async function requestSettlement(creatorId: string, amount: number): Promise<{ success: boolean; message: string; settlementId?: string }> {
+    const feeRate = 0.05;
+    const feeAmount = Math.round(amount * feeRate);
+    const netAmount = amount - feeAmount;
+
+    if (amount < 1000) {
+        return { success: false, message: '최소 정산 금액은 1,000원입니다.' };
+    }
+
+    const settlementInfo = await getSettlementInfo(creatorId);
+    if (!settlementInfo) {
+        return { success: false, message: '정산 정보를 먼저 등록해주세요.' };
+    }
+
+    const { data, error } = await supabase
+        .from('settlements')
+        .insert({
+            creator_id: creatorId,
+            amount: amount,
+            fee_amount: feeAmount,
+            net_amount: netAmount,
+            bank_name: settlementInfo.bankName,
+            account_number: settlementInfo.accountNumberEncrypted,
+            account_holder: settlementInfo.accountHolder,
+            status: 'pending',
+        })
+        .select('id')
+        .single();
+
+    if (error) {
+        console.error('정산 요청 오류:', error);
+        return { success: false, message: '정산 요청에 실패했습니다.' };
+    }
+
+    return { success: true, message: '정산 요청이 완료되었습니다. 영업일 기준 3-5일 내 처리됩니다.', settlementId: data.id };
+}
+
+// 내 정산 내역 조회
+export async function getMySettlements(creatorId: string): Promise<{
+    id: string; amount: number; netAmount: number; status: SettlementStatus; requestedAt: string; completedAt?: string;
+}[]> {
+    const { data, error } = await supabase
+        .from('settlements')
+        .select('*')
+        .eq('creator_id', creatorId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('내 정산 내역 조회 오류:', error);
+        return [];
+    }
+
+    return (data || []).map(s => ({
+        id: s.id,
+        amount: s.amount,
+        netAmount: s.net_amount,
+        status: s.status as SettlementStatus,
+        requestedAt: s.created_at,
+        completedAt: s.completed_at,
+    }));
+}
+
 // ===== Mock 데이터 (개발용 - DB에 데이터가 없을 때 사용) =====
 
 // Mock 후원 데이터

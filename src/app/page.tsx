@@ -218,7 +218,7 @@ export default function Home() {
       </section>
 
       {/* 특징 섹션 */}
-      <section className="py-24 px-6 bg-[#F9F9F9]">
+      <section className="py-24 px-6 bg-[#F9F9F9] dark:bg-gray-900">
         <div className="max-w-5xl mx-auto">
           <motion.div
             className="text-center mb-16"
@@ -226,8 +226,8 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">왜 도노트인가요?</h2>
-            <p className="text-lg text-[#666]">간단하지만 따뜻한 세 가지 이유</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333] dark:text-white">왜 도노트인가요?</h2>
+            <p className="text-lg text-[#666] dark:text-gray-400">간단하지만 따뜻한 세 가지 이유</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -263,8 +263,8 @@ export default function Home() {
               >
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-white/70 rounded shadow-sm"></div>
                 <div className="text-4xl mb-4">{feature.emoji}</div>
-                <h3 className="text-xl font-bold mb-2 text-[#333]">{feature.title}</h3>
-                <p className="text-[#666] leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-[#333] dark:text-white">{feature.title}</h3>
+                <p className="text-[#666] dark:text-gray-400 leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -272,7 +272,7 @@ export default function Home() {
       </section>
 
       {/* 크리에이터 갤러리 */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-white dark:bg-gray-800">
         <div className="max-w-5xl mx-auto">
           <motion.div
             className="text-center mb-12"
@@ -280,8 +280,8 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333]">이미 많은 크리에이터가 함께해요</h2>
-            <p className="text-lg text-[#666]">개발자, 디자이너, 작가들의 커스텀 위젯</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333] dark:text-white">이미 많은 크리에이터가 함께해요</h2>
+            <p className="text-lg text-[#666] dark:text-gray-400">개발자, 디자이너, 작가들의 커스텀 위젯</p>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -302,7 +302,7 @@ export default function Home() {
                 <div className={`${creator.color} rounded-xl p-4 shadow-md mb-3 ${creator.color === 'bg-[#333]' ? 'text-white' : 'text-[#333]'} ${creator.color === 'bg-white' ? 'border border-gray-200' : ''}`}>
                   <span className="font-medium text-sm">{creator.widget}</span>
                 </div>
-                <p className="text-sm text-[#666]">{creator.name}</p>
+                <p className="text-sm text-[#666] dark:text-gray-400">{creator.name}</p>
               </motion.div>
             ))}
           </div>

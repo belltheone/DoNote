@@ -13,11 +13,18 @@ export const size = {
 
 export const contentType = 'image/png';
 
-// OG 이미지 생성 함수
+// 테스트를 위해 단순화된 OG 이미지
 export default async function OGImage(props: {
     params: Promise<{ username: string }>
 }) {
-    const { username } = await props.params;
+    let username = 'unknown';
+
+    try {
+        const resolvedParams = await props.params;
+        username = resolvedParams.username || 'unknown';
+    } catch {
+        username = 'error';
+    }
 
     return new ImageResponse(
         (
@@ -33,73 +40,30 @@ export default async function OGImage(props: {
                     fontFamily: 'sans-serif',
                 }}
             >
-                {/* 메인 카드 */}
                 <div
                     style={{
                         background: 'white',
-                        borderRadius: '32px',
+                        borderRadius: 32,
                         padding: '60px 100px',
-                        boxShadow: '0 25px 80px rgba(0,0,0,0.15)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                     }}
                 >
-                    {/* 로고 */}
-                    <div
-                        style={{
-                            fontSize: '100px',
-                            marginBottom: '20px',
-                        }}
-                    >
-                        🍩
-                    </div>
-
-                    {/* 크리에이터 이름 */}
-                    <div
-                        style={{
-                            fontSize: '56px',
-                            fontWeight: 'bold',
-                            color: '#333',
-                            marginBottom: '16px',
-                        }}
-                    >
+                    <div style={{ fontSize: 80, marginBottom: 20 }}>🍩</div>
+                    <div style={{ fontSize: 48, fontWeight: 'bold', color: '#333', marginBottom: 16 }}>
                         @{username}
                     </div>
-
-                    {/* 설명 */}
-                    <div
-                        style={{
-                            fontSize: '32px',
-                            color: '#666',
-                        }}
-                    >
-                        님에게 후원하기
+                    <div style={{ fontSize: 28, color: '#666' }}>
+                        Support this creator
                     </div>
                 </div>
-
-                {/* CTA 버튼 */}
-                <div
-                    style={{
-                        marginTop: '50px',
-                        background: 'rgba(255,255,255,0.2)',
-                        borderRadius: '16px',
-                        padding: '16px 40px',
-                        color: 'white',
-                        fontSize: '24px',
-                        fontWeight: 'bold',
-                    }}
-                >
-                    💌 쪽지 보내기
-                </div>
-
-                {/* 브랜딩 */}
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: '40px',
-                        fontSize: '28px',
+                        bottom: 40,
                         color: 'rgba(255,255,255,0.9)',
+                        fontSize: 24,
                         fontWeight: 'bold',
                     }}
                 >
@@ -107,8 +71,6 @@ export default async function OGImage(props: {
                 </div>
             </div>
         ),
-        {
-            ...size,
-        }
+        { ...size }
     );
 }

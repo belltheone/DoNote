@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { realtimeManager } from "@/lib/realtime";
 import { NotificationToast } from "@/components/NotificationToast";
 import { useAuthStore } from "@/store/auth";
+import { DashboardSkeleton } from "@/components/ui/skeleton";
 
 interface Notification {
     id: string;
@@ -170,11 +171,8 @@ export default function DashboardPage() {
     // 로딩 중
     if (isLoading) {
         return (
-            <div className="max-w-6xl mx-auto flex items-center justify-center min-h-[400px]">
-                <div className="text-center">
-                    <div className="text-5xl mb-4 animate-bounce">🍩</div>
-                    <p className="text-[#666] dark:text-gray-400">데이터 불러오는 중...</p>
-                </div>
+            <div className="max-w-6xl mx-auto">
+                <DashboardSkeleton />
             </div>
         );
     }

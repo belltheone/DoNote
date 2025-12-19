@@ -3,11 +3,12 @@
 // 소셜 로그인 후 처음 접속 시 표시
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/auth";
 import { supabase, upsertCreatorProfile } from "@/lib/supabase";
 import { Header } from "@/components/layout/Header";
+import { OnboardingProgress } from "@/components/ui/OnboardingProgress";
 import { toast } from "sonner";
 
 // 아바타 이모지 옵션
@@ -111,7 +112,7 @@ export default function OnboardingPage() {
     // 로딩 중
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+            <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex items-center justify-center">
                 <motion.div
                     className="text-4xl"
                     animate={{ rotate: 360 }}
@@ -129,8 +130,24 @@ export default function OnboardingPage() {
         return null;
     }
 
+    // 진행률 계산
+    const progressSteps = useMemo(() => [
+        { label: "프로필", icon: "😊" },
+        { label: "핸들", icon: "🔗" },
+        { label: "정보", icon: "📝" },
+        { label: "완료", icon: "🎉" },
+    ], []);
+
+    const currentProgress = useMemo(() => {
+        let step = 1; // 기본 시작 단계
+        if (avatar !== '👨‍💻') step++; // 아바타 선택함
+        if (handle.length >= 3 && !handleError) step++; // 핸들 입력함
+        if (displayName.trim()) step++; // 이름 입력함
+        return step;
+    }, [avatar, handle, handleError, displayName]);
+
     return (
-        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
             <Header />
 
             <main className="flex-1 flex items-center justify-center p-6">
@@ -139,6 +156,13 @@ export default function OnboardingPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
+                    {/* 진행률 표시 */}
+                    <OnboardingProgress
+                        currentStep={currentProgress}
+                        totalSteps={4}
+                        steps={progressSteps}
+                    />
+
                     {/* 헤더 */}
                     <div className="text-center mb-8">
                         <motion.div
@@ -148,16 +172,16 @@ export default function OnboardingPage() {
                         >
                             🍩
                         </motion.div>
-                        <h1 className="text-2xl font-bold text-[#333] mb-2">
+                        <h1 className="text-2xl font-bold text-[#333] dark:text-white mb-2">
                             환영합니다! 🎉
                         </h1>
-                        <p className="text-[#666]">
+                        <p className="text-[#666] dark:text-gray-400">
                             크리에이터 프로필을 만들어주세요
                         </p>
                     </div>
 
                     {/* 폼 */}
-                    <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-100 relative">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 relative">
                         {/* 테이프 장식 */}
                         <div className="absolute -top-2 left-8 w-16 h-3 bg-[#FFD95A]/80 rounded transform -rotate-2" />
                         <div className="absolute -top-2 right-8 w-16 h-3 bg-[#FF6B6B]/60 rounded transform rotate-2" />
@@ -165,7 +189,7 @@ export default function OnboardingPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* 아바타 선택 */}
                             <div>
-                                <label className="block text-sm font-medium text-[#333] mb-3">
+                                <label className="block text-sm font-medium text-[#333] dark:text-white mb-3">
                                     프로필 이모지
                                 </label>
                                 <div className="flex flex-wrap gap-2">
@@ -175,8 +199,8 @@ export default function OnboardingPage() {
                                             type="button"
                                             onClick={() => setAvatar(emoji)}
                                             className={`w-12 h-12 text-2xl rounded-xl transition-all ${avatar === emoji
-                                                    ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
-                                                    : 'bg-gray-100 hover:bg-gray-200'
+                                                ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
+                                                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                                                 }`}
                                         >
                                             {emoji}
@@ -187,11 +211,11 @@ export default function OnboardingPage() {
 
                             {/* 핸들 */}
                             <div>
-                                <label className="block text-sm font-medium text-[#333] mb-2">
+                                <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                     핸들 (URL)
                                 </label>
                                 <div className="flex items-center">
-                                    <span className="text-[#666] mr-2">donote.site/</span>
+                                    <span className="text-[#666] dark:text-gray-400 mr-2">donote.site/</span>
                                     <input
                                         type="text"
                                         value={handle}
@@ -200,8 +224,8 @@ export default function OnboardingPage() {
                                             setHandle(v);
                                             validateHandle(v);
                                         }}
-                                        className={`flex-1 px-4 py-3 rounded-xl border-2 ${handleError ? 'border-red-300' : 'border-gray-200'
-                                            } focus:border-[#FFD95A] focus:outline-none transition-colors`}
+                                        className={`flex-1 px-4 py-3 rounded-xl border-2 ${handleError ? 'border-red-300' : 'border-gray-200 dark:border-gray-600'
+                                            } dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors`}
                                         placeholder="myhandle"
                                         maxLength={20}
                                     />
@@ -213,14 +237,14 @@ export default function OnboardingPage() {
 
                             {/* 표시 이름 */}
                             <div>
-                                <label className="block text-sm font-medium text-[#333] mb-2">
+                                <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                     표시 이름
                                 </label>
                                 <input
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
                                     placeholder="개발하는 민수"
                                     maxLength={50}
                                 />
@@ -228,13 +252,13 @@ export default function OnboardingPage() {
 
                             {/* 소개 */}
                             <div>
-                                <label className="block text-sm font-medium text-[#333] mb-2">
+                                <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                     한 줄 소개 (선택)
                                 </label>
                                 <textarea
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors resize-none"
+                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors resize-none"
                                     placeholder="프론트엔드 개발자 | React, Next.js"
                                     rows={2}
                                     maxLength={100}
@@ -254,14 +278,14 @@ export default function OnboardingPage() {
 
                     {/* 미리보기 */}
                     <div className="mt-8">
-                        <p className="text-center text-[#666] text-sm mb-4">미리보기</p>
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
-                            <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFACD] flex items-center justify-center text-3xl mb-3">
+                        <p className="text-center text-[#666] dark:text-gray-400 text-sm mb-4">미리보기</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+                            <div className="w-16 h-16 mx-auto rounded-full bg-[#FFFACD] dark:bg-yellow-900/50 flex items-center justify-center text-3xl mb-3">
                                 {avatar}
                             </div>
-                            <h3 className="font-bold text-[#333]">{displayName || '표시 이름'}</h3>
-                            <p className="text-[#666] text-sm">@{handle || 'handle'}</p>
-                            {bio && <p className="text-[#999] text-sm mt-2">{bio}</p>}
+                            <h3 className="font-bold text-[#333] dark:text-white">{displayName || '표시 이름'}</h3>
+                            <p className="text-[#666] dark:text-gray-400 text-sm">@{handle || 'handle'}</p>
+                            {bio && <p className="text-[#999] dark:text-gray-500 text-sm mt-2">{bio}</p>}
                         </div>
                     </div>
                 </motion.div>

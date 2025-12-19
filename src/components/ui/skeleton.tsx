@@ -103,3 +103,66 @@ export function PageLoader() {
         </div>
     );
 }
+
+// 리스트 아이템 스켈레톤
+export function SkeletonListItem() {
+    return (
+        <div className="flex items-center gap-4 p-4 border-b border-gray-100 dark:border-gray-700">
+            <Skeleton className="w-10 h-10 rounded-full" />
+            <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/5" />
+                <Skeleton className="h-3 w-4/5" />
+            </div>
+            <Skeleton className="h-6 w-16 rounded-lg" />
+        </div>
+    );
+}
+
+// 대시보드 전체 스켈레톤
+export function DashboardSkeleton() {
+    return (
+        <div className="space-y-6">
+            {/* 환영 메시지 */}
+            <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-6">
+                <Skeleton className="h-7 w-3/5 bg-white/30 mb-2" />
+                <Skeleton className="h-5 w-2/5 bg-white/30" />
+            </div>
+
+            {/* 통계 카드 그리드 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+            </div>
+
+            {/* 메인 컨텐츠 */}
+            <div className="grid md:grid-cols-3 gap-6">
+                {/* 최근 쪽지 */}
+                <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-6">
+                        <Skeleton className="h-6 w-28" />
+                        <Skeleton className="h-8 w-20 rounded-lg" />
+                    </div>
+                    <SkeletonListItem />
+                    <SkeletonListItem />
+                    <SkeletonListItem />
+                </div>
+
+                {/* 사이드바 */}
+                <div className="space-y-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <Skeleton className="w-16 h-16 rounded-full mx-auto mb-4" />
+                        <Skeleton className="h-5 w-24 mx-auto mb-2" />
+                        <Skeleton className="h-4 w-16 mx-auto" />
+                    </div>
+                    <div className="bg-gradient-to-br from-[#FF6B6B] to-[#FF8E8E] rounded-xl p-6">
+                        <Skeleton className="h-5 w-24 bg-white/30 mb-2" />
+                        <Skeleton className="h-4 w-4/5 bg-white/30 mb-4" />
+                        <Skeleton className="h-10 w-full rounded-lg bg-white/30" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

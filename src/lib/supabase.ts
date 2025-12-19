@@ -351,6 +351,112 @@ export async function getAllSettlements(): Promise<{
     }));
 }
 
+// ===== 정산 정보 관리 =====
+
+// 정산 정보 타입
+export interface SettlementInfo {
+    id?: string;
+    creatorId: string;
+    realName: string;
+    ssnFront: string;
+    ssnBackEncrypted: string;
+    address: string;
+    phoneNumber: string;
+    bankName: string;
+    accountNumberEncrypted: string;
+    accountHolder: string;
+    isVerified?: boolean;
+}
+
+// 정산 정보 저장/업데이트
+export async function upsertSettlementInfo(info: SettlementInfo): Promise<boolean> {
+    const { error } = await supabase
+        .from('creator_settlement_info')
+        .upsert({
+            creator_id: info.creatorId,
+            real_name: info.realName,
+            ssn_front: info.ssnFront,
+            ssn_back_encrypted: info.ssnBackEncrypted,
+            account_number_encrypted: info.accountNumberEncrypted,
+            address: info.address,
+            phone_number: info.phoneNumber,
+            bank_name: info.bankName,
+            account_holder: info.accountHolder,
+        }, { onConflict: 'creator_id' });
+
+    if (error) {
+        console.error('정산 정보 저장 오류:', error);
+        return false;
+    }
+    return true;
+}
+
+// 정산 정보 조회
+export async function getSettlementInfo(creatorId: string): Promise<SettlementInfo | null> {
+    const { data, error } = await supabase
+        .from('creator_settlement_info')
+        .select('*')
+        .eq('creator_id', creatorId)
+        .single();
+
+    if (error) {
+        if (error.code !== 'PGRST116') {
+            console.error('정산 정보 조회 오류:', error);
+        }
+        return null;
+    }
+
+    return {
+        id: data.id,
+        creatorId: data.creator_id,
+        realName: data.real_name,
+        ssnFront: data.ssn_front,
+        ssnBackEncrypted: data.ssn_back_encrypted,
+        address: data.address,
+        phoneNumber: data.phone_number,
+        bankName: data.bank_name,
+        accountNumberEncrypted: data.account_number_encrypted,
+        accountHolder: data.account_holder,
+        isVerified: data.is_verified,
+    };
+}
+
+// ===== 사용자 역할 관리 =====
+
+export type UserRole = 'admin' | 'creator' | 'supporter';
+export type AccountType = 'creator' | 'supporter';
+
+// 사용자 역할 설정
+export async function setUserRole(userId: string, role: UserRole, accountType: AccountType): Promise<boolean> {
+    const { error } = await supabase
+        .from('user_roles')
+        .upsert({ user_id: userId, role, account_type: accountType }, { onConflict: 'user_id' });
+
+    if (error) {
+        console.error('사용자 역할 설정 오류:', error);
+        return false;
+    }
+    return true;
+}
+
+// 사용자 역할 조회
+export async function getUserRole(userId: string): Promise<{ role: UserRole; accountType: AccountType } | null> {
+    const { data, error } = await supabase
+        .from('user_roles')
+        .select('role, account_type')
+        .eq('user_id', userId)
+        .single();
+
+    if (error) {
+        if (error.code !== 'PGRST116') {
+            console.error('사용자 역할 조회 오류:', error);
+        }
+        return null;
+    }
+
+    return { role: data.role, accountType: data.account_type || 'creator' };
+}
+
 // ===== Mock 데이터 (개발용 - DB에 데이터가 없을 때 사용) =====
 
 // Mock 후원 데이터

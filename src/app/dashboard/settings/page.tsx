@@ -357,6 +357,12 @@ export default function SettingsPage() {
                         <input type="text" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="도로명 주소를 입력해주세요" />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">휴대폰 번호 <span className="text-red-500">*</span></label>
+                        <input type="tel" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="010-0000-0000" />
+                        <p className="text-xs text-[#999] dark:text-gray-500 mt-1">정산 관련 안내 문자가 발송됩니다.</p>
+                    </div>
+
                     <hr className="border-gray-200 dark:border-gray-600 my-4" />
 
                     <div>

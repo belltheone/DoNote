@@ -79,7 +79,7 @@ export default function Home() {
       </div>
 
       {/* 히어로 섹션 - 3D 편지봉투 */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-16 overflow-hidden paper-bg dark:bg-gray-900">
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-24 md:pt-32 overflow-hidden paper-bg dark:bg-gray-900">
         {/* 배경 데코 - 떨어지는 포스트잇 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(6)].map((_, i) => (

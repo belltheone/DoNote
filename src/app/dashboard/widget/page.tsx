@@ -257,6 +257,86 @@ export default function WidgetPage() {
                             💡 <strong>팁:</strong> GitHub README, Velog, 티스토리 등 어디에든 붙여넣기만 하면 됩니다!
                         </p>
                     </div>
+
+                    {/* 위젯 설정 가이드 */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                            <span>📖</span> 위젯 설정 가이드
+                        </h3>
+
+                        <div className="space-y-6">
+                            {/* 스텝 1 */}
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">1</div>
+                                <div>
+                                    <h4 className="font-bold text-[#333] dark:text-white mb-1">위젯 스타일 선택</h4>
+                                    <p className="text-sm text-[#666] dark:text-gray-400">
+                                        티켓형, 버튼형, 미니 중 원하는 스타일을 선택하세요. 블로그/README에는 <strong>티켓형</strong>, 사이드바에는 <strong>미니</strong>를 추천합니다.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* 스텝 2 */}
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">2</div>
+                                <div>
+                                    <h4 className="font-bold text-[#333] dark:text-white mb-1">색상 및 문구 설정</h4>
+                                    <p className="text-sm text-[#666] dark:text-gray-400">
+                                        테마에 맞는 색상을 선택하고, "커피 한 잔 ☕" 같은 문구를 설정하세요. 직접 입력도 가능합니다.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* 스텝 3 */}
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">3</div>
+                                <div>
+                                    <h4 className="font-bold text-[#333] dark:text-white mb-1">코드 복사하기</h4>
+                                    <p className="text-sm text-[#666] dark:text-gray-400 mb-2">
+                                        위의 <strong>임베드 코드</strong>에서 HTML 또는 Markdown 코드를 복사하세요.
+                                    </p>
+                                    <ul className="text-xs text-[#999] dark:text-gray-500 space-y-1">
+                                        <li>• <strong>HTML</strong>: 일반 웹사이트, 티스토리, 네이버 블로그</li>
+                                        <li>• <strong>Markdown</strong>: GitHub README, Velog, Notion</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            {/* 스텝 4 */}
+                            <div className="flex gap-4">
+                                <div className="w-8 h-8 bg-[#FF6B6B] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">4</div>
+                                <div>
+                                    <h4 className="font-bold text-[#333] dark:text-white mb-1">붙여넣기</h4>
+                                    <p className="text-sm text-[#666] dark:text-gray-400">
+                                        블로그 글 하단, README.md 파일, 또는 사이드바에 복사한 코드를 붙여넣으세요. 끝!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 플랫폼별 가이드 */}
+                        <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <h4 className="font-bold text-[#333] dark:text-white mb-3 text-sm">📚 플랫폼별 상세 가이드</h4>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg">
+                                    <strong className="text-[#333] dark:text-white">GitHub</strong>
+                                    <p className="text-[#666] dark:text-gray-400">README.md에 Markdown 코드 붙여넣기</p>
+                                </div>
+                                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg">
+                                    <strong className="text-[#333] dark:text-white">Velog</strong>
+                                    <p className="text-[#666] dark:text-gray-400">글 작성 시 Markdown 코드 삽입</p>
+                                </div>
+                                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg">
+                                    <strong className="text-[#333] dark:text-white">티스토리</strong>
+                                    <p className="text-[#666] dark:text-gray-400">HTML 모드에서 코드 붙여넣기</p>
+                                </div>
+                                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg">
+                                    <strong className="text-[#333] dark:text-white">Notion</strong>
+                                    <p className="text-[#666] dark:text-gray-400">/embed 블록에 URL 입력</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
             </div>
         </div>

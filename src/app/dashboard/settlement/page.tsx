@@ -1,5 +1,5 @@
 "use client";
-// 정산 신청 페이지 - 수확하기 (The Harvest)
+// 정산 신청 페이지 - 정산하기 (Settlement)
 
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -53,7 +53,7 @@ export default function SettlementPage() {
                 animate={{ opacity: 1, y: 0 }}
             >
                 <h2 className="text-2xl font-bold text-[#333] flex items-center gap-2">
-                    <span>🍯</span> 수확하기
+                    <span>💳</span> 정산하기
                 </h2>
                 <p className="text-[#666] mt-1">받은 후원금을 정산받으세요</p>
             </motion.div>

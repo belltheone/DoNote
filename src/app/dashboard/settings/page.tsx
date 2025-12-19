@@ -140,8 +140,8 @@ export default function SettingsPage() {
                                 key={emoji}
                                 onClick={() => setAvatar(emoji)}
                                 className={`w-12 h-12 text-2xl rounded-xl transition-all ${avatar === emoji
-                                        ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
-                                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                    ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
+                                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {emoji}
@@ -220,8 +220,8 @@ export default function SettingsPage() {
                             key={theme.name}
                             onClick={() => setSelectedTheme(index)}
                             className={`p-4 rounded-xl border-2 transition-all ${selectedTheme === index
-                                    ? 'border-[#333] dark:border-white scale-105'
-                                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
+                                ? 'border-[#333] dark:border-white scale-105'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
                                 }`}
                         >
                             <div className="flex gap-2 mb-2">
@@ -315,6 +315,81 @@ export default function SettingsPage() {
                             />
                         </div>
                     ))}
+                </div>
+            </motion.div>
+
+            {/* 정산 정보 설정 */}
+            <motion.div
+                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+            >
+                <h3 className="text-lg font-bold text-[#333] dark:text-white mb-2 flex items-center gap-2">
+                    <span>💳</span> 정산 정보
+                </h3>
+                <p className="text-sm text-[#999] dark:text-gray-500 mb-6">
+                    후원금을 받으시려면 정산에 필요한 정보를 입력해주세요.
+                </p>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                            성명 <span className="text-red-500">*</span>
+                        </label>
+                        <input type="text" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="실명을 입력해주세요" />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                            주민등록번호 <span className="text-red-500">*</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                            <input type="text" maxLength={6} className="w-28 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors text-center" placeholder="앞 6자리" />
+                            <span className="text-[#666]">-</span>
+                            <input type="password" maxLength={7} className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors text-center" placeholder="뒤 7자리" />
+                        </div>
+                        <p className="text-xs text-[#999] dark:text-gray-500 mt-1">⚠️ 세금 신고를 위해 필요합니다. 암호화되어 안전하게 저장됩니다.</p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">주소 <span className="text-red-500">*</span></label>
+                        <input type="text" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="도로명 주소를 입력해주세요" />
+                    </div>
+
+                    <hr className="border-gray-200 dark:border-gray-600 my-4" />
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">은행명 <span className="text-red-500">*</span></label>
+                        <select className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors">
+                            <option value="">은행을 선택해주세요</option>
+                            <option value="카카오뱅크">카카오뱅크</option>
+                            <option value="토스뱅크">토스뱅크</option>
+                            <option value="케이뱅크">케이뱅크</option>
+                            <option value="국민은행">국민은행</option>
+                            <option value="신한은행">신한은행</option>
+                            <option value="우리은행">우리은행</option>
+                            <option value="하나은행">하나은행</option>
+                            <option value="농협은행">농협은행</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">계좌번호 <span className="text-red-500">*</span></label>
+                        <input type="text" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="-없이 숫자만 입력" />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">예금주명 <span className="text-red-500">*</span></label>
+                        <input type="text" className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors" placeholder="예금주명을 입력해주세요" />
+                        <p className="text-xs text-[#999] dark:text-gray-500 mt-1">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+                    </div>
+
+                    <div className="p-4 bg-[#FFFACD] dark:bg-yellow-900/20 rounded-xl border-2 border-dashed border-[#FFD95A]">
+                        <p className="text-sm text-[#666] dark:text-gray-300">
+                            🔐 <strong>본인인증 안내:</strong> 정산 신청 시 본인인증 절차가 진행됩니다.
+                        </p>
+                    </div>
                 </div>
             </motion.div>
 

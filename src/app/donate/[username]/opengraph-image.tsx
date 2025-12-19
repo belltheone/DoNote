@@ -30,51 +30,85 @@ export default async function OGImage(props: {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    fontFamily: 'sans-serif',
                 }}
             >
+                {/* 메인 카드 */}
                 <div
                     style={{
                         background: 'white',
-                        borderRadius: 24,
-                        padding: '48px 64px',
+                        borderRadius: '32px',
+                        padding: '60px 100px',
+                        boxShadow: '0 25px 80px rgba(0,0,0,0.15)',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                     }}
                 >
-                    <div style={{ fontSize: 72, marginBottom: 16 }}>🍩</div>
-                    <div style={{ fontSize: 42, fontWeight: 700, color: '#333', marginBottom: 8 }}>
-                        @{username}
-                    </div>
-                    <div style={{ fontSize: 24, color: '#666', marginBottom: 24 }}>
-                        님에게 후원하기
-                    </div>
+                    {/* 로고 */}
                     <div
                         style={{
-                            background: '#FF6B6B',
-                            borderRadius: 12,
-                            padding: '12px 32px',
-                            color: 'white',
-                            fontSize: 20,
-                            fontWeight: 600,
+                            fontSize: '100px',
+                            marginBottom: '20px',
                         }}
                     >
-                        💌 쪽지 보내기
+                        🍩
+                    </div>
+
+                    {/* 크리에이터 이름 */}
+                    <div
+                        style={{
+                            fontSize: '56px',
+                            fontWeight: 'bold',
+                            color: '#333',
+                            marginBottom: '16px',
+                        }}
+                    >
+                        @{username}
+                    </div>
+
+                    {/* 설명 */}
+                    <div
+                        style={{
+                            fontSize: '32px',
+                            color: '#666',
+                        }}
+                    >
+                        님에게 후원하기
                     </div>
                 </div>
+
+                {/* CTA 버튼 */}
+                <div
+                    style={{
+                        marginTop: '50px',
+                        background: 'rgba(255,255,255,0.2)',
+                        borderRadius: '16px',
+                        padding: '16px 40px',
+                        color: 'white',
+                        fontSize: '24px',
+                        fontWeight: 'bold',
+                    }}
+                >
+                    💌 쪽지 보내기
+                </div>
+
+                {/* 브랜딩 */}
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: 32,
+                        bottom: '40px',
+                        fontSize: '28px',
                         color: 'rgba(255,255,255,0.9)',
-                        fontSize: 22,
-                        fontWeight: 600,
+                        fontWeight: 'bold',
                     }}
                 >
                     donote.site
                 </div>
             </div>
         ),
-        { ...size }
+        {
+            ...size,
+        }
     );
 }

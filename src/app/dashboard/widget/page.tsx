@@ -1,8 +1,10 @@
 "use client";
 // 위젯 생성 페이지 - 커스터마이징 및 임베드 코드 생성
+// QR 코드, 다크모드 지원
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { QRCodeGenerator } from "@/components/dashboard/QRCodeGenerator";
 
 // 위젯 스타일 옵션
 const widgetStyles = [
@@ -67,8 +69,8 @@ export default function WidgetPage() {
                     animate={{ opacity: 1, x: 0 }}
                 >
                     {/* 스타일 선택 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                             <span>🎨</span> 위젯 스타일
                         </h3>
                         <div className="grid grid-cols-3 gap-3">
@@ -77,20 +79,20 @@ export default function WidgetPage() {
                                     key={ws.id}
                                     onClick={() => setStyle(ws.id)}
                                     className={`p-4 rounded-xl border-2 transition-all text-center ${style === ws.id
-                                            ? 'border-[#FF6B6B] bg-[#FFFACD]'
-                                            : 'border-gray-200 hover:border-[#FFD95A]'
+                                        ? 'border-[#FF6B6B] bg-[#FFFACD]'
+                                        : 'border-gray-200 hover:border-[#FFD95A]'
                                         }`}
                                 >
                                     <span className="text-2xl block mb-1">{ws.emoji}</span>
-                                    <span className="text-sm text-[#333]">{ws.name}</span>
+                                    <span className="text-sm text-[#333] dark:text-white">{ws.name}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
                     {/* 색상 선택 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                             <span>🎨</span> 색상
                         </h3>
                         <div className="grid grid-cols-4 gap-3">
@@ -99,8 +101,8 @@ export default function WidgetPage() {
                                     key={co.id}
                                     onClick={() => setColor(co.id)}
                                     className={`p-3 rounded-xl border-2 transition-all ${color === co.id
-                                            ? 'border-[#FF6B6B] ring-2 ring-[#FF6B6B]/30'
-                                            : 'border-gray-200'
+                                        ? 'border-[#FF6B6B] ring-2 ring-[#FF6B6B]/30'
+                                        : 'border-gray-200'
                                         }`}
                                 >
                                     <div
@@ -114,8 +116,8 @@ export default function WidgetPage() {
                     </div>
 
                     {/* 문구 선택 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                             <span>✍️</span> 문구
                         </h3>
 
@@ -126,8 +128,8 @@ export default function WidgetPage() {
                                     key={t}
                                     onClick={() => { setText(t); setCustomText(''); }}
                                     className={`px-3 py-2 rounded-lg text-sm transition-all ${text === t && !customText
-                                            ? 'bg-[#FFD95A] text-[#333]'
-                                            : 'bg-gray-100 text-[#666] hover:bg-gray-200'
+                                        ? 'bg-[#FFD95A] text-[#333]'
+                                        : 'bg-gray-100 text-[#666] hover:bg-gray-200'
                                         }`}
                                 >
                                     {t}
@@ -141,7 +143,7 @@ export default function WidgetPage() {
                             value={customText}
                             onChange={(e) => setCustomText(e.target.value)}
                             placeholder="직접 입력하기..."
-                            className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                            className="w-full px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
                             maxLength={30}
                         />
                     </div>
@@ -154,12 +156,12 @@ export default function WidgetPage() {
                     animate={{ opacity: 1, x: 0 }}
                 >
                     {/* 미리보기 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                             <span>👁️</span> 미리보기
                         </h3>
 
-                        <div className="p-8 bg-gray-50 rounded-xl flex items-center justify-center min-h-[200px]">
+                        <div className="p-8 bg-gray-50 dark:bg-gray-900 rounded-xl flex items-center justify-center min-h-[200px]">
                             {/* 위젯 미리보기 */}
                             {style === 'ticket' && (
                                 <div
@@ -201,8 +203,8 @@ export default function WidgetPage() {
                     </div>
 
                     {/* 임베드 코드 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
                             <span>📋</span> 임베드 코드
                         </h3>
 
@@ -243,9 +245,15 @@ export default function WidgetPage() {
                         </div>
                     </div>
 
+                    {/* QR 코드 */}
+                    <QRCodeGenerator
+                        url={`https://donote.site/donate/${handle}`}
+                        title="후원 QR 코드"
+                    />
+
                     {/* 안내 */}
-                    <div className="p-4 bg-[#FFFACD] rounded-xl border-2 border-dashed border-[#FFD95A]">
-                        <p className="text-sm text-[#333]">
+                    <div className="p-4 bg-[#FFFACD] dark:bg-yellow-900/20 rounded-xl border-2 border-dashed border-[#FFD95A]">
+                        <p className="text-sm text-[#333] dark:text-gray-300">
                             💡 <strong>팁:</strong> GitHub README, Velog, 티스토리 등 어디에든 붙여넣기만 하면 됩니다!
                         </p>
                     </div>

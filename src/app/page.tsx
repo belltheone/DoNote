@@ -79,7 +79,32 @@ export default function Home() {
       </div>
 
       {/* 히어로 섹션 - 3D 편지봉투 */}
-      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-16 overflow-hidden paper-bg dark:bg-gray-900">
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-6 pt-16 overflow-hidden">
+        {/* 그라데이션 메시 배경 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#FFF5F5] via-[#FFFAF0] to-[#F0F9FF] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+          {/* 동적 그라데이션 오브들 */}
+          <motion.div
+            className="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-[#FFD95A]/20 to-[#FF6B6B]/20 blur-3xl"
+            style={{ top: "10%", left: "-10%" }}
+            animate={{
+              x: [0, 50, 0],
+              y: [0, 30, 0],
+              scale: [1, 1.1, 1],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-r from-[#E6F3FF]/30 to-[#FFE4E1]/30 blur-3xl"
+            style={{ bottom: "10%", right: "-5%" }}
+            animate={{
+              x: [0, -40, 0],
+              y: [0, -20, 0],
+              scale: [1, 1.15, 1],
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
+
         {/* 배경 데코 - 떨어지는 포스트잇 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(6)].map((_, i) => (

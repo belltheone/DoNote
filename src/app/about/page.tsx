@@ -51,7 +51,7 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <h2 className="text-2xl font-bold text-[#333] mb-6">✨ 주요 특징</h2>
+                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6">✨ 주요 특징</h2>
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
                             {
@@ -70,10 +70,10 @@ export default function AboutPage() {
                                 description: "블로그, 깃허브, SNS 어디든. 예쁜 티켓 배지로 후원 유도."
                             }
                         ].map((item, i) => (
-                            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
                                 <span className="text-3xl mb-4 block">{item.emoji}</span>
-                                <h3 className="font-bold text-[#333] mb-2">{item.title}</h3>
-                                <p className="text-sm text-[#666]">{item.description}</p>
+                                <h3 className="font-bold text-[#333] dark:text-white mb-2">{item.title}</h3>
+                                <p className="text-sm text-[#666] dark:text-gray-400">{item.description}</p>
                             </div>
                         ))}
                     </div>
@@ -113,20 +113,20 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <h2 className="text-2xl font-bold text-[#333] mb-6">👥 누구를 위한 서비스인가요?</h2>
+                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6">👥 누구를 위한 서비스인가요?</h2>
                     <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-[#FFE4E1] rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                            <h3 className="font-bold text-[#333] mb-3">크리에이터</h3>
-                            <ul className="text-[#666] space-y-2 text-sm">
+                        <div className="bg-[#FFE4E1] dark:bg-red-900/30 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="font-bold text-[#333] dark:text-white mb-3">크리에이터</h3>
+                            <ul className="text-[#666] dark:text-gray-400 space-y-2 text-sm">
                                 <li>• 블로그/개발 블로그 운영자</li>
-                                <li>• 유튜버, 스트리머</li>
+                                <li>• 유튀버, 스트리머</li>
                                 <li>• 오픈소스 기여자</li>
                                 <li>• 작가, 아티스트</li>
                             </ul>
                         </div>
-                        <div className="bg-[#E6F3FF] rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                            <h3 className="font-bold text-[#333] mb-3">후원자</h3>
-                            <ul className="text-[#666] space-y-2 text-sm">
+                        <div className="bg-[#E6F3FF] dark:bg-blue-900/30 rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
+                            <h3 className="font-bold text-[#333] dark:text-white mb-3">후원자</h3>
+                            <ul className="text-[#666] dark:text-gray-400 space-y-2 text-sm">
                                 <li>• 좋은 컨텐츠에 감사를 표현하고 싶은 분</li>
                                 <li>• 복잡한 과정 없이 간편하게 응원하고 싶은 분</li>
                                 <li>• 익명으로 마음을 전하고 싶은 분</li>
@@ -142,9 +142,9 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
                 >
-                    <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
-                        <h2 className="text-2xl font-bold text-[#333] mb-4">지금 시작하세요!</h2>
-                        <p className="text-[#666] mb-6">3초면 내 우체통을 만들 수 있어요.</p>
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-md border border-gray-100 dark:border-gray-700">
+                        <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-4">지금 시작하세요!</h2>
+                        <p className="text-[#666] dark:text-gray-400 mb-6">3초면 내 우체통을 만들 수 있어요.</p>
                         <Link
                             href="/auth"
                             className="inline-flex items-center gap-2 px-8 py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-md hover:scale-105"

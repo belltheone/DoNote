@@ -69,7 +69,7 @@ export default function AuthPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center px-4 py-12">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex items-center justify-center px-4 py-12">
             {/* 배경 데코 */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 left-10 w-20 h-20 bg-[#FFFACD] rounded shadow-md transform rotate-6 opacity-30"></div>
@@ -82,7 +82,7 @@ export default function AuthPage() {
                 {/* 뒤로가기 */}
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-[#666] hover:text-[#333] transition-colors mb-8"
+                    className="inline-flex items-center gap-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors mb-8"
                 >
                     ← 홈으로
                 </Link>
@@ -109,7 +109,7 @@ export default function AuthPage() {
                     />
 
                     {/* 메인 카드 (봉투 본체) */}
-                    <div className="bg-[#FFF8E7] rounded-xl p-8 shadow-lg border border-[#E8D5B7] relative overflow-hidden">
+                    <div className="bg-[#FFF8E7] dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-[#E8D5B7] dark:border-gray-700 relative overflow-hidden">
                         {/* 봉투 패턴 */}
                         <div className="absolute inset-0 opacity-10">
                             <div className="absolute top-0 left-0 right-0 h-full"
@@ -129,8 +129,8 @@ export default function AuthPage() {
                                 >
                                     🍩
                                 </motion.div>
-                                <h1 className="text-2xl font-bold text-[#333] mb-2">도노트에 오신 것을 환영해요!</h1>
-                                <p className="text-[#666]">3초 만에 내 우체통을 만들어보세요</p>
+                                <h1 className="text-2xl font-bold text-[#333] dark:text-white mb-2">도노트에 오신 것을 환영해요!</h1>
+                                <p className="text-[#666] dark:text-gray-400">3초 만에 내 우체통을 만들어보세요</p>
                             </div>
 
                             <AnimatePresence mode="wait">

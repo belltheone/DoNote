@@ -31,7 +31,7 @@ export default function ContactPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9F9F9] flex flex-col">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">
             {/* 공통 헤더 */}
             <Header />
 
@@ -40,20 +40,20 @@ export default function ContactPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                 >
-                    <h1 className="text-3xl font-bold text-[#333] mb-4">문의하기</h1>
-                    <p className="text-[#666] mb-8">
+                    <h1 className="text-3xl font-bold text-[#333] dark:text-white mb-4">문의하기</h1>
+                    <p className="text-[#666] dark:text-gray-400 mb-8">
                         궁금한 점이나 건의사항이 있으시면 언제든 문의해주세요.
                     </p>
 
                     {isSubmitted ? (
                         <motion.div
-                            className="bg-[#E8F5E9] rounded-xl p-8 text-center"
+                            className="bg-[#E8F5E9] dark:bg-green-900/30 rounded-xl p-8 text-center"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                         >
                             <span className="text-5xl mb-4 block">✉️</span>
-                            <h2 className="text-xl font-bold text-[#333] mb-2">문의가 접수되었습니다!</h2>
-                            <p className="text-[#666] mb-6">
+                            <h2 className="text-xl font-bold text-[#333] dark:text-white mb-2">문의가 접수되었습니다!</h2>
+                            <p className="text-[#666] dark:text-gray-400 mb-6">
                                 빠른 시간 내에 답변 드리겠습니다.<br />
                                 보통 1-2 영업일 내에 응답합니다.
                             </p>
@@ -65,18 +65,18 @@ export default function ContactPage() {
                             </Link>
                         </motion.div>
                     ) : (
-                        <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 {/* 이름 */}
                                 <div>
-                                    <label className="block text-sm font-medium text-[#333] mb-2">
+                                    <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                         이름 / 닉네임
                                     </label>
                                     <input
                                         type="text"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
                                         placeholder="홍길동"
                                         required
                                     />
@@ -84,14 +84,14 @@ export default function ContactPage() {
 
                                 {/* 이메일 */}
                                 <div>
-                                    <label className="block text-sm font-medium text-[#333] mb-2">
+                                    <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                         이메일
                                     </label>
                                     <input
                                         type="email"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
                                         placeholder="you@example.com"
                                         required
                                     />
@@ -99,13 +99,13 @@ export default function ContactPage() {
 
                                 {/* 문의 유형 */}
                                 <div>
-                                    <label className="block text-sm font-medium text-[#333] mb-2">
+                                    <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                         문의 유형
                                     </label>
                                     <select
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
                                         required
                                     >
                                         <option value="">선택해주세요</option>
@@ -121,13 +121,13 @@ export default function ContactPage() {
 
                                 {/* 내용 */}
                                 <div>
-                                    <label className="block text-sm font-medium text-[#333] mb-2">
+                                    <label className="block text-sm font-medium text-[#333] dark:text-white mb-2">
                                         문의 내용
                                     </label>
                                     <textarea
                                         value={formData.message}
                                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors resize-none"
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors resize-none"
                                         rows={6}
                                         placeholder="문의 내용을 자세히 적어주세요."
                                         required
@@ -145,9 +145,9 @@ export default function ContactPage() {
                             </form>
 
                             {/* 기타 연락 방법 */}
-                            <div className="mt-8 pt-8 border-t border-gray-100">
-                                <h3 className="font-medium text-[#333] mb-4">다른 방법으로 연락하기</h3>
-                                <div className="space-y-3 text-sm text-[#666]">
+                            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+                                <h3 className="font-medium text-[#333] dark:text-white mb-4">다른 방법으로 연락하기</h3>
+                                <div className="space-y-3 text-sm text-[#666] dark:text-gray-400">
                                     <p>📧 이메일: contact@donote.site</p>
                                     <p>💬 카카오톡: @donote (평일 10:00 - 18:00)</p>
                                 </div>

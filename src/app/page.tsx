@@ -343,16 +343,16 @@ export default function Home() {
       </section>
 
       {/* CTA 섹션 */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-white dark:bg-gray-900">
         <div className="max-w-3xl mx-auto">
           <motion.div
-            className="relative p-12 bg-[#FFF8E7] rounded-2xl shadow-xl text-center border-2 border-[#E8D5B7]"
+            className="relative p-12 bg-[#FFF8E7] dark:bg-gray-800 rounded-2xl shadow-xl text-center border-2 border-[#E8D5B7] dark:border-gray-700"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="absolute -top-3 left-10 w-20 h-5 bg-[#FFFACD]/80 rounded transform -rotate-3 shadow-sm"></div>
-            <div className="absolute -top-3 right-10 w-20 h-5 bg-[#FFE4E1]/80 rounded transform rotate-3 shadow-sm"></div>
+            <div className="absolute -top-3 left-10 w-20 h-5 bg-[#FFFACD]/80 dark:bg-yellow-900/50 rounded transform -rotate-3 shadow-sm"></div>
+            <div className="absolute -top-3 right-10 w-20 h-5 bg-[#FFE4E1]/80 dark:bg-red-900/50 rounded transform rotate-3 shadow-sm"></div>
 
             <motion.div
               className="text-6xl mb-6"
@@ -362,10 +362,10 @@ export default function Home() {
               🍩
             </motion.div>
 
-            <h2 className="text-3xl font-bold mb-4 text-[#333]">
+            <h2 className="text-3xl font-bold mb-4 text-[#333] dark:text-white">
               지금 내 우체통을 만들어보세요
             </h2>
-            <p className="text-lg text-[#666] mb-8">
+            <p className="text-lg text-[#666] dark:text-gray-400 mb-8">
               3초면 시작할 수 있어요. 소셜 로그인만 하면 끝!
             </p>
 

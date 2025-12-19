@@ -1,5 +1,6 @@
 // 동적 OG 이미지 생성
 // 크리에이터 페이지용 소셜 미리보기 이미지
+// Satori 요구사항: 모든 div는 display: flex 필요
 
 import { ImageResponse } from 'next/og';
 
@@ -13,7 +14,7 @@ export const size = {
 
 export const contentType = 'image/png';
 
-// 테스트를 위해 단순화된 OG 이미지
+// OG 이미지 생성 함수
 export default async function OGImage(props: {
     params: Promise<{ username: string }>
 }) {
@@ -50,16 +51,17 @@ export default async function OGImage(props: {
                         alignItems: 'center',
                     }}
                 >
-                    <div style={{ fontSize: 80, marginBottom: 20 }}>🍩</div>
-                    <div style={{ fontSize: 48, fontWeight: 'bold', color: '#333', marginBottom: 16 }}>
+                    <div style={{ display: 'flex', fontSize: 80, marginBottom: 20 }}>🍩</div>
+                    <div style={{ display: 'flex', fontSize: 48, fontWeight: 'bold', color: '#333', marginBottom: 16 }}>
                         @{username}
                     </div>
-                    <div style={{ fontSize: 28, color: '#666' }}>
+                    <div style={{ display: 'flex', fontSize: 28, color: '#666' }}>
                         Support this creator
                     </div>
                 </div>
                 <div
                     style={{
+                        display: 'flex',
                         position: 'absolute',
                         bottom: 40,
                         color: 'rgba(255,255,255,0.9)',

@@ -116,11 +116,11 @@ export default function Home() {
           </div>
 
           <motion.h1
-            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] dark:text-white font-hand"
+            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] dark:text-white font-hand tracking-tight"
             variants={fadeInUp}
           >
             당신의 글이<br />
-            누군가에게는 <span className="text-[#FF6B6B] underline-hand">영감</span>이 되었습니다
+            누군가에게는 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B6B] to-[#FF9F9F] underline-hand">영감</span>이 되었습니다
           </motion.h1>
 
           <motion.p
@@ -135,17 +135,16 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-6 justify-center items-center"
             variants={fadeInUp}
           >
-            {/* 마스킹 테이프 스타일 버튼 */}
             <Link
               href="/auth"
               className="relative group"
             >
-              <div className="absolute inset-0 bg-[#FFD95A] rotate-1 group-hover:rotate-2 transition-transform rounded-sm shadow-md"
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FFD95A] to-[#FFEB88] rotate-1 group-hover:rotate-2 transition-transform rounded-sm shadow-lg group-hover:shadow-xl"
                 style={{ clipPath: 'polygon(2% 0%, 98% 1%, 100% 98%, 1% 100%)' }} />
-              <div className="relative px-10 py-4 bg-[#FFD95A] text-[#333] text-xl font-hand font-bold flex items-center gap-2 hover:-translate-y-1 transition-transform border-2 border-dashed border-[#dcb028]/30">
+              <div className="relative px-10 py-4 bg-gradient-to-r from-[#FFD95A] to-[#FFEB88] text-[#333] text-xl font-hand font-bold flex items-center gap-2 hover:-translate-y-1 transition-all duration-300 border-2 border-dashed border-[#dcb028]/30">
                 <span>🍩 내 우체통 만들기</span>
               </div>
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/40 rotate-2 backdrop-blur-sm" style={{ clipPath: 'polygon(0% 0%, 100% 2%, 98% 100%, 2% 98%)' }} />
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/50 rotate-2 backdrop-blur-sm" style={{ clipPath: 'polygon(0% 0%, 100% 2%, 98% 100%, 2% 98%)' }} />
             </Link>
 
             <Link

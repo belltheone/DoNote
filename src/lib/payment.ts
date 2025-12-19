@@ -18,7 +18,8 @@ export interface PaymentRequest {
     creatorId: string;        // 크리에이터 ID
     message: string;          // 후원 메시지
     sticker: string;          // 스티커 이모지
-    isTipIncluded: boolean;   // 플랫폼 팁 포함 여부
+    isTipIncluded: boolean;   // 도노트 팁 포함 여부
+    tipAmount?: number;       // 도노트 팁 금액 (기본 500원)
 }
 
 // 결제 결과 타입

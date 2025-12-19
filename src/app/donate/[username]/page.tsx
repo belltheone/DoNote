@@ -59,12 +59,17 @@ export default function DonatePage({
     const [nickname, setNickname] = useState("");
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentError, setPaymentError] = useState("");
+    const [tipEnabled, setTipEnabled] = useState(true); // 도노트 팁 500원 기본 활성화
+
+    // 도노트 팁 금액
+    const DONOTE_TIP = 500;
 
     // 플랫폼 수수료 5% 계산
     const platformFeeRate = 0.05; // 5%
     const platformFee = Math.round((amount || 0) * platformFeeRate);
     const creatorAmount = (amount || 0) - platformFee; // 크리에이터 수령액
-    const finalAmount = amount || 0; // 총 결제금액 = 후원금액 (수수료는 후원금에서 차감)
+    const tipAmount = tipEnabled ? DONOTE_TIP : 0; // 도노트 팁
+    const finalAmount = (amount || 0) + tipAmount; // 총 결제금액 = 후원금액 + 팁
 
     // 크리에이터 정보 로드
     useEffect(() => {
@@ -131,7 +136,8 @@ export default function DonatePage({
                 creatorId,
                 message,
                 sticker: selectedSticker,
-                isTipIncluded: false, // 5% 수수료 모델로 변경
+                isTipIncluded: tipEnabled, // 도노트 팁 포함 여부
+                tipAmount: tipAmount, // 팁 금액
             });
 
             if (result.success) {
@@ -384,6 +390,29 @@ export default function DonatePage({
                                     <span>크리에이터 수령액</span>
                                     <span>₩{creatorAmount.toLocaleString()}</span>
                                 </div>
+
+                                {/* 도노트 팁 체크박스 */}
+                                <div className="py-3 border-t border-dashed border-gray-300">
+                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={tipEnabled}
+                                            onChange={(e) => setTipEnabled(e.target.checked)}
+                                            className="w-5 h-5 rounded border-2 border-[#FF6B6B] text-[#FF6B6B] focus:ring-[#FF6B6B] cursor-pointer"
+                                        />
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[#333] font-medium">🍩 도노트 팁</span>
+                                                <span className="text-xs px-2 py-0.5 bg-[#FF6B6B] text-white rounded-full">♥</span>
+                                            </div>
+                                            <p className="text-xs text-[#999] mt-0.5">
+                                                도노트 서비스 개선에 사용됩니다
+                                            </p>
+                                        </div>
+                                        <span className="text-[#FF6B6B] font-bold">+₩{DONOTE_TIP.toLocaleString()}</span>
+                                    </label>
+                                </div>
+
                                 <div className="pt-3 border-t border-dashed border-gray-300 flex justify-between font-bold text-[#333]">
                                     <span>총 결제금액</span>
                                     <span className="text-[#FF6B6B]">₩{finalAmount.toLocaleString()}</span>

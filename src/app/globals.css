@@ -397,3 +397,122 @@ h6 {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;
 }
+
+/* ========================================
+ * 📱 Responsive Utilities
+ * ======================================== */
+
+/* 터치 타겟 최소 크기 (48px) */
+.touch-target {
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* 반응형 컨테이너 */
+.container-responsive {
+  width: 100%;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
+  }
+}
+
+/* 반응형 섹션 패딩 */
+.section-padding {
+  padding-top: var(--section-padding-mobile);
+  padding-bottom: var(--section-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: var(--section-padding-tablet);
+    padding-bottom: var(--section-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: var(--section-padding-desktop);
+    padding-bottom: var(--section-padding-desktop);
+  }
+}
+
+/* 모바일 텍스트 크기 최적화 */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* 모바일 버튼 최적화 */
+@media (max-width: 640px) {
+
+  button,
+  .btn,
+  [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-300);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral-400);
+}
+
+/* 다크모드 스크롤바 */
+.dark::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: var(--color-neutral-600);
+}
+
+/* Safe Area (노치 대응) */
+@supports (padding: max(0px)) {
+  .safe-area-inset {
+    padding-left: max(var(--space-4), env(safe-area-inset-left));
+    padding-right: max(var(--space-4), env(safe-area-inset-right));
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  }
+}

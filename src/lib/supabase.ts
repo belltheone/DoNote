@@ -51,9 +51,12 @@ export interface CreatorProfile {
 }
 
 // 소셜 로그인 함수
-export async function signInWithProvider(provider: 'kakao' | 'google' | 'github' | 'apple'): Promise<{ user: SupabaseUser | null; error: Error | null }> {
+// Supabase 기본 지원: google, github
+// Naver는 Supabase Dashboard에서 Custom OIDC로 설정 후 사용 가능
+export async function signInWithProvider(provider: 'google' | 'github' | 'naver'): Promise<{ user: SupabaseUser | null; error: Error | null }> {
     const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        provider: provider as any,
         options: {
             redirectTo: `${window.location.origin}/auth/callback`,
         },

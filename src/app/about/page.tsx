@@ -70,11 +70,15 @@ export default function AboutPage() {
                                 description: "블로그, 깃허브, SNS 어디든. 예쁜 티켓 배지로 후원 유도."
                             }
                         ].map((item, i) => (
-                            <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                                <span className="text-3xl mb-4 block">{item.emoji}</span>
+                            <motion.div
+                                key={i}
+                                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-[#FFD95A]/50 transition-all duration-300 group"
+                                whileHover={{ y: -4, scale: 1.02 }}
+                            >
+                                <span className="text-4xl mb-4 block group-hover:scale-110 transition-transform">{item.emoji}</span>
                                 <h3 className="font-bold text-[#333] dark:text-white mb-2">{item.title}</h3>
                                 <p className="text-sm text-[#666] dark:text-gray-400">{item.description}</p>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 </motion.section>

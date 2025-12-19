@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./design-tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -214,4 +215,185 @@ h6 {
   opacity: 0.6;
   border-radius: 4px;
   transform: rotate(-1deg);
+}
+
+/* ========================================
+ * 📐 Typography Utilities (Design System)
+ * ======================================== */
+
+/* Heading Styles */
+.heading-1 {
+  font-size: var(--text-6xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-bold);
+}
+
+.heading-2 {
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--font-semibold);
+}
+
+.heading-3 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  font-weight: var(--font-semibold);
+}
+
+/* Body Text */
+.body-lg {
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--font-normal);
+}
+
+.body-base {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-weight: var(--font-normal);
+}
+
+.body-sm {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  font-weight: var(--font-normal);
+}
+
+/* Caption/Small Text */
+.caption {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-wide);
+  font-weight: var(--font-normal);
+}
+
+/* Button Text */
+.btn-text {
+  font-size: var(--text-base);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-wider);
+  font-weight: var(--font-medium);
+}
+
+/* Tabular Numbers (for data display) */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========================================
+ * 🎨 Color Utility Classes
+ * ======================================== */
+
+/* Text Colors */
+.text-primary-brand {
+  color: var(--color-primary-500);
+}
+
+.text-secondary-brand {
+  color: var(--color-secondary-500);
+}
+
+.text-success {
+  color: var(--color-success);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+/* Background Colors */
+.bg-primary-brand {
+  background-color: var(--color-primary-500);
+}
+
+.bg-secondary-brand {
+  background-color: var(--color-secondary-500);
+}
+
+.bg-elevated {
+  background-color: var(--bg-elevated);
+}
+
+/* ========================================
+ * 🌓 Shadow Utility Classes
+ * ======================================== */
+.shadow-elevation-xs {
+  box-shadow: var(--shadow-xs);
+}
+
+.shadow-elevation-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-elevation-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-elevation-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-elevation-xl {
+  box-shadow: var(--shadow-xl);
+}
+
+.shadow-primary {
+  box-shadow: var(--shadow-primary);
+}
+
+.shadow-secondary {
+  box-shadow: var(--shadow-secondary);
+}
+
+/* ========================================
+ * ⏱️ Transition Utility Classes
+ * ======================================== */
+.transition-fast {
+  transition: var(--transition-fast);
+}
+
+.transition-normal {
+  transition: var(--transition-normal);
+}
+
+.transition-slow {
+  transition: var(--transition-slow);
+}
+
+/* ========================================
+ * 🖱️ Interactive State Utilities
+ * ======================================== */
+.hover-lift {
+  transition: transform var(--duration-200) var(--ease-out),
+    box-shadow var(--duration-200) var(--ease-out);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+  transition: transform var(--duration-150) var(--ease-out);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale:active {
+  transform: scale(0.98);
+}
+
+/* Focus Visible (Accessibility) */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
 }

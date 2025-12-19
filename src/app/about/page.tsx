@@ -5,6 +5,15 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import {
+    PencilSquareIcon,
+    EnvelopeIcon,
+    TicketIcon,
+    SparklesIcon,
+    CurrencyDollarIcon,
+    UsersIcon,
+    GiftIcon,
+} from "@heroicons/react/24/outline";
 
 export default function AboutPage() {
     return (
@@ -51,23 +60,29 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                 >
-                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6">✨ 주요 특징</h2>
+                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6 flex items-center gap-2">
+                        <SparklesIcon className="w-7 h-7 text-[#FFD95A]" />
+                        주요 특징
+                    </h2>
                     <div className="grid md:grid-cols-3 gap-6">
                         {[
                             {
-                                emoji: "📝",
+                                icon: PencilSquareIcon,
                                 title: "쪽지처럼 간편하게",
-                                description: "회원가입 없이 닉네임만 적으면 끝. 토스페이로 3초 결제."
+                                description: "회원가입 없이 닉네임만 적으면 끝. 토스페이로 3초 결제.",
+                                color: "text-[#FF6B6B]"
                             },
                             {
-                                emoji: "💌",
+                                icon: EnvelopeIcon,
                                 title: "편지처럼 따뜻하게",
-                                description: "단순 송금이 아닌 정성 담긴 메시지. 크리에이터의 하루가 특별해져요."
+                                description: "단순 송금이 아닌 정성 담긴 메시지. 크리에이터의 하루가 특별해져요.",
+                                color: "text-[#FFD95A]"
                             },
                             {
-                                emoji: "🎫",
+                                icon: TicketIcon,
                                 title: "위젯으로 바이럴하게",
-                                description: "블로그, 깃허브, SNS 어디든. 예쁜 티켓 배지로 후원 유도."
+                                description: "블로그, 깃허브, SNS 어디든. 예쁜 티켓 배지로 후원 유도.",
+                                color: "text-[#48BB78]"
                             }
                         ].map((item, i) => (
                             <motion.div
@@ -75,7 +90,7 @@ export default function AboutPage() {
                                 className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-lg hover:border-[#FFD95A]/50 transition-all duration-300 group"
                                 whileHover={{ y: -4, scale: 1.02 }}
                             >
-                                <span className="text-4xl mb-4 block group-hover:scale-110 transition-transform">{item.emoji}</span>
+                                <item.icon className={`w-10 h-10 mb-4 ${item.color} group-hover:scale-110 transition-transform`} />
                                 <h3 className="font-bold text-[#333] dark:text-white mb-2">{item.title}</h3>
                                 <p className="text-sm text-[#666] dark:text-gray-400">{item.description}</p>
                             </motion.div>

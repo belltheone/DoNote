@@ -59,3 +59,9 @@ CREATE TRIGGER update_user_roles_updated_at
 -- FROM auth.users 
 -- WHERE email = 'your-admin@email.com'
 -- ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
+
+-- 본인 이메일로 변경 후 실행
+INSERT INTO user_roles (user_id, role)
+SELECT id, 'admin' 
+FROM auth.users 
+WHERE email = 'your-admin@email.com';

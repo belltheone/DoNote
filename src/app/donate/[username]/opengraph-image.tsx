@@ -5,7 +5,7 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-// 이미지 크기 설정
+// 이미지 크기 설정  
 export const size = {
     width: 1200,
     height: 630,
@@ -30,98 +30,51 @@ export default async function OGImage(props: {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontFamily: 'sans-serif',
                 }}
             >
-                {/* 배경 패턴 */}
-                <div
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-                    }}
-                />
-
-                {/* 카드 */}
                 <div
                     style={{
                         background: 'white',
-                        borderRadius: '24px',
-                        padding: '60px 80px',
-                        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+                        borderRadius: 24,
+                        padding: '48px 64px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        maxWidth: '900px',
                     }}
                 >
-                    {/* 도노트 로고 */}
-                    <div
-                        style={{
-                            fontSize: '80px',
-                            marginBottom: '20px',
-                        }}
-                    >
-                        🍩
-                    </div>
-
-                    {/* 크리에이터 이름 */}
-                    <div
-                        style={{
-                            fontSize: '48px',
-                            fontWeight: 'bold',
-                            color: '#333',
-                            marginBottom: '12px',
-                        }}
-                    >
+                    <div style={{ fontSize: 72, marginBottom: 16 }}>🍩</div>
+                    <div style={{ fontSize: 42, fontWeight: 700, color: '#333', marginBottom: 8 }}>
                         @{username}
                     </div>
-
-                    {/* 설명 */}
-                    <div
-                        style={{
-                            fontSize: '28px',
-                            color: '#666',
-                            marginBottom: '30px',
-                        }}
-                    >
+                    <div style={{ fontSize: 24, color: '#666', marginBottom: 24 }}>
                         님에게 후원하기
                     </div>
-
-                    {/* CTA 버튼 스타일 */}
                     <div
                         style={{
                             background: '#FF6B6B',
-                            borderRadius: '16px',
-                            padding: '16px 40px',
+                            borderRadius: 12,
+                            padding: '12px 32px',
                             color: 'white',
-                            fontSize: '24px',
-                            fontWeight: 'bold',
+                            fontSize: 20,
+                            fontWeight: 600,
                         }}
                     >
                         💌 쪽지 보내기
                     </div>
                 </div>
-
-                {/* 하단 브랜딩 */}
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: '40px',
-                        fontSize: '24px',
+                        bottom: 32,
                         color: 'rgba(255,255,255,0.9)',
-                        fontWeight: 'bold',
+                        fontSize: 22,
+                        fontWeight: 600,
                     }}
                 >
                     donote.site
                 </div>
             </div>
         ),
-        {
-            ...size,
-        }
+        { ...size }
     );
 }

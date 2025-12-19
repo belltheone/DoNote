@@ -56,7 +56,7 @@ export function NotificationToast({
                                 <div className="flex items-center gap-3">
                                     <div className="text-3xl">{sticker}</div>
                                     <div>
-                                        <div className="text-sm font-hand text-[#FF6B6B] font-bold">
+                                        <div className="text-sm font-sans text-[#FF6B6B] font-bold">
                                             새 후원이 도착했어요!
                                         </div>
                                         <div className="text-xs text-[#666] mt-0.5">
@@ -79,7 +79,7 @@ export function NotificationToast({
 
                             {/* 금액 */}
                             <div className="mb-2 px-3 py-2 bg-[#FFFACD] rounded-lg inline-block">
-                                <div className="text-2xl font-hand font-bold text-[#D9A000]">
+                                <div className="text-2xl font-sans font-bold text-[#D9A000]">
                                     ₩{amount.toLocaleString()}
                                 </div>
                             </div>

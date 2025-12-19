@@ -37,7 +37,7 @@ export function EnvelopeHero() {
                     >
                         💌
                     </motion.div>
-                    <p className="font-hand text-xl text-[#333] leading-relaxed">
+                    <p className="font-sans text-xl text-[#333] leading-relaxed">
                         마음을 담은<br />쪽지가 도착했어요
                     </p>
                 </motion.div>

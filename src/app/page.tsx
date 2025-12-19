@@ -141,7 +141,7 @@ export default function Home() {
           </div>
 
           <motion.h1
-            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] dark:text-white font-hand tracking-tight"
+            className="text-5xl md:text-7xl font-bold leading-tight mb-8 text-[#333] dark:text-white font-sans tracking-tight"
             variants={fadeInUp}
           >
             당신의 글이<br />
@@ -166,7 +166,7 @@ export default function Home() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#FFD95A] to-[#FFEB88] rotate-1 group-hover:rotate-2 transition-transform rounded-sm shadow-lg group-hover:shadow-xl"
                 style={{ clipPath: 'polygon(2% 0%, 98% 1%, 100% 98%, 1% 100%)' }} />
-              <div className="relative px-10 py-4 bg-gradient-to-r from-[#FFD95A] to-[#FFEB88] text-[#333] text-xl font-hand font-bold flex items-center gap-2 hover:-translate-y-1 transition-all duration-300 border-2 border-dashed border-[#dcb028]/30">
+              <div className="relative px-10 py-4 bg-gradient-to-r from-[#FFD95A] to-[#FFEB88] text-[#333] text-xl font-sans font-bold flex items-center gap-2 hover:-translate-y-1 transition-all duration-300 border-2 border-dashed border-[#dcb028]/30">
                 <span>🍩 내 우체통 만들기</span>
               </div>
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/50 rotate-2 backdrop-blur-sm" style={{ clipPath: 'polygon(0% 0%, 100% 2%, 98% 100%, 2% 98%)' }} />
@@ -186,7 +186,7 @@ export default function Home() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <span className="text-gray-400 dark:text-gray-500 font-hand text-xl">Scroll Down</span>
+          <span className="text-gray-400 dark:text-gray-500 font-sans text-xl">Scroll Down</span>
         </motion.div>
       </section>
 
@@ -401,6 +401,58 @@ export default function Home() {
               <span>→</span>
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* 빠른 링크 섹션 */}
+      <section className="py-16 px-6 bg-white dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-2xl font-bold text-center text-[#333] dark:text-white mb-8">
+            더 알아보기
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* FAQ */}
+            <Link
+              href="/faq"
+              className="group p-6 bg-[#F9F9F9] dark:bg-gray-700 rounded-xl hover:shadow-lg transition-all hover:-translate-y-1"
+            >
+              <div className="text-3xl mb-3">❓</div>
+              <h4 className="text-lg font-bold text-[#333] dark:text-white mb-2 group-hover:text-[#FF6B6B] transition-colors">
+                자주 묻는 질문
+              </h4>
+              <p className="text-sm text-[#666] dark:text-gray-400">
+                도노트 이용에 대한 궁금증을 해결하세요
+              </p>
+            </Link>
+
+            {/* 가이드 */}
+            <Link
+              href="/guide"
+              className="group p-6 bg-[#F9F9F9] dark:bg-gray-700 rounded-xl hover:shadow-lg transition-all hover:-translate-y-1"
+            >
+              <div className="text-3xl mb-3">📖</div>
+              <h4 className="text-lg font-bold text-[#333] dark:text-white mb-2 group-hover:text-[#FF6B6B] transition-colors">
+                시작 가이드
+              </h4>
+              <p className="text-sm text-[#666] dark:text-gray-400">
+                단계별로 쉽게 시작하는 방법
+              </p>
+            </Link>
+
+            {/* 블로그 */}
+            <Link
+              href="/blog"
+              className="group p-6 bg-[#F9F9F9] dark:bg-gray-700 rounded-xl hover:shadow-lg transition-all hover:-translate-y-1"
+            >
+              <div className="text-3xl mb-3">📝</div>
+              <h4 className="text-lg font-bold text-[#333] dark:text-white mb-2 group-hover:text-[#FF6B6B] transition-colors">
+                블로그
+              </h4>
+              <p className="text-sm text-[#666] dark:text-gray-400">
+                최신 소식과 크리에이터 팁
+              </p>
+            </Link>
+          </div>
         </div>
       </section>
 

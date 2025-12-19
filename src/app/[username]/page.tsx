@@ -153,7 +153,7 @@ export default function CreatorPage({
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333] font-hand">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333] font-sans">
                         <span>📌</span>
                         <span>응원 메시지 월</span>
                         <span className="text-sm font-sans font-normal text-[#666]">({creator.notes.length})</span>
@@ -197,7 +197,7 @@ export default function CreatorPage({
                                     </div>
 
                                     {/* 메시지 */}
-                                    <p className="text-[#333] font-hand text-lg leading-snug mb-4 min-h-[60px]">
+                                    <p className="text-[#333] font-sans text-lg leading-snug mb-4 min-h-[60px]">
                                         {note.message}
                                     </p>
 

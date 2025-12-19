@@ -105,23 +105,44 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.25 }}
                 >
-                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6">💰 수수료 정책</h2>
-                    <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-8 text-white shadow-lg">
-                        <div className="flex items-center justify-center gap-8 mb-6">
-                            <div className="text-center">
-                                <p className="text-sm opacity-80 mb-1">도노트 수수료</p>
-                                <p className="text-5xl font-bold">5%</p>
+                    <h2 className="text-2xl font-bold text-[#333] dark:text-white mb-6 flex items-center gap-2">
+                        <CurrencyDollarIcon className="w-7 h-7 text-[#48BB78]" />
+                        수수료 정책
+                    </h2>
+                    <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                        {/* 배경 패턴 */}
+                        <div className="absolute inset-0 opacity-10">
+                            <div className="absolute top-4 right-4 w-32 h-32 rounded-full bg-white/30" />
+                            <div className="absolute bottom-4 left-4 w-24 h-24 rounded-full bg-white/20" />
+                        </div>
+
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-center gap-12 mb-8">
+                                <div className="text-center">
+                                    <p className="text-sm opacity-80 mb-2">도노트 수수료</p>
+                                    <p className="text-6xl font-extrabold tabular-nums">5<span className="text-4xl">%</span></p>
+                                </div>
+                                <div className="w-px h-20 bg-white/40" />
+                                <div className="text-center">
+                                    <p className="text-sm opacity-80 mb-2">크리에이터 수령</p>
+                                    <p className="text-6xl font-extrabold tabular-nums">95<span className="text-4xl">%</span></p>
+                                </div>
                             </div>
-                            <div className="w-px h-16 bg-white/30" />
-                            <div className="text-center">
-                                <p className="text-sm opacity-80 mb-1">크리에이터 수령</p>
-                                <p className="text-5xl font-bold">95%</p>
+
+                            {/* 프로그레스 바 */}
+                            <div className="w-full h-4 bg-white/30 rounded-full overflow-hidden mb-4">
+                                <motion.div
+                                    className="h-full bg-white rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: "95%" }}
+                                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+                                />
+                            </div>
+                            <div className="flex justify-between text-xs opacity-70">
+                                <span>투명한 수수료 정책</span>
+                                <span>* 별도 PG 수수료(약 3%) 발생 가능</span>
                             </div>
                         </div>
-                        <p className="text-center text-white/90 text-sm">
-                            투명한 수수료 정책으로 운영됩니다.<br />
-                            * 별도 PG 수수료(약 3%)가 추가 발생할 수 있습니다.
-                        </p>
                     </div>
                 </motion.section>
 

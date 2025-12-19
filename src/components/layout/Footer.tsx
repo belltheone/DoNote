@@ -2,6 +2,7 @@
 // 공통 푸터 컴포넌트
 
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
     return (
@@ -11,7 +12,13 @@ export function Footer() {
                     {/* 로고 */}
                     <div>
                         <div className="flex items-center gap-2 mb-4">
-                            <span className="text-2xl">🍩</span>
+                            <Image
+                                src="/logo.png"
+                                alt="도노트 로고"
+                                width={32}
+                                height={32}
+                                className="rounded-lg"
+                            />
                             <span className="text-xl font-bold">도노트</span>
                         </div>
                         <p className="text-white/60 text-sm">

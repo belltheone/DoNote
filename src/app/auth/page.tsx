@@ -4,6 +4,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signInWithProvider, supabase } from "@/lib/supabase";
@@ -123,11 +124,18 @@ export default function AuthPage() {
                             {/* 로고 & 타이틀 */}
                             <div className="text-center mb-8">
                                 <motion.div
-                                    className="text-5xl mb-4"
-                                    animate={{ rotate: [0, -10, 10, 0] }}
+                                    className="mb-4"
+                                    animate={{ scale: [1, 1.05, 1] }}
                                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                                 >
-                                    🍩
+                                    <Image
+                                        src="/logo.png"
+                                        alt="도노트 로고"
+                                        width={64}
+                                        height={64}
+                                        className="rounded-xl"
+                                        priority
+                                    />
                                 </motion.div>
                                 <h1 className="text-2xl font-bold text-[#333] dark:text-white mb-2">도노트에 오신 것을 환영해요!</h1>
                                 <p className="text-[#666] dark:text-gray-400">3초 만에 내 우체통을 만들어보세요</p>
@@ -304,7 +312,13 @@ export default function AuthPage() {
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.3, type: "spring" }}
                     >
-                        <span className="text-2xl">🍩</span>
+                        <Image
+                            src="/logo.png"
+                            alt="도노트"
+                            width={24}
+                            height={24}
+                            className="rounded"
+                        />
                     </motion.div>
                 </motion.div>
 

@@ -1,48 +1,117 @@
 "use client";
 // 정산 신청 페이지 - 정산하기 (Settlement)
+// 실제 DB 연동 버전
 
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { getStats, mockDonations } from "@/lib/supabase";
-
-// 정산 상태 타입
-type SettlementStatus = 'available' | 'requested' | 'processing' | 'completed';
-
-// 정산 내역 (Mock)
-const settlementHistory = [
-    { id: '1', amount: 50000, status: 'completed' as const, requestedAt: '2024-11-15', completedAt: '2024-11-18' },
-    { id: '2', amount: 30000, status: 'completed' as const, requestedAt: '2024-10-20', completedAt: '2024-10-23' },
-];
+import { useState, useEffect } from "react";
+import { useAuthStore } from "@/store/auth";
+import {
+    getMyDonations,
+    getMySettlements,
+    requestSettlement,
+    getSettlementInfo,
+    getRealStats,
+    SettlementStatus
+} from "@/lib/supabase";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export default function SettlementPage() {
-    const stats = getStats();
-    const [step, setStep] = useState<'overview' | 'request' | 'confirm' | 'complete'>('overview');
-    const [bankInfo, setBankInfo] = useState({
-        bank: '',
-        accountNumber: '',
-        accountHolder: '',
-    });
+    const { user } = useAuthStore();
+    const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // 정산 가능 금액 (총 후원금 - 이미 정산한 금액)
-    const settledAmount = settlementHistory.reduce((sum, s) => sum + s.amount, 0);
+    // 통계 및 정산 데이터
+    const [stats, setStats] = useState({ totalAmount: 0, thisMonthAmount: 0, totalNotes: 0, thisMonthNotes: 0 });
+    const [settlements, setSettlements] = useState<{ id: string; amount: number; netAmount: number; status: SettlementStatus; requestedAt: string; completedAt?: string; }[]>([]);
+    const [hasSettlementInfo, setHasSettlementInfo] = useState(false);
+
+    // 정산 가능 금액 계산
+    const settledAmount = settlements.filter(s => s.status !== 'rejected').reduce((sum, s) => sum + s.amount, 0);
     const availableAmount = stats.totalAmount - settledAmount;
 
-    // 플랫폼 수수료 5% + PG 수수료 3% = 총 8%
-    const platformFee = Math.round(availableAmount * 0.05); // 플랫폼 5%
-    const pgFee = Math.round(availableAmount * 0.03);       // PG 3%
-    const totalFee = platformFee + pgFee;
-    const netAmount = availableAmount - totalFee;
+    // 수수료 계산 (플랫폼 5%)
+    const platformFee = Math.round(availableAmount * 0.05);
+    const netAmount = availableAmount - platformFee;
+
+    // 데이터 로드
+    useEffect(() => {
+        const loadData = async () => {
+            if (!user) return;
+
+            setIsLoading(true);
+            try {
+                // 내 후원 목록
+                const donations = await getMyDonations(user.id);
+                const realStats = await getRealStats(donations);
+                setStats(realStats);
+
+                // 내 정산 내역
+                const mySettlements = await getMySettlements(user.id);
+                setSettlements(mySettlements);
+
+                // 정산 정보 등록 여부
+                const settlementInfo = await getSettlementInfo(user.id);
+                setHasSettlementInfo(!!settlementInfo);
+            } catch (error) {
+                console.error('데이터 로드 오류:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadData();
+    }, [user]);
 
     // 정산 신청 처리
-    const handleSubmit = () => {
+    const handleRequestSettlement = async () => {
+        if (!user) return;
+
         setIsSubmitting(true);
-        // 실제로는 API 호출
-        setTimeout(() => {
-            setStep('complete');
+        try {
+            const result = await requestSettlement(user.id, availableAmount);
+
+            if (result.success) {
+                toast.success(result.message);
+                // 정산 목록 새로고침
+                const mySettlements = await getMySettlements(user.id);
+                setSettlements(mySettlements);
+            } else {
+                toast.error(result.message);
+            }
+        } catch (error) {
+            console.error('정산 요청 오류:', error);
+            toast.error('정산 요청에 실패했습니다.');
+        } finally {
             setIsSubmitting(false);
-        }, 2000);
+        }
     };
+
+    // 상태별 배지 표시
+    const getStatusBadge = (status: SettlementStatus) => {
+        switch (status) {
+            case 'pending':
+                return <span className="px-3 py-1 bg-yellow-100 text-yellow-600 rounded-full text-xs font-medium">⏳ 대기중</span>;
+            case 'approved':
+                return <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">✓ 승인됨</span>;
+            case 'completed':
+                return <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-xs font-medium">✓ 완료</span>;
+            case 'rejected':
+                return <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-medium">✕ 거절</span>;
+            default:
+                return null;
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="max-w-3xl mx-auto animate-pulse space-y-6">
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-2xl h-48" />
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-xl h-16" />
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-xl h-64" />
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-3xl mx-auto">
@@ -52,320 +121,158 @@ export default function SettlementPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
             >
-                <h2 className="text-2xl font-bold text-[#333] flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-[#333] dark:text-white flex items-center gap-2">
                     <span>💳</span> 정산하기
                 </h2>
-                <p className="text-[#666] mt-1">받은 후원금을 정산받으세요</p>
+                <p className="text-[#666] dark:text-gray-400 mt-1">받은 후원금을 정산받으세요</p>
             </motion.div>
 
-            {/* 스텝별 컨텐츠 */}
-            {step === 'overview' && (
+            {/* 정산 정보 미등록 안내 */}
+            {!hasSettlementInfo && (
                 <motion.div
+                    className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-dashed border-red-300 rounded-xl"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="space-y-6"
                 >
-                    {/* 정산 가능 금액 카드 */}
-                    <div className="bg-gradient-to-r from-[#FFD95A] to-[#FFE082] rounded-2xl p-8 shadow-lg relative overflow-hidden">
-                        {/* 데코 */}
-                        <div className="absolute top-4 right-4 text-6xl opacity-20">🍯</div>
-
-                        <p className="text-[#333]/70 text-sm mb-2">정산 가능 금액</p>
-                        <p className="text-5xl font-bold text-[#333] mb-4">
-                            ₩{availableAmount.toLocaleString()}
-                        </p>
-
-                        <div className="flex items-center gap-4 text-sm">
-                            <span className="text-[#333]/70">
-                                총 후원: ₩{stats.totalAmount.toLocaleString()}
-                            </span>
-                            <span className="text-[#333]/50">|</span>
-                            <span className="text-[#333]/70">
-                                기 정산: ₩{settledAmount.toLocaleString()}
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* 정산 신청 버튼 */}
-                    <button
-                        onClick={() => setStep('request')}
-                        disabled={availableAmount < 10000}
-                        className="w-full py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold text-lg hover:bg-[#FF5252] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {availableAmount >= 10000 ? '정산 신청하기' : '최소 정산 금액: ₩10,000'}
-                    </button>
-
-                    {/* 정산 내역 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
-                            <span>📋</span> 정산 내역
-                        </h3>
-
-                        {settlementHistory.length > 0 ? (
-                            <div className="space-y-3">
-                                {settlementHistory.map((settlement) => (
-                                    <div
-                                        key={settlement.id}
-                                        className="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
-                                    >
-                                        <div>
-                                            <p className="font-bold text-[#333]">
-                                                ₩{settlement.amount.toLocaleString()}
-                                            </p>
-                                            <p className="text-xs text-[#999]">
-                                                {settlement.requestedAt} 신청 → {settlement.completedAt} 완료
-                                            </p>
-                                        </div>
-                                        <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-xs font-medium">
-                                            ✓ 완료
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-8 text-[#999]">
-                                아직 정산 내역이 없어요
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 안내 */}
-                    <div className="bg-[#FFFACD] rounded-xl p-4 border-2 border-dashed border-[#FFD95A]">
-                        <p className="text-sm text-[#666]">
-                            💡 <strong>정산 안내</strong>: 정산 신청 후 영업일 기준 3일 이내에 입금됩니다. 최소 정산 금액은 ₩10,000입니다.
-                        </p>
-                        <p className="text-xs text-[#999] mt-2">
-                            ※ 플랫폼 수수료 5% + PG 수수료 3% = 총 8%가 차감됩니다.
-                        </p>
-                    </div>
-                </motion.div>
-            )}
-
-            {step === 'request' && (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="space-y-6"
-                >
-                    {/* 계좌 정보 입력 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-6 flex items-center gap-2">
-                            <span>🏦</span> 계좌 정보 입력
-                        </h3>
-
-                        <div className="space-y-4">
-                            {/* 은행 선택 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] mb-2">
-                                    은행 선택
-                                </label>
-                                <select
-                                    value={bankInfo.bank}
-                                    onChange={(e) => setBankInfo({ ...bankInfo, bank: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                >
-                                    <option value="">은행을 선택하세요</option>
-                                    <option value="kakao">카카오뱅크</option>
-                                    <option value="toss">토스뱅크</option>
-                                    <option value="kb">KB국민은행</option>
-                                    <option value="shinhan">신한은행</option>
-                                    <option value="woori">우리은행</option>
-                                    <option value="hana">하나은행</option>
-                                    <option value="nh">농협은행</option>
-                                </select>
-                            </div>
-
-                            {/* 계좌번호 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] mb-2">
-                                    계좌번호
-                                </label>
-                                <input
-                                    type="text"
-                                    value={bankInfo.accountNumber}
-                                    onChange={(e) => setBankInfo({ ...bankInfo, accountNumber: e.target.value.replace(/[^0-9]/g, '') })}
-                                    placeholder="'-' 없이 숫자만 입력"
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                />
-                            </div>
-
-                            {/* 예금주 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] mb-2">
-                                    예금주
-                                </label>
-                                <input
-                                    type="text"
-                                    value={bankInfo.accountHolder}
-                                    onChange={(e) => setBankInfo({ ...bankInfo, accountHolder: e.target.value })}
-                                    placeholder="본인 명의 계좌만 가능"
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 정산 금액 요약 */}
-                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                        <div className="text-center text-sm text-[#999] mb-3">--- 정산 금액 ---</div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between text-[#666]">
-                                <span>정산 요청 금액</span>
-                                <span>₩{availableAmount.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-[#999] text-sm">
-                                <span>플랫폼 수수료 (5%)</span>
-                                <span className="text-red-500">-₩{platformFee.toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between text-[#999] text-sm">
-                                <span>PG 수수료 (3%)</span>
-                                <span className="text-red-500">-₩{pgFee.toLocaleString()}</span>
-                            </div>
-                            <div className="pt-3 border-t border-dashed border-gray-300 flex justify-between font-bold text-[#333]">
-                                <span>실 입금액</span>
-                                <span className="text-[#FF6B6B]">₩{netAmount.toLocaleString()}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 버튼들 */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setStep('overview')}
-                            className="flex-1 py-4 bg-gray-100 rounded-xl text-[#666] font-semibold hover:bg-gray-200 transition-colors"
-                        >
-                            ← 이전
-                        </button>
-                        <button
-                            onClick={() => setStep('confirm')}
-                            disabled={!bankInfo.bank || !bankInfo.accountNumber || !bankInfo.accountHolder}
-                            className="flex-1 py-4 bg-[#FFD95A] rounded-xl text-[#333] font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#FFCE3A] transition-all shadow-md"
-                        >
-                            다음으로 →
-                        </button>
-                    </div>
-                </motion.div>
-            )}
-
-            {step === 'confirm' && (
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="space-y-6"
-                >
-                    {/* 최종 확인 */}
-                    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                        <h3 className="text-lg font-bold text-[#333] mb-6 flex items-center gap-2">
-                            <span>✅</span> 정산 신청 확인
-                        </h3>
-
-                        <div className="space-y-4">
-                            <div className="p-4 bg-[#FFFACD] rounded-xl">
-                                <p className="text-sm text-[#666] mb-1">입금 계좌</p>
-                                <p className="font-bold text-[#333]">
-                                    {bankInfo.bank === 'kakao' && '카카오뱅크'}
-                                    {bankInfo.bank === 'toss' && '토스뱅크'}
-                                    {bankInfo.bank === 'kb' && 'KB국민은행'}
-                                    {bankInfo.bank === 'shinhan' && '신한은행'}
-                                    {bankInfo.bank === 'woori' && '우리은행'}
-                                    {bankInfo.bank === 'hana' && '하나은행'}
-                                    {bankInfo.bank === 'nh' && '농협은행'}
-                                    {' '}{bankInfo.accountNumber}
-                                </p>
-                                <p className="text-sm text-[#666]">예금주: {bankInfo.accountHolder}</p>
-                            </div>
-
-                            <div className="p-4 bg-[#FFE4E1] rounded-xl">
-                                <p className="text-sm text-[#666] mb-1">입금 예정 금액</p>
-                                <p className="text-3xl font-bold text-[#FF6B6B]">
-                                    ₩{netAmount.toLocaleString()}
-                                </p>
-                                <p className="text-xs text-[#999] mt-1">영업일 기준 3일 이내 입금</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 안내 */}
-                    <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-sm text-[#666]">
-                            ⚠️ 정산 신청 후에는 취소할 수 없습니다. 계좌 정보를 다시 한번 확인해주세요.
-                        </p>
-                    </div>
-
-                    {/* 버튼들 */}
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setStep('request')}
-                            className="flex-1 py-4 bg-gray-100 rounded-xl text-[#666] font-semibold hover:bg-gray-200 transition-colors"
-                        >
-                            ← 수정
-                        </button>
-                        <button
-                            onClick={handleSubmit}
-                            disabled={isSubmitting}
-                            className="flex-1 py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold hover:bg-[#FF5252] transition-all shadow-md disabled:opacity-50"
-                        >
-                            {isSubmitting ? (
-                                <motion.span
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                    className="inline-block"
-                                >⏳</motion.span>
-                            ) : '정산 신청 완료'}
-                        </button>
-                    </div>
-                </motion.div>
-            )}
-
-            {step === 'complete' && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="text-center"
-                >
-                    {/* 성공 애니메이션 */}
-                    <motion.div
-                        className="text-8xl mb-6"
-                        animate={{
-                            scale: [1, 1.2, 1],
-                            rotate: [0, 10, -10, 0]
-                        }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        🍯
-                    </motion.div>
-
-                    <h2 className="text-2xl font-bold mb-2 text-[#333]">정산 신청이 완료되었습니다!</h2>
-                    <p className="text-[#666] mb-8">
-                        영업일 기준 3일 이내에 입금될 예정이에요
+                    <p className="text-red-600 dark:text-red-400 font-medium mb-2">⚠️ 정산 정보가 등록되지 않았습니다</p>
+                    <p className="text-sm text-red-500 dark:text-red-300 mb-3">
+                        정산을 받으시려면 먼저 정산 정보를 등록해주세요.
                     </p>
-
-                    {/* 요약 카드 */}
-                    <div className="bg-[#FFFACD] rounded-xl p-6 text-left mb-8 shadow-md mx-auto max-w-sm">
-                        <div className="flex items-center gap-3 mb-3">
-                            <span className="text-2xl">💰</span>
-                            <span className="font-bold text-[#333]">입금 예정</span>
-                        </div>
-                        <p className="text-3xl font-bold text-[#FF6B6B] mb-2">
-                            ₩{netAmount.toLocaleString()}
-                        </p>
-                        <p className="text-sm text-[#666]">
-                            {bankInfo.bank === 'kakao' && '카카오뱅크'}
-                            {bankInfo.bank === 'toss' && '토스뱅크'}
-                            {bankInfo.bank !== 'kakao' && bankInfo.bank !== 'toss' && bankInfo.bank}
-                            {' '}{bankInfo.accountNumber.replace(/(\d{4})(\d+)(\d{4})/, '$1-****-$3')}
-                        </p>
-                    </div>
-
-                    {/* 버튼 */}
-                    <button
-                        onClick={() => setStep('overview')}
-                        className="px-8 py-4 bg-[#FFD95A] rounded-xl text-[#333] font-semibold hover:bg-[#FFCE3A] transition-all shadow-md"
+                    <Link
+                        href="/dashboard/settings"
+                        className="inline-block px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
                     >
-                        확인
-                    </button>
+                        설정에서 정산 정보 등록하기 →
+                    </Link>
                 </motion.div>
             )}
+
+            {/* 정산 가능 금액 카드 */}
+            <motion.div
+                className="bg-gradient-to-r from-[#FFD95A] to-[#FFE082] rounded-2xl p-8 shadow-lg relative overflow-hidden mb-6"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+            >
+                <div className="absolute top-4 right-4 text-6xl opacity-20">💳</div>
+
+                <p className="text-[#333]/70 text-sm mb-2">정산 가능 금액</p>
+                <p className="text-5xl font-bold text-[#333] mb-4">
+                    ₩{availableAmount.toLocaleString()}
+                </p>
+
+                <div className="flex items-center gap-4 text-sm">
+                    <span className="text-[#333]/70">
+                        총 후원: ₩{stats.totalAmount.toLocaleString()}
+                    </span>
+                    <span className="text-[#333]/50">|</span>
+                    <span className="text-[#333]/70">
+                        기 정산: ₩{settledAmount.toLocaleString()}
+                    </span>
+                </div>
+            </motion.div>
+
+            {/* 정산 요약 */}
+            {availableAmount >= 1000 && (
+                <motion.div
+                    className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                >
+                    <div className="text-center text-sm text-[#999] dark:text-gray-500 mb-3">--- 정산 예상 금액 ---</div>
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-[#666] dark:text-gray-400">
+                            <span>정산 요청 금액</span>
+                            <span>₩{availableAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-[#999] dark:text-gray-500 text-sm">
+                            <span>플랫폼 수수료 (5%)</span>
+                            <span className="text-red-500">-₩{platformFee.toLocaleString()}</span>
+                        </div>
+                        <div className="pt-3 border-t border-dashed border-gray-300 dark:border-gray-600 flex justify-between font-bold text-[#333] dark:text-white">
+                            <span>실 입금액</span>
+                            <span className="text-[#FF6B6B]">₩{netAmount.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* 정산 신청 버튼 */}
+            <motion.button
+                onClick={handleRequestSettlement}
+                disabled={availableAmount < 1000 || !hasSettlementInfo || isSubmitting}
+                className="w-full py-4 bg-[#FF6B6B] rounded-xl text-white font-semibold text-lg hover:bg-[#FF5252] transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+                whileHover={{ scale: availableAmount >= 1000 && hasSettlementInfo ? 1.02 : 1 }}
+                whileTap={{ scale: 0.98 }}
+            >
+                {isSubmitting ? (
+                    <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="inline-block"
+                    >⏳</motion.span>
+                ) : availableAmount >= 1000 ? (
+                    hasSettlementInfo ? '정산 신청하기' : '정산 정보를 먼저 등록해주세요'
+                ) : (
+                    '최소 정산 금액: ₩1,000'
+                )}
+            </motion.button>
+
+            {/* 정산 내역 */}
+            <motion.div
+                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+            >
+                <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                    <span>📋</span> 정산 내역
+                </h3>
+
+                {settlements.length > 0 ? (
+                    <div className="space-y-3">
+                        {settlements.map((settlement) => (
+                            <div
+                                key={settlement.id}
+                                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl"
+                            >
+                                <div>
+                                    <p className="font-bold text-[#333] dark:text-white">
+                                        ₩{settlement.amount.toLocaleString()}
+                                        <span className="text-sm font-normal text-[#999] dark:text-gray-400 ml-2">
+                                            (실 수령: ₩{settlement.netAmount.toLocaleString()})
+                                        </span>
+                                    </p>
+                                    <p className="text-xs text-[#999] dark:text-gray-500">
+                                        {new Date(settlement.requestedAt).toLocaleDateString('ko-KR')} 신청
+                                        {settlement.completedAt && ` → ${new Date(settlement.completedAt).toLocaleDateString('ko-KR')} 완료`}
+                                    </p>
+                                </div>
+                                {getStatusBadge(settlement.status)}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-8 text-[#999] dark:text-gray-500">
+                        아직 정산 내역이 없어요
+                    </div>
+                )}
+            </motion.div>
+
+            {/* 안내 */}
+            <motion.div
+                className="bg-[#FFFACD] dark:bg-yellow-900/20 rounded-xl p-4 border-2 border-dashed border-[#FFD95A]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
+            >
+                <p className="text-sm text-[#666] dark:text-gray-300">
+                    💡 <strong>정산 안내</strong>: 정산 신청 후 영업일 기준 3-5일 이내에 입금됩니다. 최소 정산 금액은 ₩1,000입니다.
+                </p>
+                <p className="text-xs text-[#999] dark:text-gray-500 mt-2">
+                    ※ 플랫폼 수수료 5%가 차감됩니다.
+                </p>
+            </motion.div>
         </div>
     );
 }

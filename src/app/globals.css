@@ -113,7 +113,7 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   --font-hand: var(--font-gamja), 'Gamja Flower', cursive;
   --font-display: var(--font-himelody), 'Hi Melody', cursive;
 

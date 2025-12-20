@@ -1,9 +1,9 @@
 "use client";
 // 분석 페이지 - 후원 통계, recharts 차트, 인사이트
-// 다크 모드 지원
+// 다크 모드 지원, 기간 필터링, CSV 내보내기
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -14,9 +14,13 @@ import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/Skeleton";
 // 차트 색상
 const CHART_COLORS = ["#FF6B6B", "#FFD95A", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"];
 
+// 기간 필터 옵션
+type DateRange = '7d' | '30d' | '90d' | 'all';
+
 export default function AnalyticsPage() {
     const [donations, setDonations] = useState<Donation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [dateRange, setDateRange] = useState<DateRange>('30d');
 
     // 데이터 로드
     useEffect(() => {
@@ -28,30 +32,64 @@ export default function AnalyticsPage() {
         loadData();
     }, []);
 
-    // 통계 계산
-    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
-    const avgAmount = donations.length > 0 ? Math.round(totalAmount / donations.length) : 0;
-    const tipCount = donations.filter(d => d.isTipIncluded).length;
+    // 기간별 필터링
+    const filteredDonations = useMemo(() => {
+        if (dateRange === 'all') return donations;
+
+        const now = new Date();
+        const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
+        const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+        return donations.filter(d => new Date(d.createdAt) >= cutoff);
+    }, [donations, dateRange]);
+
+    // CSV 내보내기
+    const exportToCSV = () => {
+        const headers = ['날짜', '후원자', '금액', '메시지', '스티커', '팁 포함'];
+        const rows = filteredDonations.map(d => [
+            new Date(d.createdAt).toLocaleString('ko-KR'),
+            d.donorName,
+            d.amount.toString(),
+            `"${d.message.replace(/"/g, '""')}"`,
+            d.sticker,
+            d.isTipIncluded ? '예' : '아니오'
+        ]);
+
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `donote_analytics_${dateRange}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // 통계 계산 (필터링된 데이터 사용)
+    const totalAmount = filteredDonations.reduce((sum, d) => sum + d.amount, 0);
+    const avgAmount = filteredDonations.length > 0 ? Math.round(totalAmount / filteredDonations.length) : 0;
+    const tipCount = filteredDonations.filter(d => d.isTipIncluded).length;
 
     // 시간대별 데이터 (recharts용)
     const hourlyData = Array(24).fill(0).map((_, hour) => {
-        const count = donations.filter(d => new Date(d.createdAt).getHours() === hour).length;
-        return { hour: `${hour}시`, count, amount: donations.filter(d => new Date(d.createdAt).getHours() === hour).reduce((sum, d) => sum + d.amount, 0) };
+        const count = filteredDonations.filter(d => new Date(d.createdAt).getHours() === hour).length;
+        return { hour: `${hour}시`, count, amount: filteredDonations.filter(d => new Date(d.createdAt).getHours() === hour).reduce((sum, d) => sum + d.amount, 0) };
     });
 
     // 금액별 분포 (파이 차트용)
     const amountDistribution = [
-        { name: "3,000원", value: donations.filter(d => d.amount === 3000).length, color: "#FFD95A" },
-        { name: "5,000원", value: donations.filter(d => d.amount === 5000).length, color: "#FF6B6B" },
-        { name: "10,000원+", value: donations.filter(d => d.amount >= 10000).length, color: "#4ECDC4" },
-        { name: "기타", value: donations.filter(d => d.amount !== 3000 && d.amount !== 5000 && d.amount < 10000).length, color: "#96CEB4" },
+        { name: "3,000원", value: filteredDonations.filter(d => d.amount === 3000).length, color: "#FFD95A" },
+        { name: "5,000원", value: filteredDonations.filter(d => d.amount === 5000).length, color: "#FF6B6B" },
+        { name: "10,000원+", value: filteredDonations.filter(d => d.amount >= 10000).length, color: "#4ECDC4" },
+        { name: "기타", value: filteredDonations.filter(d => d.amount !== 3000 && d.amount !== 5000 && d.amount < 10000).length, color: "#96CEB4" },
     ].filter(d => d.value > 0);
 
-    // 최근 7일 트렌드
-    const last7Days = Array(7).fill(0).map((_, i) => {
+    // 트렌드 데이터 (기간에 따라 동적)
+    const trendDays = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : dateRange === '90d' ? 90 : 30;
+    const trendData = Array(Math.min(trendDays, 14)).fill(0).map((_, i) => {
         const date = new Date();
-        date.setDate(date.getDate() - (6 - i));
-        const dayDonations = donations.filter(d => {
+        date.setDate(date.getDate() - (Math.min(trendDays, 14) - 1 - i));
+        const dayDonations = filteredDonations.filter(d => {
             const dDate = new Date(d.createdAt);
             return dDate.toDateString() === date.toDateString();
         });
@@ -65,7 +103,7 @@ export default function AnalyticsPage() {
     // 최고의 팬
     const topFans = (() => {
         const fanMap = new Map<string, { name: string; amount: number; count: number }>();
-        donations.forEach(d => {
+        filteredDonations.forEach(d => {
             const existing = fanMap.get(d.donorName) || { name: d.donorName, amount: 0, count: 0 };
             fanMap.set(d.donorName, { ...existing, amount: existing.amount + d.amount, count: existing.count + 1 });
         });
@@ -91,6 +129,30 @@ export default function AnalyticsPage() {
 
     return (
         <div className="max-w-6xl mx-auto">
+            {/* 필터 및 내보내기 */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-2">
+                    {(['7d', '30d', '90d', 'all'] as DateRange[]).map((range) => (
+                        <button
+                            key={range}
+                            onClick={() => setDateRange(range)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${dateRange === range
+                                    ? 'bg-[#FF6B6B] text-white'
+                                    : 'bg-white dark:bg-gray-800 text-[#666] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
+                                }`}
+                        >
+                            {range === '7d' ? '7일' : range === '30d' ? '30일' : range === '90d' ? '90일' : '전체'}
+                        </button>
+                    ))}
+                </div>
+                <button
+                    onClick={exportToCSV}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#FFD95A] text-[#333] rounded-lg text-sm font-medium hover:bg-[#FFCE3A] transition-colors"
+                >
+                    📥 CSV 내보내기
+                </button>
+            </div>
+
             {/* 통계 요약 카드 */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {[
@@ -120,7 +182,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-6">
-                {/* 7일 트렌드 차트 (Area Chart) */}
+                {/* 트렌드 차트 (Area Chart) */}
                 <motion.div
                     className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
@@ -128,11 +190,11 @@ export default function AnalyticsPage() {
                     transition={{ delay: 0.3 }}
                 >
                     <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
-                        <span>📈</span> 최근 7일 트렌드
+                        <span>📈</span> {dateRange === '7d' ? '7일' : dateRange === '30d' ? '30일' : dateRange === '90d' ? '90일' : '전체'} 트렌드
                     </h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={last7Days}>
+                            <AreaChart data={trendData}>
                                 <defs>
                                     <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#FF6B6B" stopOpacity={0.8} />

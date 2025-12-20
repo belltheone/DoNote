@@ -152,8 +152,8 @@ export default function DashboardLayout({
                                 href={`/${user?.handle || 'demo'}`}
                                 className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors flex items-center gap-2"
                             >
-                                <span>👁️</span>
                                 <span className="hidden sm:inline">내 페이지 보기</span>
+                                <span className="sm:hidden">페이지</span>
                             </Link>
 
                             {/* 로그아웃 */}

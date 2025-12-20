@@ -29,6 +29,7 @@ export function Header() {
     // 로그아웃 처리
     const handleSignOut = async () => {
         await signOut();
+        router.refresh(); // 페이지 상태 새로고침
         router.push('/');
     };
 

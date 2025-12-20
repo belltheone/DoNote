@@ -35,7 +35,7 @@ export default function SettingsPage() {
     // 테마 상태
     const [selectedTheme, setSelectedTheme] = useState(0);
 
-    // 소셜 링크
+    // 소셜 링크 (고정)
     const [socialLinks, setSocialLinks] = useState({
         github: "",
         blog: "",
@@ -43,6 +43,9 @@ export default function SettingsPage() {
         youtube: "",
         instagram: "",
     });
+
+    // 커스텀 링크 (동적 추가)
+    const [customLinks, setCustomLinks] = useState<Array<{ name: string; url: string }>>([]);
 
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -296,7 +299,8 @@ export default function SettingsPage() {
                     <span>🔗</span> 소셜 링크
                 </h3>
 
-                <div className="space-y-4">
+                {/* 기본 소셜 링크 */}
+                <div className="space-y-4 mb-6">
                     {[
                         { key: 'github', label: 'GitHub', placeholder: 'https://github.com/username' },
                         { key: 'blog', label: '블로그', placeholder: 'https://blog.example.com' },
@@ -316,6 +320,53 @@ export default function SettingsPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* 커스텀 링크 */}
+                {customLinks.length > 0 && (
+                    <div className="space-y-4 mb-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <p className="text-sm font-medium text-[#666] dark:text-gray-400">직접 추가한 링크</p>
+                        {customLinks.map((link, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={link.name}
+                                    onChange={(e) => {
+                                        const updated = [...customLinks];
+                                        updated[index].name = e.target.value;
+                                        setCustomLinks(updated);
+                                    }}
+                                    className="w-24 px-3 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors text-sm"
+                                    placeholder="사이트명"
+                                />
+                                <input
+                                    type="url"
+                                    value={link.url}
+                                    onChange={(e) => {
+                                        const updated = [...customLinks];
+                                        updated[index].url = e.target.value;
+                                        setCustomLinks(updated);
+                                    }}
+                                    className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                    placeholder="https://example.com"
+                                />
+                                <button
+                                    onClick={() => setCustomLinks(customLinks.filter((_, i) => i !== index))}
+                                    className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* 링크 추가 버튼 */}
+                <button
+                    onClick={() => setCustomLinks([...customLinks, { name: '', url: '' }])}
+                    className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-[#666] dark:text-gray-400 hover:border-[#FFD95A] hover:text-[#333] dark:hover:text-white transition-colors flex items-center justify-center gap-2"
+                >
+                    <span>+</span> 링크 추가
+                </button>
             </motion.div>
 
             {/* 저장 버튼 */}

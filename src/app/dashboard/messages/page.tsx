@@ -111,8 +111,8 @@ export default function MessagesPage() {
                             <button
                                 onClick={() => togglePin(donation.id)}
                                 className={`absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full shadow-md transition-colors ${donation.isPinned
-                                        ? 'bg-red-500'
-                                        : 'bg-gray-400 group-hover:bg-red-300'
+                                    ? 'bg-red-500'
+                                    : 'bg-gray-400 group-hover:bg-red-300'
                                     }`}
                                 title={donation.isPinned ? '핀 해제' : '핀 고정'}
                             />
@@ -128,7 +128,7 @@ export default function MessagesPage() {
                             </div>
 
                             {/* 메시지 */}
-                            <p className="text-sm font-medium text-[#333] mb-3 min-h-[60px]">
+                            <p className="text-base font-handwriting text-[#333] mb-3 min-h-[60px] leading-relaxed">
                                 {donation.message}
                             </p>
 

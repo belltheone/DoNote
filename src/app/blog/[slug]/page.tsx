@@ -174,40 +174,141 @@ const categoryColors: Record<string, string> = {
     "업데이트": "bg-[#4299E1]/10 text-[#4299E1]",
 };
 
-// 마크다운을 간단한 HTML로 변환
+// 인라인 마크다운 처리 (bold, italic, links, inline code)
+function processInlineMarkdown(text: string): React.ReactNode[] {
+    const result: React.ReactNode[] = [];
+    let remaining = text;
+    let keyIndex = 0;
+
+    while (remaining.length > 0) {
+        // **bold** 처리
+        const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
+        // *italic* 처리
+        const italicMatch = remaining.match(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/);
+        // [link](url) 처리
+        const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
+        // `code` 처리
+        const codeMatch = remaining.match(/`([^`]+)`/);
+
+        // 가장 먼저 나오는 매치 찾기
+        const matches = [
+            { match: boldMatch, type: 'bold' },
+            { match: italicMatch, type: 'italic' },
+            { match: linkMatch, type: 'link' },
+            { match: codeMatch, type: 'code' },
+        ].filter(m => m.match !== null)
+            .sort((a, b) => (a.match?.index || 0) - (b.match?.index || 0));
+
+        if (matches.length === 0) {
+            result.push(remaining);
+            break;
+        }
+
+        const firstMatch = matches[0];
+        const match = firstMatch.match!;
+        const matchIndex = match.index || 0;
+
+        // 매치 이전 텍스트 추가
+        if (matchIndex > 0) {
+            result.push(remaining.slice(0, matchIndex));
+        }
+
+        // 매치된 내용 처리
+        if (firstMatch.type === 'bold') {
+            result.push(<strong key={keyIndex++} className="font-bold text-[#333] dark:text-white">{match[1]}</strong>);
+        } else if (firstMatch.type === 'italic') {
+            result.push(<em key={keyIndex++} className="italic">{match[1]}</em>);
+        } else if (firstMatch.type === 'link') {
+            result.push(
+                <a key={keyIndex++} href={match[2]} className="text-[#FF6B6B] hover:underline">
+                    {match[1]}
+                </a>
+            );
+        } else if (firstMatch.type === 'code') {
+            result.push(
+                <code key={keyIndex++} className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm font-mono text-[#e83e8c]">
+                    {match[1]}
+                </code>
+            );
+        }
+
+        remaining = remaining.slice(matchIndex + match[0].length);
+    }
+
+    return result;
+}
+
+// 마크다운을 React 요소로 변환
 function renderMarkdown(content: string) {
-    return content
-        .split('\n')
-        .map((line, i) => {
-            // 헤더
-            if (line.startsWith('### ')) {
-                return <h3 key={i} className="text-xl font-bold text-[#333] dark:text-white mt-8 mb-4">{line.slice(4)}</h3>;
+    const lines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let inCodeBlock = false;
+    let codeBlockContent: string[] = [];
+    let codeBlockLang = '';
+
+    lines.forEach((line, i) => {
+        // 코드 블록 시작/끝
+        if (line.startsWith('```')) {
+            if (!inCodeBlock) {
+                inCodeBlock = true;
+                codeBlockLang = line.slice(3).trim();
+                codeBlockContent = [];
+            } else {
+                elements.push(
+                    <pre key={i} className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto my-4 text-sm">
+                        <code>{codeBlockContent.join('\n')}</code>
+                    </pre>
+                );
+                inCodeBlock = false;
             }
-            if (line.startsWith('## ')) {
-                return <h2 key={i} className="text-2xl font-bold text-[#333] dark:text-white mt-10 mb-6">{line.slice(3)}</h2>;
-            }
-            // 코드 블록 (간단 버전)
-            if (line.startsWith('```')) {
-                return null; // 간단 처리
-            }
-            // 리스트
-            if (line.startsWith('- ')) {
-                return <li key={i} className="text-[#666] dark:text-gray-400 ml-4 mb-2">{line.slice(2)}</li>;
-            }
-            if (line.match(/^\d\. /)) {
-                return <li key={i} className="text-[#666] dark:text-gray-400 ml-4 mb-2 list-decimal">{line.slice(3)}</li>;
-            }
-            // 구분선
-            if (line === '---') {
-                return <hr key={i} className="my-8 border-gray-200 dark:border-gray-700" />;
-            }
-            // 빈 줄
-            if (line.trim() === '') {
-                return <br key={i} />;
-            }
-            // 일반 텍스트
-            return <p key={i} className="text-[#666] dark:text-gray-400 leading-relaxed mb-4">{line}</p>;
-        });
+            return;
+        }
+
+        if (inCodeBlock) {
+            codeBlockContent.push(line);
+            return;
+        }
+
+        // #### 헤더
+        if (line.startsWith('#### ')) {
+            elements.push(<h4 key={i} className="text-lg font-bold text-[#333] dark:text-white mt-6 mb-3">{processInlineMarkdown(line.slice(5))}</h4>);
+            return;
+        }
+        // ### 헤더
+        if (line.startsWith('### ')) {
+            elements.push(<h3 key={i} className="text-xl font-bold text-[#333] dark:text-white mt-8 mb-4">{processInlineMarkdown(line.slice(4))}</h3>);
+            return;
+        }
+        // ## 헤더
+        if (line.startsWith('## ')) {
+            elements.push(<h2 key={i} className="text-2xl font-bold text-[#333] dark:text-white mt-10 mb-6">{processInlineMarkdown(line.slice(3))}</h2>);
+            return;
+        }
+        // 리스트 (-)
+        if (line.startsWith('- ')) {
+            elements.push(<li key={i} className="text-[#666] dark:text-gray-400 ml-4 mb-2 list-disc">{processInlineMarkdown(line.slice(2))}</li>);
+            return;
+        }
+        // 리스트 (숫자)
+        if (line.match(/^\d+\. /)) {
+            elements.push(<li key={i} className="text-[#666] dark:text-gray-400 ml-4 mb-2 list-decimal">{processInlineMarkdown(line.slice(3))}</li>);
+            return;
+        }
+        // 구분선
+        if (line === '---') {
+            elements.push(<hr key={i} className="my-8 border-gray-200 dark:border-gray-700" />);
+            return;
+        }
+        // 빈 줄
+        if (line.trim() === '') {
+            elements.push(<br key={i} />);
+            return;
+        }
+        // 일반 텍스트
+        elements.push(<p key={i} className="text-[#666] dark:text-gray-400 leading-relaxed mb-4">{processInlineMarkdown(line)}</p>);
+    });
+
+    return elements;
 }
 
 export default async function BlogPostPage({

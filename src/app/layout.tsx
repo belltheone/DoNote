@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Toaster } from "@/components/ui/sonner";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 
 // Geist 폰트 설정 (영문/숫자용 보조)
 const geistSans = Geist({
@@ -140,6 +141,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${gamjaFlower.variable} ${hiMelody.variable} antialiased bg-[#F9F9F9] dark:bg-gray-900 text-[#333333] dark:text-gray-100 transition-colors paper-bg`}
       >
+        {/* Google Analytics */}
+        <GoogleAnalytics />
         {/* 스킵 네비게이션 (접근성) */}
         <a href="#main-content" className="skip-to-content">
           본문으로 바로가기

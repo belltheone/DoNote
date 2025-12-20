@@ -2,7 +2,6 @@
 // 대시보드 레이아웃 - 사이드바 + 헤더
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -94,13 +93,7 @@ export default function DashboardLayout({
                 {/* 로고 */}
                 <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                     <Link href="/" className="flex items-center gap-3">
-                        <Image
-                            src="/logo.png"
-                            alt="도노트 로고"
-                            width={32}
-                            height={32}
-                            className="rounded-lg"
-                        />
+                        <span className="text-2xl">🍩</span>
                         {sidebarOpen && <span className="text-xl font-bold text-[#333] dark:text-white">도노트</span>}
                     </Link>
                 </div>

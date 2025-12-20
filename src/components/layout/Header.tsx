@@ -3,7 +3,6 @@
 // 로그인 상태에 따라 다르게 표시 + 다크 모드 지원
 
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/store/auth";
@@ -43,20 +42,14 @@ export function Header() {
                 <div className="flex justify-between items-center relative">
                     {/* 로고 */}
                     <Link href="/" className="flex items-center gap-2 group">
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ duration: 0.2 }}
+                        <motion.span
+                            className="text-2xl"
+                            whileHover={{ rotate: [0, -10, 10, 0] }}
+                            transition={{ duration: 0.5 }}
                         >
-                            <Image
-                                src="/logo.png"
-                                alt="도노트 로고"
-                                width={36}
-                                height={36}
-                                className="rounded-lg"
-                                priority
-                            />
-                        </motion.div>
-                        <span className="text-xl font-bold text-[#333] dark:text-white group-hover:text-[#FF6B6B] transition-colors">
+                            🍩
+                        </motion.span>
+                        <span className="text-xl font-bold text-[#333] group-hover:text-[#FF6B6B] transition-colors">
                             도노트
                         </span>
                     </Link>

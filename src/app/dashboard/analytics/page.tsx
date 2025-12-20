@@ -9,7 +9,7 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts";
 import { getStats, getHourlyAnalysis, getTopFans, mockDonations, getAllDonations, type Donation } from "@/lib/supabase";
-import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/skeleton";
+import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/Skeleton";
 
 // 차트 색상
 const CHART_COLORS = ["#FF6B6B", "#FFD95A", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"];

@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { realtimeManager } from "@/lib/realtime";
 import { NotificationToast } from "@/components/NotificationToast";
 import { useAuthStore } from "@/store/auth";
-import { DashboardSkeleton } from "@/components/ui/skeleton";
+import { DashboardSkeleton } from "@/components/ui/Skeleton";
 
 interface Notification {
     id: string;

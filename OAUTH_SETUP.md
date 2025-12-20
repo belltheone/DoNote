@@ -62,9 +62,36 @@ DoNote에서 소셜 로그인을 실제로 활성화하려면 Supabase Dashboard
 
 ---
 
-## 🟩 Naver OAuth 설정
+## � Kakao OAuth 설정 ⭐ (추천)
 
-> ⚠️ Naver는 Supabase에서 기본 지원하지 않으므로 Custom OIDC로 설정해야 합니다.
+Supabase는 Kakao를 **기본 지원**합니다!
+
+### 1단계: Kakao Developers 설정
+
+1. [Kakao Developers](https://developers.kakao.com/) 접속
+2. **내 애플리케이션** > **애플리케이션 추가하기**
+3. 앱 이름: DoNote
+4. **플랫폼** > **Web** 추가
+   - 사이트 도메인: `https://donote.site`
+5. **카카오 로그인** 활성화
+6. **Redirect URI** 추가:
+   ```
+   https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback
+   ```
+7. **REST API 키**와 **Client Secret** 복사 (보안 탭에서)
+
+### 2단계: Supabase Dashboard 설정
+
+1. Supabase Dashboard > **Authentication** > **Providers**
+2. **Kakao** 활성화
+3. Client ID (REST API 키)와 Client Secret 입력
+4. **Save** 클릭
+
+---
+
+## �🟩 Naver OAuth 설정 (고급)
+
+> ⚠️ Naver는 Supabase에서 기본 지원하지 않으므로 수동 처리가 필요합니다.
 
 ### 1단계: 네이버 개발자 센터 설정
 
@@ -73,7 +100,13 @@ DoNote에서 소셜 로그인을 실제로 활성화하려면 Supabase Dashboard
 3. **사용 API**: 네이버 로그인 선택
 4. **제공 정보**: 이메일, 프로필 정보 등 선택
 5. **서비스 URL**: `https://donote.site`
-6. **Callback URL** 추가
+6. **Callback URL**: `https://donote.site/auth/naver/callback`
+
+### 2단계: Edge Function 배포 필요
+
+네이버는 Supabase에서 기본 지원되지 않으므로, Edge Function을 통해 직접 인증 플로우를 구현해야 합니다.
+
+> 참고: 현재 버튼은 UI에만 존재하며, 실제 동작을 위해서는 추가 개발이 필요합니다.
 
 ---
 
@@ -90,3 +123,4 @@ DoNote에서 소셜 로그인을 실제로 활성화하려면 Supabase Dashboard
 - [Supabase Auth 문서](https://supabase.com/docs/guides/auth)
 - [Google OAuth 설정 가이드](https://supabase.com/docs/guides/auth/social-login/auth-google)
 - [GitHub OAuth 설정 가이드](https://supabase.com/docs/guides/auth/social-login/auth-github)
+- [Kakao OAuth 설정 가이드](https://supabase.com/docs/guides/auth/social-login/auth-kakao)

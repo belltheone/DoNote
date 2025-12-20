@@ -64,19 +64,19 @@ export default function CreatorPage({
     const goalPercent = Math.round((creator.goal.current / creator.goal.target) * 100);
 
     return (
-        <div className="min-h-screen bg-[#F9F9F9] py-8 px-4">
+        <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 py-8 px-4">
             <div className="max-w-2xl mx-auto">
                 {/* 뒤로가기 */}
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-[#666] hover:text-[#333] transition-colors mb-6"
+                    className="inline-flex items-center gap-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors mb-6"
                 >
                     ← 도노트 홈
                 </Link>
 
                 {/* 프로필 카드 - 편지봉투 스타일 */}
                 <motion.div
-                    className="bg-white rounded-xl p-8 mb-8 shadow-md border border-gray-100 relative"
+                    className="bg-white dark:bg-gray-800 rounded-xl p-8 mb-8 shadow-md border border-gray-100 dark:border-gray-700 relative"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -94,8 +94,8 @@ export default function CreatorPage({
 
                         {/* 정보 */}
                         <div className="flex-1">
-                            <h1 className="text-2xl font-bold mb-1 text-[#333]">{creator.displayName}</h1>
-                            <p className="text-[#666] mb-3">{creator.bio}</p>
+                            <h1 className="text-2xl font-bold mb-1 text-[#333] dark:text-white">{creator.displayName}</h1>
+                            <p className="text-[#666] dark:text-gray-400 mb-3">{creator.bio}</p>
 
                             {/* 소셜 링크 */}
                             <div className="flex gap-2">
@@ -105,7 +105,7 @@ export default function CreatorPage({
                                         href={link.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="px-3 py-1 text-sm bg-gray-100 rounded-full text-[#666] hover:bg-[#FFD95A] hover:text-[#333] transition-colors"
+                                        className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-full text-[#666] dark:text-gray-300 hover:bg-[#FFD95A] hover:text-[#333] transition-colors"
                                     >
                                         {link.name}
                                     </a>
@@ -117,8 +117,8 @@ export default function CreatorPage({
                     {/* 목표 게이지 - 도넛이 쌓이는 접시 컨셉 */}
                     <div className="p-4 rounded-xl bg-[#FFFACD]/30 border-2 border-dashed border-[#FFD95A]">
                         <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium text-[#333]">🍩 {creator.goal.title}</span>
-                            <span className="text-sm text-[#666]">
+                            <span className="font-medium text-[#333] dark:text-white">🍩 {creator.goal.title}</span>
+                            <span className="text-sm text-[#666] dark:text-gray-400">
                                 {creator.goal.current.toLocaleString()}원 / {creator.goal.target.toLocaleString()}원
                             </span>
                         </div>
@@ -153,7 +153,7 @@ export default function CreatorPage({
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
                 >
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333] font-sans">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#333] dark:text-white font-sans">
                         <span>📌</span>
                         <span>응원 메시지 월</span>
                         <span className="text-sm font-sans font-normal text-[#666]">({creator.notes.length})</span>
@@ -171,7 +171,7 @@ export default function CreatorPage({
                                     className={`relative p-5 break-inside-avoid rounded-sm shadow-md transition-all cursor-pointer group ${noteColors[index % noteColors.length]
                                         }`}
                                     style={{
-                                        rotate: `${Math.random() * 6 - 3}deg`, // -3deg ~ +3deg
+                                        rotate: `${(index % 6) * 2 - 5}deg`,
                                     }}
                                     whileHover={{
                                         scale: 1.05,
@@ -223,7 +223,7 @@ export default function CreatorPage({
                     <p className="text-[#999] text-sm mb-4">나도 이런 페이지를 갖고 싶다면?</p>
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-[#FFD95A] hover:bg-[#FFFACD] transition-all text-[#333]"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-[#FFD95A] hover:bg-[#FFFACD] transition-all text-[#333] dark:text-white"
                     >
                         <span>🍩</span>
                         <span>도노트 시작하기</span>

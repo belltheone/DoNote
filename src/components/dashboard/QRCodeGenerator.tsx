@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 // QR 코드 Props
 interface QRCodeGeneratorProps {
@@ -43,7 +44,7 @@ export function QRCodeGenerator({
                 if (canvasRef.current) {
                     const ctx = canvasRef.current.getContext('2d');
                     if (ctx) {
-                        const img = new Image();
+                        const img = document.createElement('img');
                         img.onload = () => {
                             ctx.clearRect(0, 0, size, size);
                             ctx.drawImage(img, 0, 0, size, size);
@@ -111,8 +112,14 @@ export function QRCodeGenerator({
                     )}
 
                     {/* 도노트 로고 오버레이 */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-1 shadow">
-                        <span className="text-2xl">🍩</span>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-1 shadow-md">
+                        <Image
+                            src="/logo-140.png"
+                            alt="도노트"
+                            width={36}
+                            height={36}
+                            className="rounded"
+                        />
                     </div>
                 </div>
 

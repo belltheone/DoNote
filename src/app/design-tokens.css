@@ -7,14 +7,15 @@
   /* ========================================
    * 🎨 COLOR SYSTEM
    * ======================================== */
-  
+
   /* Primary (Coral/Donut) - 메인 브랜드 컬러 */
   --color-primary-50: #FFF5F5;
   --color-primary-100: #FFE6E6;
   --color-primary-200: #FFCCCC;
   --color-primary-300: #FFB3B3;
   --color-primary-400: #FF8F8F;
-  --color-primary-500: #FF6B6B;  /* Main */
+  --color-primary-500: #FF6B6B;
+  /* Main */
   --color-primary-600: #E55A5A;
   --color-primary-700: #CC4A4A;
   --color-primary-800: #B33A3A;
@@ -26,7 +27,8 @@
   --color-secondary-200: #FFF4A3;
   --color-secondary-300: #FFED7A;
   --color-secondary-400: #FFE352;
-  --color-secondary-500: #FFD95A;  /* Main */
+  --color-secondary-500: #FFD95A;
+  /* Main */
   --color-secondary-600: #E5C24E;
   --color-secondary-700: #CCAB42;
   --color-secondary-800: #B39436;
@@ -48,25 +50,30 @@
   --color-success: #48BB78;
   --color-success-light: #9AE6B4;
   --color-success-dark: #276749;
-  
+
   --color-warning: #ED8936;
   --color-warning-light: #FBD38D;
   --color-warning-dark: #C05621;
-  
+
   --color-error: #F56565;
   --color-error-light: #FEB2B2;
   --color-error-dark: #C53030;
-  
+
   --color-info: #4299E1;
   --color-info-light: #90CDF4;
   --color-info-dark: #2B6CB0;
 
   /* Text Colors - 텍스트 계층 */
-  --text-primary: #1A202C;      /* 900 - 주요 텍스트 */
-  --text-secondary: #4A5568;    /* 700 - 보조 텍스트 */
-  --text-tertiary: #718096;     /* 500 - 부가 텍스트 */
-  --text-disabled: #A0AEC0;     /* 400 - 비활성 텍스트 */
-  --text-inverse: #FFFFFF;      /* 반전 텍스트 */
+  --text-primary: #1A202C;
+  /* 900 - 주요 텍스트 */
+  --text-secondary: #4A5568;
+  /* 700 - 보조 텍스트 */
+  --text-tertiary: #718096;
+  /* 500 - 부가 텍스트 */
+  --text-disabled: #A0AEC0;
+  /* 400 - 비활성 텍스트 */
+  --text-inverse: #FFFFFF;
+  /* 반전 텍스트 */
 
   /* Background Colors - 배경 컬러 */
   --bg-primary: #FFFFFF;
@@ -77,24 +84,35 @@
   /* ========================================
    * 📐 TYPOGRAPHY SYSTEM
    * ======================================== */
-  
+
   /* Font Family */
-  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-hand: 'Gowun Batang', 'Nanum Myeongjo', serif;
+  --font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-hand: 'Pretendard Variable', 'Pretendard', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Font Sizes (clamp for responsiveness) */
-  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);      /* 12-13px */
-  --text-sm: clamp(0.8125rem, 0.75rem + 0.3125vw, 0.875rem);  /* 13-14px */
-  --text-base: clamp(0.9375rem, 0.875rem + 0.3125vw, 1rem);   /* 15-16px */
-  --text-lg: clamp(1.0625rem, 1rem + 0.3125vw, 1.125rem);     /* 17-18px */
-  --text-xl: clamp(1.1875rem, 1.1rem + 0.4375vw, 1.25rem);    /* 19-20px */
-  --text-2xl: clamp(1.4375rem, 1.3rem + 0.6875vw, 1.5rem);    /* 23-24px */
-  --text-3xl: clamp(1.75rem, 1.5rem + 1.25vw, 1.875rem);      /* 28-30px */
-  --text-4xl: clamp(2.1875rem, 1.75rem + 2.1875vw, 2.25rem);  /* 35-36px */
-  --text-5xl: clamp(2.75rem, 2rem + 3.75vw, 3rem);            /* 44-48px */
-  --text-6xl: clamp(3.4375rem, 2.5rem + 4.6875vw, 3.75rem);   /* 55-60px */
-  --text-7xl: clamp(4.25rem, 3rem + 6.25vw, 4.5rem);          /* 68-72px */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.8125rem);
+  /* 12-13px */
+  --text-sm: clamp(0.8125rem, 0.75rem + 0.3125vw, 0.875rem);
+  /* 13-14px */
+  --text-base: clamp(0.9375rem, 0.875rem + 0.3125vw, 1rem);
+  /* 15-16px */
+  --text-lg: clamp(1.0625rem, 1rem + 0.3125vw, 1.125rem);
+  /* 17-18px */
+  --text-xl: clamp(1.1875rem, 1.1rem + 0.4375vw, 1.25rem);
+  /* 19-20px */
+  --text-2xl: clamp(1.4375rem, 1.3rem + 0.6875vw, 1.5rem);
+  /* 23-24px */
+  --text-3xl: clamp(1.75rem, 1.5rem + 1.25vw, 1.875rem);
+  /* 28-30px */
+  --text-4xl: clamp(2.1875rem, 1.75rem + 2.1875vw, 2.25rem);
+  /* 35-36px */
+  --text-5xl: clamp(2.75rem, 2rem + 3.75vw, 3rem);
+  /* 44-48px */
+  --text-6xl: clamp(3.4375rem, 2.5rem + 4.6875vw, 3.75rem);
+  /* 55-60px */
+  --text-7xl: clamp(4.25rem, 3rem + 6.25vw, 4.5rem);
+  /* 68-72px */
 
   /* Line Heights */
   --leading-none: 1;
@@ -187,7 +205,7 @@
   /* ========================================
    * ⏱️ ANIMATION & TRANSITIONS
    * ======================================== */
-  
+
   /* Duration */
   --duration-75: 75ms;
   --duration-100: 100ms;

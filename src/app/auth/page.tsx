@@ -20,15 +20,15 @@ export default function AuthPage() {
     const [error, setError] = useState('');
 
     // 소셜 로그인 처리
-    const handleSocialLogin = async (provider: 'naver' | 'google' | 'github') => {
+    const handleSocialLogin = async (provider: 'naver' | 'google' | 'github' | 'kakao') => {
         setIsLoading(provider);
         setError('');
 
         try {
+            // OAuth 제공자로 리디렉션 (콜백 페이지에서 처리됨)
             await signInWithProvider(provider);
-            setTimeout(() => {
-                router.push('/dashboard');
-            }, 1000);
+            // signInWithProvider가 OAuth 페이지로 리디렉션하므로
+            // 여기서 추가 리디렉션 불필요
         } catch (err) {
             console.error('Login error:', err);
             setError('로그인에 실패했습니다. 다시 시도해주세요.');

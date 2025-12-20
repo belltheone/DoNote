@@ -43,16 +43,9 @@ export default function DashboardLayout({
             }
 
             if (!currentUser) {
-                // 로그인 안 된 경우 Mock 사용자 설정 (개발용)
-                setUser({
-                    id: 'mock-user-123',
-                    email: 'demo@donote.kr',
-                    displayName: '개발하는 민수',
-                    avatar: '👨‍💻',
-                    handle: 'devminsu',
-                    bio: '프론트엔드 개발자',
-                    createdAt: new Date().toISOString(),
-                });
+                // 로그인 안 된 경우 로그인 페이지로 리디렉션
+                router.replace('/auth');
+                return;
             } else {
                 // Supabase User를 우리 User 타입으로 변환
                 setUser({

@@ -251,6 +251,31 @@ export default function WidgetPage() {
                         title="후원 QR 코드"
                     />
 
+                    {/* 사용 방법 가이드 */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                        <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                            <span>📖</span> 사용 방법
+                        </h3>
+                        <ol className="space-y-3 text-sm text-[#666] dark:text-gray-400">
+                            <li className="flex gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-[#FFD95A] rounded-full flex items-center justify-center text-[#333] font-bold text-xs">1</span>
+                                <span>위젯 스타일과 색상을 선택하세요</span>
+                            </li>
+                            <li className="flex gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-[#FFD95A] rounded-full flex items-center justify-center text-[#333] font-bold text-xs">2</span>
+                                <span>원하는 문구를 선택하거나 직접 입력하세요</span>
+                            </li>
+                            <li className="flex gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-[#FFD95A] rounded-full flex items-center justify-center text-[#333] font-bold text-xs">3</span>
+                                <span>HTML 또는 Markdown 코드를 복사하세요</span>
+                            </li>
+                            <li className="flex gap-3">
+                                <span className="flex-shrink-0 w-6 h-6 bg-[#FFD95A] rounded-full flex items-center justify-center text-[#333] font-bold text-xs">4</span>
+                                <span>GitHub README, 블로그, 포트폴리오에 붙여넣기!</span>
+                            </li>
+                        </ol>
+                    </div>
+
                     {/* 안내 */}
                     <div className="p-4 bg-[#FFFACD] dark:bg-yellow-900/20 rounded-xl border-2 border-dashed border-[#FFD95A]">
                         <p className="text-sm text-[#333] dark:text-gray-300">

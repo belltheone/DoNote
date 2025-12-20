@@ -11,12 +11,12 @@
   src: url('/Font/Pretendard-1.3.9/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
 }
 
-/* 손글씨 폰트 (Google Fonts - Nanum Pen Script) */
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+/* 손글씨 폰트 (Google Fonts - Gowun Batang) */
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
 
 /* 손글씨 클래스 */
 .font-handwriting {
-  font-family: 'Nanum Pen Script', cursive;
+  font-family: 'Gowun Batang', serif;
 }
 
 @custom-variant dark (&:is(.dark *));

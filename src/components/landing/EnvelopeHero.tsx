@@ -12,7 +12,7 @@ export function EnvelopeHero() {
     }, []);
 
     return (
-        <div className="relative w-[300px] h-[200px] md:w-[400px] md:h-[260px] mx-auto perspective-1000">
+        <div className="relative w-[220px] h-[150px] md:w-[280px] md:h-[180px] mx-auto perspective-1000">
             <motion.div
                 className="w-full h-full relative preserve-3d"
                 initial={{ rotateX: 20, y: 100, opacity: 0 }}
@@ -79,14 +79,14 @@ export function EnvelopeHero() {
                         {['🍩', '✨', '💜', '☕', '🖊️'].map((emoji, i) => (
                             <motion.div
                                 key={i}
-                                className="absolute text-2xl"
+                                className="absolute text-xl"
                                 initial={{ opacity: 0, x: 0, y: 50, scale: 0 }}
                                 animate={{
                                     opacity: [0, 1, 0],
-                                    x: (i - 2) * 40 + (Math.random() * 20 - 10),
-                                    y: -100 - Math.random() * 50,
-                                    scale: [0.5, 1.2, 0.8],
-                                    rotate: Math.random() * 360
+                                    x: (i - 2) * 30,
+                                    y: -80 - (i * 10),
+                                    scale: [0.5, 1.1, 0.7],
+                                    rotate: i * 45
                                 }}
                                 transition={{
                                     duration: 2,

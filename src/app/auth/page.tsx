@@ -129,7 +129,7 @@ export default function AuthPage() {
                                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                                 >
                                     <Image
-                                        src="/logo.png"
+                                        src="/logo-140.png"
                                         alt="도노트 로고"
                                         width={64}
                                         height={64}
@@ -295,7 +295,7 @@ export default function AuthPage() {
                         transition={{ delay: 0.3, type: "spring" }}
                     >
                         <Image
-                            src="/logo.png"
+                            src="/logo-140.png"
                             alt="도노트"
                             width={24}
                             height={24}

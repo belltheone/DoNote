@@ -298,14 +298,14 @@ export default function SettingsPage() {
 
                 <div className="space-y-4">
                     {[
-                        { key: 'github', label: 'GitHub', icon: '🐙', placeholder: 'https://github.com/username' },
-                        { key: 'blog', label: '블로그', icon: '📝', placeholder: 'https://blog.example.com' },
-                        { key: 'twitter', label: 'Twitter', icon: '🐦', placeholder: 'https://twitter.com/username' },
-                        { key: 'youtube', label: 'YouTube', icon: '📺', placeholder: 'https://youtube.com/@channel' },
-                        { key: 'instagram', label: 'Instagram', icon: '📷', placeholder: 'https://instagram.com/username' },
+                        { key: 'github', label: 'GitHub', placeholder: 'https://github.com/username' },
+                        { key: 'blog', label: '블로그', placeholder: 'https://blog.example.com' },
+                        { key: 'twitter', label: 'Twitter', placeholder: 'https://twitter.com/username' },
+                        { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@channel' },
+                        { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/username' },
                     ].map((link) => (
                         <div key={link.key} className="flex items-center gap-2">
-                            <span className="text-xl w-8">{link.icon}</span>
+                            <span className="text-sm font-medium w-20 text-[#666] dark:text-gray-400">{link.label}</span>
                             <input
                                 type="url"
                                 value={socialLinks[link.key as keyof typeof socialLinks]}

@@ -2,7 +2,7 @@
 // 랜딩페이지 - 도노트 메인 페이지 (고도화 버전)
 // 인터랙티브 스토리텔링 + 실시간 후원 티커
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/layout/Header";
@@ -30,16 +30,9 @@ const staggerContainer = {
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-
-  // 패럴랙스 효과
-  const envelopeY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
-  const envelopeRotate = useTransform(scrollYProgress, [0, 0.2], [0, -5]);
-  const envelopeScale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
 
   // 실시간 티커 상태
   const [currentDonation, setCurrentDonation] = useState(0);
-  const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
 
   // 실시간 티커 애니메이션
   useEffect(() => {
@@ -47,12 +40,6 @@ export default function Home() {
       setCurrentDonation(prev => (prev + 1) % liveDonations.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
-
-  // 봉투 열기 애니메이션
-  useEffect(() => {
-    const timer = setTimeout(() => setIsEnvelopeOpen(true), 1500);
-    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -110,14 +97,14 @@ export default function Home() {
           {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              className={`absolute w-12 h-12 shadow-md opacity-40 ${['bg-[#FFFACD]', 'bg-[#FFE4E1]', 'bg-[#E6F3FF]'][i % 3]}`}
+              className={`absolute w-12 h-12 shadow-md opacity-60 dark:opacity-30 ${['bg-[#FFFACD]', 'bg-[#FFE4E1]', 'bg-[#E6F3FF]'][i % 3]}`}
               style={{
                 left: `${15 + (i * 15)}%`,
                 top: `${20 + (i % 2) * 40}%`,
               }}
               animate={{
                 y: [0, 20, 0],
-                rotate: [Math.random() * -10, Math.random() * 10, Math.random() * -10]
+                rotate: [-(i * 2), i * 3, -(i * 2)]
               }}
               transition={{
                 duration: 4 + i,
@@ -287,8 +274,8 @@ export default function Home() {
               >
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-16 h-4 bg-white/70 rounded shadow-sm"></div>
                 <div className="text-4xl mb-4">{feature.emoji}</div>
-                <h3 className="text-xl font-bold mb-2 text-[#333] dark:text-white">{feature.title}</h3>
-                <p className="text-[#666] dark:text-gray-400 leading-relaxed">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-[#333] dark:text-[#333]">{feature.title}</h3>
+                <p className="text-[#666] dark:text-[#444] leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>

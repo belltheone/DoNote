@@ -57,12 +57,12 @@ export default function DashboardPage() {
 
     // 사용자 데이터 로드
     useEffect(() => {
-        if (!user?.id) {
-            setIsLoading(false);
-            return;
-        }
-
         const loadData = async () => {
+            if (!user?.id) {
+                setIsLoading(false);
+                return;
+            }
+
             // 1. 크리에이터 프로필 조회
             const { data: creatorData } = await supabase
                 .from('creators')
@@ -317,7 +317,7 @@ export default function DashboardPage() {
                                         href={`/${handle}`}
                                         className="block w-full py-2 px-4 bg-[#FFD95A] rounded-lg text-center font-medium text-[#333] hover:bg-[#FFCE3A] transition-colors"
                                     >
-                                        👁️ 내 페이지 보기
+                                        🔗 내 페이지 보기
                                     </Link>
                                     <button
                                         onClick={() => {
@@ -335,7 +335,7 @@ export default function DashboardPage() {
                                     href="/onboarding"
                                     className="block w-full py-2 px-4 bg-[#FF6B6B] rounded-lg text-center font-medium text-white hover:bg-[#FF5252] transition-colors"
                                 >
-                                    🚀 프로필 만들기
+                                    프로필 만들기
                                 </Link>
                             )}
                             <Link

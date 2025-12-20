@@ -62,12 +62,21 @@ export function Header() {
                     </Link>
 
                     {/* 네비게이션 - 중앙 정렬 */}
-                    <nav className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
+                    <nav className="hidden md:flex items-center gap-5 absolute left-1/2 -translate-x-1/2">
                         <Link href="/about" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
                             서비스 소개
                         </Link>
                         <Link href="/widget" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
                             위젯 미리보기
+                        </Link>
+                        <Link href="/guide" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                            시작가이드
+                        </Link>
+                        <Link href="/faq" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                            FAQ
+                        </Link>
+                        <Link href="/blog" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                            블로그
                         </Link>
                     </nav>
 

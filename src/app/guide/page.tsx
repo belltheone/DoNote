@@ -12,6 +12,7 @@ import {
     BanknotesIcon,
     SparklesIcon,
     ClipboardDocumentIcon,
+    HeartIcon,
 } from "@heroicons/react/24/outline";
 
 // 가이드 스텝 컴포넌트
@@ -226,6 +227,66 @@ export default function GuidePage() {
                                     <p className="text-sm opacity-80 mb-1">수수료 안내</p>
                                     <p className="text-2xl font-bold">도노트 5% + PG수수료 약 3%</p>
                                     <p className="text-sm opacity-80 mt-1">크리에이터는 약 92%를 수령합니다</p>
+                                </div>
+                            </GuideStep>
+                        </motion.div>
+
+                        {/* 팁(감사금) 프로세스 */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            whileInView={{ opacity: 1 }}
+                            viewport={{ once: true }}
+                            className="mb-16"
+                        >
+                            <div className="flex items-center gap-3 mb-8">
+                                <HeartIcon className="w-8 h-8 text-[#FF6B6B]" />
+                                <h2 className="text-2xl font-bold text-[#333] dark:text-white">
+                                    팁(감사금) 프로세스
+                                </h2>
+                            </div>
+
+                            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 mb-6">
+                                <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4">팁이란?</h3>
+                                <p className="text-[#666] dark:text-gray-400 mb-4">
+                                    후원자가 크리에이터에게 후원할 때, 도노트 서비스에 대한 감사의 마음으로
+                                    추가로 보내는 소정의 금액입니다. 팁은 100% 선택 사항이며, 서비스 운영에 사용됩니다.
+                                </p>
+                            </div>
+
+                            <GuideStep
+                                step={1}
+                                title="후원 페이지에서 결제"
+                                description="후원자가 크리에이터 페이지에서 후원 금액을 선택하고 결제를 진행합니다."
+                            />
+
+                            <GuideStep
+                                step={2}
+                                title="팁 선택 (선택사항)"
+                                description="결제 시 도노트에 대한 감사의 팁을 추가할 수 있습니다. 기본값은 0원이며, 1,000원/2,000원/5,000원 중 선택 가능합니다."
+                            >
+                                <div className="bg-gradient-to-r from-[#FF6B6B]/10 to-[#FFD95A]/10 rounded-xl p-4 border border-[#FFD95A]/30">
+                                    <p className="text-sm text-[#666] dark:text-gray-400">
+                                        💡 팁은 100% 도노트 서비스 운영에 사용되며, 크리에이터 정산금에는 영향을 주지 않습니다.
+                                    </p>
+                                </div>
+                            </GuideStep>
+
+                            <GuideStep
+                                step={3}
+                                title="결제 완료 및 분배"
+                                description="결제가 완료되면 후원금은 크리에이터에게, 팁은 도노트에 각각 정산됩니다."
+                            >
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="bg-white dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600 text-center">
+                                        <p className="text-2xl mb-2">👤</p>
+                                        <p className="text-sm font-medium text-[#333] dark:text-white">크리에이터</p>
+                                        <p className="text-xs text-[#666] dark:text-gray-400">후원금 - 수수료(5%)</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600 text-center">
+                                        <p className="text-2xl mb-2">🍩</p>
+                                        <p className="text-sm font-medium text-[#333] dark:text-white">도노트</p>
+                                        <p className="text-xs text-[#666] dark:text-gray-400">수수료(5%) + 팁</p>
+                                    </div>
                                 </div>
                             </GuideStep>
                         </motion.div>

@@ -107,15 +107,19 @@ export default function MessagesPage() {
                             transition={{ delay: index * 0.05 }}
                             layout
                         >
-                            {/* 핀 */}
-                            <button
+                            {/* 핀 버튼 - 개선된 UI */}
+                            <motion.button
                                 onClick={() => togglePin(donation.id)}
-                                className={`absolute -top-2 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full shadow-md transition-colors ${donation.isPinned
-                                    ? 'bg-red-500'
-                                    : 'bg-gray-400 group-hover:bg-red-300'
+                                className={`absolute -top-3 left-1/2 -translate-x-1/2 text-xl transition-all ${donation.isPinned
+                                        ? 'drop-shadow-lg scale-110'
+                                        : 'opacity-40 group-hover:opacity-100'
                                     }`}
+                                whileHover={{ scale: 1.3, rotate: 15 }}
+                                whileTap={{ scale: 0.9 }}
                                 title={donation.isPinned ? '핀 해제' : '핀 고정'}
-                            />
+                            >
+                                📌
+                            </motion.button>
 
                             {/* 스티커 */}
                             <div className="absolute -top-1 -right-1 text-2xl transform rotate-12">

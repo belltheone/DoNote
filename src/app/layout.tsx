@@ -101,10 +101,49 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <head>
         {/* 로컬 Pretendard Variable 사용 (globals.css에서 @font-face로 로드) */}
+
+        {/* JSON-LD 구조화 데이터 (SEO) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "도노트 (Donote)",
+              "description": "마음을 적는 가장 가벼운 후원 플랫폼",
+              "url": "https://www.donote.site",
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "KRW"
+              },
+              "provider": {
+                "@type": "Organization",
+                "name": "도노트",
+                "url": "https://www.donote.site",
+                "logo": "https://www.donote.site/logo-140.png"
+              }
+            })
+          }}
+        />
+
+        {/* PWA 매니페스트 */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#FF6B6B" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="도노트" />
+        <link rel="apple-touch-icon" href="/logo-140.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${gamjaFlower.variable} ${hiMelody.variable} antialiased bg-[#F9F9F9] dark:bg-gray-900 text-[#333333] dark:text-gray-100 transition-colors paper-bg`}
       >
+        {/* 스킵 네비게이션 (접근성) */}
+        <a href="#main-content" className="skip-to-content">
+          본문으로 바로가기
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

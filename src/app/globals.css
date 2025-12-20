@@ -525,3 +525,84 @@ h6 {
     padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
   }
 }
+
+/* ========================================
+   🎯 ACCESSIBILITY (접근성)
+   ======================================== */
+
+/* Focus 스타일 (키보드 네비게이션) */
+:focus-visible {
+  outline: 2px solid var(--coral-pink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip to content 링크 (스크린 리더용) */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.skip-to-content:focus {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  padding: 16px 24px;
+  background: var(--coral-pink);
+  color: white;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 터치 타겟 최소 크기 (44x44px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  :root {
+    --coral-pink: #E53935;
+    --cream-yellow: #FFC107;
+    --text-primary: #000000;
+    --text-secondary: #1A1A1A;
+  }
+}
+
+/* Reduced Motion (움직임 감소 선호) */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 스크린 리더 전용 텍스트 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -21,9 +21,9 @@ export function ThemeToggle() {
     return (
         <motion.button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             aria-label="테마 변경"
         >
             <motion.span
@@ -36,6 +36,9 @@ export function ThemeToggle() {
             >
                 {theme === "dark" ? "🌙" : "☀️"}
             </motion.span>
+            <span className="text-sm font-medium text-[#666] dark:text-gray-300">
+                {theme === "dark" ? "야간" : "주간"}
+            </span>
         </motion.button>
     );
 }

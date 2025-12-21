@@ -1,10 +1,11 @@
 "use client";
 // QR 코드 생성 컴포넌트
-// 후원 페이지 링크를 QR 코드로 변환
+// 클라이언트 사이드 qrcode 라이브러리 사용 (CSP 문제 해결)
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import QRCode from "qrcode";
 
 // QR 코드 Props
 interface QRCodeGeneratorProps {
@@ -27,30 +28,28 @@ export function QRCodeGenerator({
     const [qrDataUrl, setQrDataUrl] = useState<string>("");
     const [isLoading, setIsLoading] = useState(true);
 
-    // QR 코드 생성 (Canvas API 사용)
+    // QR 코드 생성 (클라이언트 사이드 라이브러리 사용)
     useEffect(() => {
         const generateQR = async () => {
             setIsLoading(true);
             try {
-                // QR Code API 사용 (외부 서비스)
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&format=png&margin=10`;
+                if (canvasRef.current && url) {
+                    // QR 코드 생성 옵션
+                    const options = {
+                        width: size,
+                        margin: 2,
+                        color: {
+                            dark: '#333333',
+                            light: '#ffffff',
+                        },
+                    };
 
-                const response = await fetch(qrUrl);
-                const blob = await response.blob();
-                const dataUrl = URL.createObjectURL(blob);
-                setQrDataUrl(dataUrl);
+                    // Canvas에 직접 QR 코드 생성
+                    await QRCode.toCanvas(canvasRef.current, url, options);
 
-                // Canvas에 그리기
-                if (canvasRef.current) {
-                    const ctx = canvasRef.current.getContext('2d');
-                    if (ctx) {
-                        const img = document.createElement('img');
-                        img.onload = () => {
-                            ctx.clearRect(0, 0, size, size);
-                            ctx.drawImage(img, 0, 0, size, size);
-                        };
-                        img.src = dataUrl;
-                    }
+                    // Data URL 생성 (다운로드용)
+                    const dataUrl = await QRCode.toDataURL(url, options);
+                    setQrDataUrl(dataUrl);
                 }
             } catch (error) {
                 console.error('QR 코드 생성 실패:', error);
@@ -105,22 +104,22 @@ export function QRCodeGenerator({
                     ) : (
                         <canvas
                             ref={canvasRef}
-                            width={size}
-                            height={size}
                             className="rounded-lg"
                         />
                     )}
 
                     {/* 도노트 로고 오버레이 */}
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-1 shadow-md">
-                        <Image
-                            src="/logo-140.png"
-                            alt="도노트"
-                            width={36}
-                            height={36}
-                            className="rounded"
-                        />
-                    </div>
+                    {!isLoading && (
+                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-1 shadow-md">
+                            <Image
+                                src="/logo-140.png"
+                                alt="도노트"
+                                width={36}
+                                height={36}
+                                className="rounded"
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* URL 표시 */}

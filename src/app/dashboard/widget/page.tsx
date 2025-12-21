@@ -3,8 +3,10 @@
 // QR 코드, 다크모드 지원, 상세 가이드 포함
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { QRCodeGenerator } from "@/components/dashboard/QRCodeGenerator";
+import { useAuthStore } from "@/store/auth";
+import { supabase } from "@/lib/supabase";
 
 // 위젯 스타일 옵션
 const widgetStyles = [
@@ -31,14 +33,39 @@ const textOptions = [
 ];
 
 export default function WidgetPage() {
+    const { user } = useAuthStore();
     const [style, setStyle] = useState('ticket');
     const [color, setColor] = useState('yellow');
     const [text, setText] = useState('커피 한 잔 ☕');
     const [customText, setCustomText] = useState('');
     const [copied, setCopied] = useState(false);
     const [copiedType, setCopiedType] = useState<string | null>(null);
+    const [handle, setHandle] = useState('demo');
+    const [isLoadingHandle, setIsLoadingHandle] = useState(true);
 
-    const handle = 'devminsu'; // 실제로는 로그인한 사용자의 handle
+    // 실제 핸들 가져오기
+    useEffect(() => {
+        const fetchHandle = async () => {
+            if (!user?.id) {
+                setIsLoadingHandle(false);
+                return;
+            }
+
+            const { data: creatorData } = await supabase
+                .from('creators')
+                .select('handle')
+                .eq('user_id', user.id)
+                .single();
+
+            if (creatorData?.handle) {
+                setHandle(creatorData.handle);
+            }
+            setIsLoadingHandle(false);
+        };
+
+        fetchHandle();
+    }, [user]);
+
     const displayText = customText || text;
     const selectedColor = colorOptions.find(c => c.id === color) || colorOptions[0];
 

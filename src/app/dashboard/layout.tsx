@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getCurrentUser, signOut, type User } from "@/lib/supabase";
+import { supabase, getCurrentUser, signOut, type User } from "@/lib/supabase";
 
 // 네비게이션 메뉴 항목
 const navItems = [
@@ -48,13 +48,20 @@ export default function DashboardLayout({
                 router.replace('/auth');
                 return;
             } else {
+                // DB에서 실제 핸들 조회
+                const { data: creatorData } = await supabase
+                    .from('creators')
+                    .select('handle')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
                 // Supabase User를 우리 User 타입으로 변환
                 setUser({
                     id: currentUser.id,
                     email: currentUser.email || '',
                     displayName: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || '사용자',
                     avatar: currentUser.user_metadata?.avatar_url || '👨‍💻',
-                    handle: currentUser.user_metadata?.handle || currentUser.email?.split('@')[0] || 'user',
+                    handle: creatorData?.handle || currentUser.email?.split('@')[0] || 'user',
                     bio: '',
                     createdAt: currentUser.created_at,
                 });

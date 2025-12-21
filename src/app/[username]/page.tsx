@@ -115,12 +115,28 @@ export default function CreatorPage({
                 .order('created_at', { ascending: false })
                 .limit(20);
 
+            // social_links 객체를 배열로 변환하는 헬퍼
+            const parseSocialLinks = (links: unknown): { name: string; url: string }[] => {
+                if (!links) return [];
+                if (Array.isArray(links)) return links;
+                if (typeof links === 'object') {
+                    // {github: "url", blog: "url"} -> [{name: "GitHub", url: "url"}, ...]
+                    return Object.entries(links as Record<string, string>)
+                        .filter(([, url]) => url && url.trim() !== '')
+                        .map(([name, url]) => ({
+                            name: name.charAt(0).toUpperCase() + name.slice(1),
+                            url
+                        }));
+                }
+                return [];
+            };
+
             setCreator({
                 username: creatorData.handle,
                 displayName: creatorData.display_name,
                 avatar: creatorData.avatar || '👨‍💻',
                 bio: creatorData.bio || '',
-                socialLinks: creatorData.social_links || [],
+                socialLinks: parseSocialLinks(creatorData.social_links),
                 goal: creatorData.goal || { title: '목표 없음', current: 0, target: 100000 },
                 notes: (donationsData || []).map(d => ({
                     id: d.id,

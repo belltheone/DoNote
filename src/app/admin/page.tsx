@@ -12,7 +12,6 @@ import {
     getAllCreators,
     getAllDonations,
     getAllSettlements,
-    mockDonations,
     type CreatorProfile,
     type Donation
 } from "@/lib/supabase";
@@ -95,14 +94,27 @@ export default function AdminPage() {
                 getAllSettlements(),
             ]);
 
-            setCreators(creatorsData);
-            // 실제 데이터가 없으면 Mock 데이터 사용
-            setDonations(donationsData.length > 0 ? donationsData : mockDonations);
+            // 데모 크리에이터 핸들 (통계에서 제외)
+            const DEMO_HANDLES = ['devminsu', 'demo'];
+
+            // 데모 크리에이터 ID 찾기
+            const demoCreatorIds = creatorsData
+                .filter(c => DEMO_HANDLES.includes(c.handle.toLowerCase()))
+                .map(c => c.id);
+
+            // 실제 크리에이터만 (데모 제외)
+            const realCreators = creatorsData.filter(c => !DEMO_HANDLES.includes(c.handle.toLowerCase()));
+
+            // 데모 크리에이터의 후원은 통계에서 제외
+            const realDonations = donationsData.filter(d => !demoCreatorIds.includes(d.creatorId));
+
+            setCreators(realCreators);
+            setDonations(realDonations);
             setSettlements(settlementsData as Settlement[]);
         } catch (error) {
             console.error('데이터 로드 오류:', error);
-            // 오류 시 Mock 데이터 사용
-            setDonations(mockDonations);
+            // 오류 시 빈 배열 사용
+            setDonations([]);
         } finally {
             setIsDataLoading(false);
         }
@@ -255,8 +267,8 @@ export default function AdminPage() {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl transition-all ${activeTab === tab.id
-                                    ? 'bg-[#FFD95A] text-[#333] shadow-md'
-                                    : 'bg-white text-[#666] hover:bg-gray-100 border border-gray-100'
+                                ? 'bg-[#FFD95A] text-[#333] shadow-md'
+                                : 'bg-white text-[#666] hover:bg-gray-100 border border-gray-100'
                                 }`}
                         >
                             <span className="text-xl">{tab.icon}</span>

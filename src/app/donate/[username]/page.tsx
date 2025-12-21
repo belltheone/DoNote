@@ -505,7 +505,7 @@ export default function DonatePage({
                                     <span className="font-bold text-[#333]">{demoCreator.displayName}</span>
                                 </div>
                                 <p className="text-[#333] italic">
-                                    "{demoCreator.reactionMessage}"
+                                    &quot;{demoCreator.reactionMessage}&quot;
                                 </p>
                             </motion.div>
 

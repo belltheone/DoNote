@@ -11,8 +11,6 @@ import {
     TicketIcon,
     SparklesIcon,
     CurrencyDollarIcon,
-    UsersIcon,
-    GiftIcon,
 } from "@heroicons/react/24/outline";
 
 export default function AboutPage() {

@@ -3,6 +3,7 @@
 // 아코디언 스타일 UI
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useState } from "react";
@@ -157,8 +158,8 @@ export default function FAQPage() {
                                     key={cat.category}
                                     onClick={() => setActiveCategory(cat.category)}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeCategory === cat.category
-                                            ? "bg-[#FF6B6B] text-white shadow-md"
-                                            : "bg-white dark:bg-gray-800 text-[#666] dark:text-gray-300 hover:bg-[#FFE4E1] dark:hover:bg-gray-700"
+                                        ? "bg-[#FF6B6B] text-white shadow-md"
+                                        : "bg-white dark:bg-gray-800 text-[#666] dark:text-gray-300 hover:bg-[#FFE4E1] dark:hover:bg-gray-700"
                                         }`}
                                 >
                                     {cat.icon} {cat.category}
@@ -191,12 +192,12 @@ export default function FAQPage() {
                             <p className="text-[#666] dark:text-gray-400 mb-4">
                                 원하는 답변을 찾지 못하셨나요?
                             </p>
-                            <a
+                            <Link
                                 href="/contact"
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#FFD95A] text-[#333] font-semibold rounded-xl hover:bg-[#FFC107] transition-colors"
                             >
                                 📧 문의하기
-                            </a>
+                            </Link>
                         </motion.div>
                     </div>
                 </section>

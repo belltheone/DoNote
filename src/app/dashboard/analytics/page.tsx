@@ -6,13 +6,12 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import {
     AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+    XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
-import { getStats, getHourlyAnalysis, getTopFans, mockDonations, getAllDonations, type Donation } from "@/lib/supabase";
+import { mockDonations, getAllDonations, type Donation } from "@/lib/supabase";
 import { StatCardSkeleton, ChartSkeleton } from "@/components/ui/Skeleton";
 
-// 차트 색상
-const CHART_COLORS = ["#FF6B6B", "#FFD95A", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7"];
+// 기간 필터 옵션
 
 // 기간 필터 옵션
 type DateRange = '7d' | '30d' | '90d' | 'all';
@@ -137,8 +136,8 @@ export default function AnalyticsPage() {
                             key={range}
                             onClick={() => setDateRange(range)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${dateRange === range
-                                    ? 'bg-[#FF6B6B] text-white'
-                                    : 'bg-white dark:bg-gray-800 text-[#666] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
+                                ? 'bg-[#FF6B6B] text-white'
+                                : 'bg-white dark:bg-gray-800 text-[#666] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
                                 }`}
                         >
                             {range === '7d' ? '7일' : range === '30d' ? '30일' : range === '90d' ? '90일' : '전체'}

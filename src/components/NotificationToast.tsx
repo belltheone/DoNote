@@ -88,7 +88,7 @@ export function NotificationToast({
                             {message && (
                                 <div className="mt-3 p-3 bg-white/50 rounded border border-gray-200">
                                     <p className="text-sm text-[#333] leading-relaxed line-clamp-2">
-                                        "{message}"
+                                        &quot;{message}&quot;
                                     </p>
                                 </div>
                             )}

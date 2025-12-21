@@ -11,7 +11,7 @@ export function ThemeToggle() {
 
     // hydration 오류 방지
     useEffect(() => {
-        setMounted(true);
+        requestAnimationFrame(() => setMounted(true));
     }, []);
 
     if (!mounted) {

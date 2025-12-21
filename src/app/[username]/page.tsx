@@ -4,9 +4,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { use, useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import { CreatorJsonLd } from "@/components/JsonLd";
+import { use } from "react";
 
 // 더미 데이터 - 실제 데이터가 없을 때 폴백용
 const demoCreator = {

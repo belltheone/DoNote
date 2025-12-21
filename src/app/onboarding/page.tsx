@@ -109,6 +109,22 @@ export default function OnboardingPage() {
         }
     };
 
+    // 진행률 계산 (Hook은 조건문 전에 호출)
+    const progressSteps = useMemo(() => [
+        { label: "프로필", icon: "😊" },
+        { label: "핸들", icon: "🔗" },
+        { label: "정보", icon: "📝" },
+        { label: "완료", icon: "🎉" },
+    ], []);
+
+    const currentProgress = useMemo(() => {
+        let step = 1;
+        if (avatar !== '👨‍💻') step++;
+        if (handle.length >= 3 && !handleError) step++;
+        if (displayName.trim()) step++;
+        return step;
+    }, [avatar, handle, handleError, displayName]);
+
     // 로딩 중
     if (isLoading) {
         return (
@@ -129,22 +145,6 @@ export default function OnboardingPage() {
         router.push('/auth');
         return null;
     }
-
-    // 진행률 계산
-    const progressSteps = useMemo(() => [
-        { label: "프로필", icon: "😊" },
-        { label: "핸들", icon: "🔗" },
-        { label: "정보", icon: "📝" },
-        { label: "완료", icon: "🎉" },
-    ], []);
-
-    const currentProgress = useMemo(() => {
-        let step = 1; // 기본 시작 단계
-        if (avatar !== '👨‍💻') step++; // 아바타 선택함
-        if (handle.length >= 3 && !handleError) step++; // 핸들 입력함
-        if (displayName.trim()) step++; // 이름 입력함
-        return step;
-    }, [avatar, handle, handleError, displayName]);
 
     return (
         <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex flex-col">

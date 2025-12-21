@@ -42,12 +42,12 @@ export default function GlobalError({
                         >
                             다시 시도하기
                         </button>
-                        <a
-                            href="/"
+                        <button
+                            onClick={() => window.location.href = '/'}
                             className="px-6 py-3 bg-white text-[#333] font-semibold rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
                         >
                             홈으로 돌아가기
-                        </a>
+                        </button>
                     </div>
 
                     {/* 에러 정보 (개발용) */}

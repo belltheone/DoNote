@@ -280,7 +280,7 @@ export default function WidgetPage() {
                     {/* 미리보기 */}
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
                         <h3 className="text-lg font-bold text-[#333] dark:text-white mb-4 flex items-center gap-2">
-                            👁️ 미리보기
+                            🔍 미리보기
                         </h3>
                         <div className="p-8 bg-gray-50 dark:bg-gray-900 rounded-xl flex items-center justify-center min-h-[180px]">
                             {style === 'ticket' && (

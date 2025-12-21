@@ -37,7 +37,7 @@ export default function SettingsPage() {
     // 테마 상태
     const [selectedTheme, setSelectedTheme] = useState(0);
 
-    // 정산 계좌 정보는 수확하기(정산) 페이지에서 관리
+    // 정산 계좌 정보는 정산하기 페이지에서 관리
 
     // 소셜 링크 (고정)
     const [socialLinks, setSocialLinks] = useState({

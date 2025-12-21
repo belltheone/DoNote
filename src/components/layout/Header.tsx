@@ -63,20 +63,20 @@ export function Header() {
                     </Link>
 
                     {/* 네비게이션 - 중앙 정렬 */}
-                    <nav className="hidden md:flex items-center gap-5 absolute left-1/2 -translate-x-1/2">
-                        <Link href="/about" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                    <nav className="hidden md:flex items-center justify-center gap-1 absolute left-1/2 -translate-x-1/2">
+                        <Link href="/about" className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             서비스 소개
                         </Link>
-                        <Link href="/widget" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                        <Link href="/widget" className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             위젯 미리보기
                         </Link>
-                        <Link href="/guide" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                        <Link href="/guide" className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             시작가이드
                         </Link>
-                        <Link href="/faq" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                        <Link href="/faq" className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             FAQ
                         </Link>
-                        <Link href="/blog" className="text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm">
+                        <Link href="/blog" className="px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             블로그
                         </Link>
                     </nav>

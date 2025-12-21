@@ -1,39 +1,37 @@
 {
-    "name": "도노트 (Donote)",
+    "name": "DoNote - 도노트",
     "short_name": "도노트",
-    "description": "마음을 적는 가장 가벼운 후원 플랫폼",
+    "description": "크리에이터를 위한 감성 후원 플랫폼",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#F9F9F9",
     "theme_color": "#FF6B6B",
     "orientation": "portrait-primary",
-    "scope": "/",
-    "lang": "ko",
-    "categories": [
-        "finance",
-        "social"
-    ],
     "icons": [
         {
-            "src": "/logo-140.png",
-            "sizes": "140x140",
+            "src": "/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512.png",
+            "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"
         }
     ],
-    "screenshots": [],
-    "shortcuts": [
+    "screenshots": [
         {
-            "name": "대시보드",
-            "short_name": "대시보드",
-            "description": "내 대시보드로 이동",
-            "url": "/dashboard",
-            "icons": [
-                {
-                    "src": "/logo-140.png",
-                    "sizes": "140x140"
-                }
-            ]
+            "src": "/screenshot-mobile.png",
+            "sizes": "375x812",
+            "type": "image/png",
+            "form_factor": "narrow"
         }
-    ]
+    ],
+    "categories": [
+        "finance",
+        "social"
+    ],
+    "lang": "ko-KR"
 }

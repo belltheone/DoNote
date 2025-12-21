@@ -28,28 +28,14 @@ interface Notice {
     createdAt: string;
 }
 
-// Mock 데이터
-const mockBlogPosts: BlogPost[] = [
-    { id: "1", title: "도노트, 마음을 전하는 새로운 방법", category: "서비스 소개", status: "published", createdAt: "2024-12-19" },
-    { id: "2", title: "후원을 받기 시작하는 5가지 방법", category: "크리에이터 팁", status: "published", createdAt: "2024-12-18" },
-    { id: "3", title: "도노트 정식 출시 및 주요 기능 안내", category: "업데이트", status: "published", createdAt: "2024-12-17" },
-];
-
-const mockFAQs: FAQ[] = [
-    { id: "1", question: "도노트는 어떤 서비스인가요?", answer: "크리에이터를 위한 마이크로 후원 플랫폼입니다.", order: 1 },
-    { id: "2", question: "수수료는 얼마인가요?", answer: "도노트 5% + PG 수수료 약 3%입니다.", order: 2 },
-    { id: "3", question: "정산은 언제 되나요?", answer: "매월 1일에 전월 후원금이 정산됩니다.", order: 3 },
-];
-
-const mockNotices: Notice[] = [
-    { id: "1", title: "도노트 정식 출시!", type: "success", active: true, createdAt: "2024-12-17" },
-];
+// 콘텐츠는 실제 DB에서 로드 (현재 빈 상태)
+// TODO: Supabase에서 실제 데이터 로드
 
 export function ContentTab() {
     const [activeSection, setActiveSection] = useState<"blog" | "faq" | "notice">("blog");
-    const [blogPosts] = useState<BlogPost[]>(mockBlogPosts);
-    const [faqs] = useState<FAQ[]>(mockFAQs);
-    const [notices] = useState<Notice[]>(mockNotices);
+    const [blogPosts] = useState<BlogPost[]>([]);
+    const [faqs] = useState<FAQ[]>([]);
+    const [notices] = useState<Notice[]>([]);
 
     return (
         <div className="space-y-6">
@@ -64,8 +50,8 @@ export function ContentTab() {
                         key={section.id}
                         onClick={() => setActiveSection(section.id as typeof activeSection)}
                         className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${activeSection === section.id
-                                ? 'bg-[#FFD95A] text-[#333]'
-                                : 'bg-gray-100 text-[#666] hover:bg-gray-200'
+                            ? 'bg-[#FFD95A] text-[#333]'
+                            : 'bg-gray-100 text-[#666] hover:bg-gray-200'
                             }`}
                     >
                         {section.icon} {section.label}
@@ -161,8 +147,8 @@ export function ContentTab() {
                         {notices.map((notice) => (
                             <div key={notice.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
                                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${notice.type === 'success' ? 'bg-green-100 text-green-600' :
-                                        notice.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                                            'bg-blue-100 text-blue-600'
+                                    notice.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
+                                        'bg-blue-100 text-blue-600'
                                     }`}>
                                     {notice.type === 'success' ? '성공' : notice.type === 'warning' ? '주의' : '정보'}
                                 </span>

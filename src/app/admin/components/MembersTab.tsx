@@ -17,25 +17,43 @@ type MemberType = "all" | "admin" | "creator" | "donor";
 // 수수료율
 const FEE_RATE = 0.05;
 
-// Mock 후원자 데이터
-const mockDonors = [
-    { id: 'd1', nickname: '익명의 팬', totalAmount: 50000, count: 5, lastDonation: '2025-12-21' },
-    { id: 'd2', nickname: '코딩초보', totalAmount: 30000, count: 3, lastDonation: '2025-12-20' },
-    { id: 'd3', nickname: '개발자지망생', totalAmount: 25000, count: 2, lastDonation: '2025-12-19' },
-    { id: 'd4', nickname: '응원해요', totalAmount: 15000, count: 1, lastDonation: '2025-12-18' },
-];
+// 관리자 이메일
+const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
 
-// Mock 관리자 데이터
-const mockAdmins = [
-    { id: 'a1', name: '슈퍼관리자', email: 'admin@donote.site', role: '최고관리자', lastLogin: '2025-12-21' },
-    { id: 'a2', name: '운영담당', email: 'ops@donote.site', role: '운영관리자', lastLogin: '2025-12-20' },
-];
+// 후원자 타입 (실제 데이터에서 계산)
+interface DonorInfo {
+    nickname: string;
+    totalAmount: number;
+    count: number;
+    lastDonation: string;
+}
 
 export function MembersTab({ creators, donations }: MembersTabProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<"all" | "active" | "suspended">("all");
     const [memberType, setMemberType] = useState<MemberType>("all");
     const [selectedCreator, setSelectedCreator] = useState<CreatorProfile | null>(null);
+
+    // 실제 후원 데이터에서 후원자 목록 계산
+    const donors: DonorInfo[] = Object.values(
+        donations.reduce((acc, d) => {
+            const key = d.donorName;
+            if (!acc[key]) {
+                acc[key] = { nickname: d.donorName, totalAmount: 0, count: 0, lastDonation: d.createdAt };
+            }
+            acc[key].totalAmount += d.amount;
+            acc[key].count += 1;
+            if (new Date(d.createdAt) > new Date(acc[key].lastDonation)) {
+                acc[key].lastDonation = d.createdAt;
+            }
+            return acc;
+        }, {} as Record<string, DonorInfo>)
+    ).sort((a, b) => b.totalAmount - a.totalAmount);
+
+    // 관리자 목록 (현재 로그인한 관리자만 표시)
+    const admins = [
+        { id: 'admin', name: '관리자', email: ADMIN_EMAIL, role: '최고관리자', lastLogin: new Date().toISOString().split('T')[0] },
+    ];
 
     // 크리에이터별 통계 계산
     const getCreatorStats = (creatorId: string) => {
@@ -60,10 +78,10 @@ export function MembersTab({ creators, donations }: MembersTabProps) {
             {/* 회원 유형별 탭 */}
             <div className="flex gap-2 flex-wrap">
                 {[
-                    { type: 'all' as MemberType, label: '전체', count: creators.length + mockDonors.length + mockAdmins.length },
-                    { type: 'admin' as MemberType, label: '관리자', count: mockAdmins.length },
+                    { type: 'all' as MemberType, label: '전체', count: creators.length + donors.length + admins.length },
+                    { type: 'admin' as MemberType, label: '관리자', count: admins.length },
                     { type: 'creator' as MemberType, label: '크리에이터', count: creators.length },
-                    { type: 'donor' as MemberType, label: '후원자', count: mockDonors.length },
+                    { type: 'donor' as MemberType, label: '후원자', count: donors.length },
                 ].map((tab) => (
                     <button
                         key={tab.type}
@@ -118,7 +136,7 @@ export function MembersTab({ creators, donations }: MembersTabProps) {
                             </tr>
                         </thead>
                         <tbody>
-                            {mockAdmins.map((admin) => (
+                            {admins.map((admin) => (
                                 <tr key={admin.id} className="border-t border-gray-100">
                                     <td className="px-6 py-4 font-medium text-[#333]">{admin.name}</td>
                                     <td className="px-6 py-4 text-[#666]">{admin.email}</td>
@@ -151,14 +169,14 @@ export function MembersTab({ creators, donations }: MembersTabProps) {
                             </tr>
                         </thead>
                         <tbody>
-                            {mockDonors.filter(d => d.nickname.includes(searchTerm)).map((donor) => (
-                                <tr key={donor.id} className="border-t border-gray-100">
+                            {donors.filter(d => d.nickname.includes(searchTerm)).map((donor, idx) => (
+                                <tr key={idx} className="border-t border-gray-100">
                                     <td className="px-6 py-4 font-medium text-[#333]">🎁 {donor.nickname}</td>
                                     <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">
                                         ₩{donor.totalAmount.toLocaleString()}
                                     </td>
                                     <td className="px-6 py-4 text-right text-[#666]">{donor.count}건</td>
-                                    <td className="px-6 py-4 text-[#666]">{donor.lastDonation}</td>
+                                    <td className="px-6 py-4 text-[#666]">{new Date(donor.lastDonation).toLocaleDateString('ko-KR')}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -3,28 +3,15 @@
 
 import { motion } from "framer-motion";
 
-// Mock 데이터
-const mockErrorLogs = [
-    { id: "1", level: "error", message: "Failed to fetch user profile", timestamp: "2024-12-21 10:23:45", count: 3 },
-    { id: "2", level: "warning", message: "Slow API response detected (>2s)", timestamp: "2024-12-21 09:15:30", count: 12 },
-    { id: "3", level: "info", message: "Payment webhook received", timestamp: "2024-12-21 08:45:00", count: 45 },
-];
-
-const mockEmailLogs = [
-    { id: "1", to: "creator@example.com", subject: "새로운 후원이 도착했어요!", status: "sent", timestamp: "2024-12-21 10:30:00" },
-    { id: "2", to: "user@example.com", subject: "도노트에 오신 걸 환영해요!", status: "sent", timestamp: "2024-12-21 10:15:00" },
-    { id: "3", to: "admin@donote.site", subject: "정산 요청 알림", status: "failed", timestamp: "2024-12-21 09:45:00" },
-];
+// 실제 로그는 Sentry/Resend API에서 로드
+// 현재는 빈 배열로 시작 (데이터 없음 상태)
+const errorLogs: { id: string; level: string; message: string; timestamp: string; count: number }[] = [];
+const emailLogs: { id: string; to: string; subject: string; status: string; timestamp: string }[] = [];
 
 const dbStats = {
-    totalSize: "124 MB",
-    tables: [
-        { name: "profiles", rows: 42, size: "2.3 MB" },
-        { name: "donations", rows: 156, size: "8.7 MB" },
-        { name: "settlements", rows: 23, size: "1.2 MB" },
-        { name: "blog_posts", rows: 8, size: "0.5 MB" },
-    ],
-    lastBackup: "2024-12-20 03:00:00",
+    totalSize: "측정 중...",
+    tables: [] as { name: string; rows: number; size: string }[],
+    lastBackup: "정보 없음",
 };
 
 export function SystemTab() {
@@ -61,7 +48,7 @@ export function SystemTab() {
                     transition={{ delay: 0.1 }}
                 >
                     <p className="text-sm text-[#666]">최근 오류</p>
-                    <p className="text-xl font-bold text-red-500">{mockErrorLogs.filter(e => e.level === 'error').length}건</p>
+                    <p className="text-xl font-bold text-red-500">{errorLogs.filter(e => e.level === 'error').length}건</p>
                 </motion.div>
                 <motion.div
                     className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -89,11 +76,11 @@ export function SystemTab() {
                         </a>
                     </div>
                     <div className="space-y-3">
-                        {mockErrorLogs.map((log) => (
+                        {errorLogs.length > 0 ? errorLogs.map((log) => (
                             <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${log.level === 'error' ? 'bg-red-100 text-red-600' :
-                                        log.level === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                                            'bg-blue-100 text-blue-600'
+                                    log.level === 'warning' ? 'bg-yellow-100 text-yellow-600' :
+                                        'bg-blue-100 text-blue-600'
                                     }`}>
                                     {log.level.toUpperCase()}
                                 </span>
@@ -105,7 +92,12 @@ export function SystemTab() {
                                     ×{log.count}
                                 </span>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="text-center py-8 text-[#999]">
+                                <span className="text-3xl block mb-2">✅</span>
+                                오류 로그가 없습니다
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -123,7 +115,7 @@ export function SystemTab() {
                         </a>
                     </div>
                     <div className="space-y-3">
-                        {mockEmailLogs.map((log) => (
+                        {emailLogs.length > 0 ? emailLogs.map((log) => (
                             <div key={log.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${log.status === 'sent' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                                     }`}>
@@ -133,9 +125,14 @@ export function SystemTab() {
                                     <p className="text-sm text-[#333] truncate">{log.subject}</p>
                                     <p className="text-xs text-[#999]">{log.to}</p>
                                 </div>
-                                <span className="text-xs text-[#999]">{log.timestamp.split(' ')[1]}</span>
+                                <span className="text-xs text-[#999]">{log.timestamp.split(' ')[1] || ''}</span>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="text-center py-8 text-[#999]">
+                                <span className="text-3xl block mb-2">📭</span>
+                                발송된 이메일이 없습니다
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

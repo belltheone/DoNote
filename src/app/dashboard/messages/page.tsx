@@ -111,8 +111,8 @@ export default function MessagesPage() {
                             <motion.button
                                 onClick={() => togglePin(donation.id)}
                                 className={`absolute -top-3 left-1/2 -translate-x-1/2 text-xl transition-all ${donation.isPinned
-                                        ? 'drop-shadow-lg scale-110'
-                                        : 'opacity-40 group-hover:opacity-100'
+                                    ? 'drop-shadow-lg scale-110'
+                                    : 'opacity-40 group-hover:opacity-100'
                                     }`}
                                 whileHover={{ scale: 1.3, rotate: 15 }}
                                 whileTap={{ scale: 0.9 }}
@@ -132,7 +132,7 @@ export default function MessagesPage() {
                             </div>
 
                             {/* 메시지 */}
-                            <p className="text-base font-handwriting text-[#333] mb-3 min-h-[60px] leading-relaxed">
+                            <p className="text-lg font-message text-[#333] mb-3 min-h-[60px] leading-relaxed">
                                 {donation.message}
                             </p>
 

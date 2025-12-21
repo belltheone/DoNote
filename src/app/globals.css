@@ -11,12 +11,26 @@
   src: url('/Font/Pretendard-1.3.9/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
 }
 
+/* 나눔손글씨 사랑해 아들 폰트 (메시지월용) */
+@font-face {
+  font-family: 'NanumSarangHae';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('/Font/나눔손글씨 사랑해 아들.ttf') format('truetype');
+}
+
 /* 손글씨 폰트 (Google Fonts - Gowun Batang) */
 @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap');
 
 /* 손글씨 클래스 */
 .font-handwriting {
   font-family: 'Gowun Batang', serif;
+}
+
+/* 메시지월 손글씨 클래스 */
+.font-message {
+  font-family: 'NanumSarangHae', 'Gowun Batang', serif;
 }
 
 @custom-variant dark (&:is(.dark *));

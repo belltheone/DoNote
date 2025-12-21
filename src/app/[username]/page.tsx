@@ -197,7 +197,7 @@ export default function CreatorPage({
                                     </div>
 
                                     {/* 메시지 */}
-                                    <p className="text-[#333] font-sans text-lg leading-snug mb-4 min-h-[60px]">
+                                    <p className="text-[#333] font-message text-lg leading-snug mb-4 min-h-[60px]">
                                         {note.message}
                                     </p>
 

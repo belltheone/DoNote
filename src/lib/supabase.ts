@@ -116,7 +116,7 @@ export async function upsertCreatorProfile(profile: Partial<CreatorProfile>): Pr
 
     const { data, error } = await supabase
         .from('creators')
-        .upsert(dbProfile)
+        .upsert(dbProfile, { onConflict: 'user_id' })
         .select()
         .single();
 

@@ -119,8 +119,18 @@ export default function DashboardLayout({
                 <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 dark:border-gray-700">
                     {user && (
                         <div className={`flex items-center gap-3 ${sidebarOpen ? '' : 'justify-center'}`}>
-                            <div className="w-10 h-10 rounded-full bg-[#FFFACD] dark:bg-yellow-900/50 flex items-center justify-center text-xl">
-                                {user.avatar}
+                            <div className="w-10 h-10 rounded-full bg-[#FFFACD] dark:bg-yellow-900/50 flex items-center justify-center text-xl overflow-hidden">
+                                {user.avatar.startsWith('http') ? (
+                                    <Image
+                                        src={user.avatar}
+                                        alt={user.displayName}
+                                        width={40}
+                                        height={40}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    user.avatar
+                                )}
                             </div>
                             {sidebarOpen && (
                                 <div className="flex-1 min-w-0">

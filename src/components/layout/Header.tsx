@@ -70,13 +70,13 @@ export function Header() {
                         <Link href="/widget" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
                             위젯 미리보기
                         </Link>
-                        <Link href="/guide" className="w-24 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/guide" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
                             시작가이드
                         </Link>
-                        <Link href="/faq" className="w-16 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/faq" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
                             FAQ
                         </Link>
-                        <Link href="/blog" className="w-16 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/blog" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
                             블로그
                         </Link>
                     </nav>

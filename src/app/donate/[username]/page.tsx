@@ -194,10 +194,10 @@ export default function DonatePage({
                         animate={{ opacity: 1, y: 0 }}
                     >
                         <div className="w-12 h-12 rounded-full bg-[#FFFACD] flex items-center justify-center text-2xl shadow-sm">
-                            {demoCreator.avatar}
+                            {creator?.avatar || demoCreator.avatar}
                         </div>
                         <div>
-                            <h1 className="font-bold text-[#333]">{demoCreator.displayName}</h1>
+                            <h1 className="font-bold text-[#333]">{creator?.displayName || demoCreator.displayName}</h1>
                             <p className="text-sm text-[#666]">님에게 쪽지 보내기 ✉️</p>
                         </div>
                     </motion.div>
@@ -219,7 +219,7 @@ export default function DonatePage({
 
                             <h2 className="text-xl font-bold mb-2 text-[#333]">💌 응원 메시지</h2>
                             <p className="text-[#666] text-sm mb-6">
-                                {demoCreator.displayName}님에게 따뜻한 쪽지를 써주세요
+                                {creator?.displayName || demoCreator.displayName}님에게 따뜻한 쪽지를 써주세요
                             </p>
 
                             {/* 스티커 선택 */}
@@ -484,7 +484,7 @@ export default function DonatePage({
 
                             <h2 className="text-2xl font-bold mb-2 text-[#333]">마음이 배달되었습니다!</h2>
                             <p className="text-[#666] mb-8">
-                                {demoCreator.displayName}님에게 쪽지를 전달했어요
+                                {creator?.displayName || demoCreator.displayName}님에게 쪽지를 전달했어요
                             </p>
 
                             {/* 크리에이터 리액션 메시지 */}
@@ -500,9 +500,9 @@ export default function DonatePage({
 
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-sm">
-                                        {demoCreator.avatar}
+                                        {creator?.avatar || demoCreator.avatar}
                                     </div>
-                                    <span className="font-bold text-[#333]">{demoCreator.displayName}</span>
+                                    <span className="font-bold text-[#333]">{creator?.displayName || demoCreator.displayName}</span>
                                 </div>
                                 <p className="text-[#333] italic">
                                     &quot;{demoCreator.reactionMessage}&quot;

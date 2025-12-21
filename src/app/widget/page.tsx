@@ -175,7 +175,7 @@ export default function WidgetDemoPage() {
                             <div>
                                 <h4 className="font-medium text-[#333] dark:text-white mb-2">1. SDK 스크립트 추가</h4>
                                 <pre className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm overflow-x-auto">
-                                    {`<script src="https://donote.kr/widget/sdk.js"></script>`}
+                                    {`<script src="https://donote.site/widget/sdk.js"></script>`}
                                 </pre>
                             </div>
 

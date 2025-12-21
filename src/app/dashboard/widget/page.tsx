@@ -44,8 +44,8 @@ export default function WidgetPage() {
 
     // 임베드 코드 생성
     const generateEmbedCode = (type: 'html' | 'markdown') => {
-        const url = `https://donote.kr/${handle}`;
-        const imgUrl = `https://donote.kr/widget/${handle}?style=${style}&color=${color}&text=${encodeURIComponent(displayText)}`;
+        const url = `https://donote.site/${handle}`;
+        const imgUrl = `https://donote.site/widget/${handle}?style=${style}&color=${color}&text=${encodeURIComponent(displayText)}`;
 
         if (type === 'markdown') {
             return `[![${displayText}](${imgUrl})](${url})`;

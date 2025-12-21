@@ -11,7 +11,7 @@ interface AnalyticsTabProps {
 }
 
 export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
-    // 크리에이터별 통계
+    // 크리에이터별 통계 - 실제 데이터
     const creatorStats = creators.map(creator => {
         const creatorDonations = donations.filter(d => d.creatorId === creator.id);
         return {
@@ -21,27 +21,26 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
         };
     }).sort((a, b) => b.totalAmount - a.totalAmount);
 
-    // 일별 후원 데이터 (최근 14일, Mock - 고정값)
+    // 일별 후원 데이터 - 실제 donations에서 계산
     const dailyData = Array.from({ length: 14 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - (13 - i));
-        // 인덱스 기반 고정값 생성
-        const baseAmount = 50000 + (i * 7000) + ((i % 3) * 15000);
-        const baseCount = 5 + (i % 7) + ((i % 4) * 2);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayDonations = donations.filter(d => d.createdAt.startsWith(dateStr));
         return {
             date: `${date.getMonth() + 1}/${date.getDate()}`,
-            amount: baseAmount,
-            count: baseCount,
+            amount: dayDonations.reduce((sum, d) => sum + d.amount, 0),
+            count: dayDonations.length,
         };
     });
 
-    // 방문자 통계 (Mock - GA4 연동 시 실제 데이터, 고정값)
+    // 방문자 통계 - GA4 연동 전까지 "데이터 없음" 표시
     const visitorStats = {
-        today: 342,
-        week: 1847,
-        month: 6523,
-        avgSessionDuration: "2:34",
-        bounceRate: "42.3%",
+        today: '-',
+        week: '-',
+        month: '-',
+        avgSessionDuration: '-',
+        bounceRate: '-',
     };
 
     return (

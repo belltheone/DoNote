@@ -26,11 +26,17 @@ export function DashboardTab({ creators, donations, settlements, isLoading }: Da
     const todayDonations = donations.filter(d => d.createdAt.startsWith(today));
     const todayAmount = todayDonations.reduce((sum, d) => sum + d.amount, 0);
 
-    // 최근 7일 추이 (Mock - 고정값)
-    const weeklyData = Array.from({ length: 7 }, (_, i) => ({
-        day: ['일', '월', '화', '수', '목', '금', '토'][(new Date().getDay() - 6 + i + 7) % 7],
-        amount: 30000 + (i * 12000) + ((i % 2) * 8000),
-    }));
+    // 최근 7일 추이 - 실제 데이터에서 계산
+    const weeklyData = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const dateStr = date.toISOString().split('T')[0];
+        const dayDonations = donations.filter(d => d.createdAt.startsWith(dateStr));
+        return {
+            day: ['일', '월', '화', '수', '목', '금', '토'][date.getDay()],
+            amount: dayDonations.reduce((sum, d) => sum + d.amount, 0),
+        };
+    });
 
     if (isLoading) {
         return (

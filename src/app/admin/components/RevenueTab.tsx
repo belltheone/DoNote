@@ -14,10 +14,12 @@ interface RevenueTabProps {
 const FEE_RATE = 0.05;
 
 export function RevenueTab({ creators, donations }: RevenueTabProps) {
-    // 통계 계산
+    // 통계 계산 - 실제 데이터 기반
     const totalDonations = donations.reduce((sum, d) => sum + d.amount, 0);
     const totalFee = Math.floor(totalDonations * FEE_RATE);
-    const totalTips = Math.floor(totalDonations * 0.02); // Mock 팁 (2%)
+    // 팁은 실제 isTipIncluded가 true인 후원에서만 계산
+    const tipsData = donations.filter(d => d.isTipIncluded);
+    const totalTips = tipsData.length * 500; // 도노트 팁이 포함된 후원당 500원
     const totalRevenue = totalFee + totalTips;
 
     // 크리에이터별 수수료
@@ -32,12 +34,19 @@ export function RevenueTab({ creators, donations }: RevenueTabProps) {
         };
     }).sort((a, b) => b.fee - a.fee);
 
-    // 월별 수익 (Mock)
-    const monthlyRevenue = [
-        { month: '2024-10', donations: 2500000, fees: 125000, tips: 45000 },
-        { month: '2024-11', donations: 3780000, fees: 189000, tips: 67000 },
-        { month: '2024-12', donations: totalDonations, fees: totalFee, tips: totalTips },
-    ];
+    // 월별 수익 - 실제 데이터에서 계산
+    const monthlyRevenue = Object.entries(
+        donations.reduce((acc, d) => {
+            const month = d.createdAt.substring(0, 7); // YYYY-MM
+            if (!acc[month]) {
+                acc[month] = { donations: 0, fees: 0, tips: 0 };
+            }
+            acc[month].donations += d.amount;
+            acc[month].fees += Math.floor(d.amount * FEE_RATE);
+            if (d.isTipIncluded) acc[month].tips += 500;
+            return acc;
+        }, {} as Record<string, { donations: number; fees: number; tips: number }>)
+    ).map(([month, data]) => ({ month, ...data })).sort((a, b) => a.month.localeCompare(b.month));
 
     return (
         <div className="space-y-6">

@@ -37,10 +37,7 @@ export default function SettingsPage() {
     // 테마 상태
     const [selectedTheme, setSelectedTheme] = useState(0);
 
-    // 정산 계좌 정보
-    const [bankName, setBankName] = useState("");
-    const [accountNumber, setAccountNumber] = useState("");
-    const [accountHolder, setAccountHolder] = useState("");
+    // 정산 계좌 정보는 수확하기(정산) 페이지에서 관리
 
     // 소셜 링크 (고정)
     const [socialLinks, setSocialLinks] = useState({
@@ -222,7 +219,7 @@ export default function SettingsPage() {
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                            표시 이름
+                            표시 이름 <span className="text-[#FF6B6B]">*</span>
                         </label>
                         <input
                             type="text"
@@ -235,7 +232,7 @@ export default function SettingsPage() {
 
                     <div>
                         <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                            핸들 (URL)
+                            핸들 (URL) <span className="text-[#FF6B6B]">*</span>
                         </label>
                         <div className="flex items-center">
                             <span className="px-4 py-3 bg-gray-100 dark:bg-gray-600 rounded-l-xl text-[#666] dark:text-gray-300 border-2 border-r-0 border-gray-200 dark:border-gray-600">
@@ -329,83 +326,6 @@ export default function SettingsPage() {
                         </button>
                     </div>
                 </div>
-            </motion.div>
-
-            {/* 정산 계좌 설정 */}
-            <motion.div
-                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 }}
-            >
-                <h3 className="text-lg font-bold text-[#333] dark:text-white mb-2 flex items-center gap-2">
-                    <span>🏦</span> 정산 계좌
-                </h3>
-                <p className="text-sm text-[#666] dark:text-gray-400 mb-6">
-                    후원금이 입금될 계좌 정보를 입력해주세요. <span className="text-[#FF6B6B] font-medium">매월 10일</span>에 자동 정산됩니다.
-                </p>
-
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                            은행
-                        </label>
-                        <select
-                            value={bankName}
-                            onChange={(e) => setBankName(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                        >
-                            <option value="">은행을 선택하세요</option>
-                            <option value="카카오뱅크">카카오뱅크</option>
-                            <option value="신한은행">신한은행</option>
-                            <option value="국민은행">KB국민은행</option>
-                            <option value="우리은행">우리은행</option>
-                            <option value="하나은행">하나은행</option>
-                            <option value="농협은행">NH농협은행</option>
-                            <option value="기업은행">IBK기업은행</option>
-                            <option value="토스뱅크">토스뱅크</option>
-                            <option value="케이뱅크">케이뱅크</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                            계좌번호
-                        </label>
-                        <input
-                            type="text"
-                            value={accountNumber}
-                            onChange={(e) => setAccountNumber(e.target.value.replace(/[^0-9-]/g, ''))}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                            placeholder="숫자만 입력"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                            예금주
-                        </label>
-                        <input
-                            type="text"
-                            value={accountHolder}
-                            onChange={(e) => setAccountHolder(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                            placeholder="예금주 이름"
-                        />
-                    </div>
-                </div>
-
-                {/* 등록된 계좌 표시 */}
-                {bankName && accountNumber && accountHolder && (
-                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                        <p className="text-sm text-green-700 dark:text-green-400 font-medium flex items-center gap-2">
-                            ✅ 등록된 계좌
-                        </p>
-                        <p className="text-green-600 dark:text-green-300 mt-1">
-                            {bankName} {accountNumber} ({accountHolder})
-                        </p>
-                    </div>
-                )}
             </motion.div>
 
             {/* 목표 설정 */}

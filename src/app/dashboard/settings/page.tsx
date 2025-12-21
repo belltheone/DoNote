@@ -26,6 +26,8 @@ export default function SettingsPage() {
 
     // 프로필 상태
     const [avatar, setAvatar] = useState("👨‍💻");
+    const [profileImage, setProfileImage] = useState<string | null>(null); // 프로필 이미지 URL
+    const [useEmoji, setUseEmoji] = useState(true); // 이모지 vs 이미지
     const [displayName, setDisplayName] = useState("");
     const [handle, setHandle] = useState("");
     const [bio, setBio] = useState("");
@@ -34,6 +36,11 @@ export default function SettingsPage() {
 
     // 테마 상태
     const [selectedTheme, setSelectedTheme] = useState(0);
+
+    // 정산 계좌 정보
+    const [bankName, setBankName] = useState("");
+    const [accountNumber, setAccountNumber] = useState("");
+    const [accountHolder, setAccountHolder] = useState("");
 
     // 소셜 링크 (고정)
     const [socialLinks, setSocialLinks] = useState({
@@ -49,6 +56,19 @@ export default function SettingsPage() {
 
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    // 프로필 이미지 업로드 핸들러
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfileImage(reader.result as string);
+                setUseEmoji(false);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     // 프로필 로드
     useEffect(() => {
@@ -132,25 +152,70 @@ export default function SettingsPage() {
                     <span>👤</span> 프로필 설정
                 </h3>
 
-                {/* 아바타 선택 */}
+                {/* 프로필 이미지/이모지 선택 */}
                 <div className="mb-6">
                     <p className="text-sm font-medium text-[#666] dark:text-gray-400 mb-3">
-                        프로필 이모지
+                        프로필 이미지
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                        {avatarOptions.map((emoji) => (
-                            <button
-                                key={emoji}
-                                onClick={() => setAvatar(emoji)}
-                                className={`w-12 h-12 text-2xl rounded-xl transition-all ${avatar === emoji
-                                    ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
-                                    : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                                    }`}
-                            >
-                                {emoji}
-                            </button>
-                        ))}
+
+                    {/* 이모지/이미지 전환 탭 */}
+                    <div className="flex gap-2 mb-4">
+                        <button
+                            onClick={() => setUseEmoji(true)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${useEmoji
+                                ? 'bg-[#FFD95A] text-[#333]'
+                                : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-400'
+                                }`}
+                        >
+                            😀 이모지
+                        </button>
+                        <button
+                            onClick={() => setUseEmoji(false)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${!useEmoji
+                                ? 'bg-[#FFD95A] text-[#333]'
+                                : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-400'
+                                }`}
+                        >
+                            📷 사진 업로드
+                        </button>
                     </div>
+
+                    {useEmoji ? (
+                        <div className="flex flex-wrap gap-2">
+                            {avatarOptions.map((emoji) => (
+                                <button
+                                    key={emoji}
+                                    onClick={() => setAvatar(emoji)}
+                                    className={`w-12 h-12 text-2xl rounded-xl transition-all ${avatar === emoji
+                                        ? 'bg-[#FFD95A] ring-2 ring-[#FF6B6B] scale-110'
+                                        : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        }`}
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-4">
+                            {/* 프로필 이미지 미리보기 */}
+                            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+                                {profileImage ? (
+                                    <img src={profileImage} alt="프로필" className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-4xl text-gray-400">👤</span>
+                                )}
+                            </div>
+                            <label className="px-4 py-2 bg-[#FF6B6B] text-white rounded-lg cursor-pointer hover:bg-[#FF5252] transition-colors">
+                                📷 사진 선택
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+                    )}
                 </div>
 
                 {/* 입력 필드들 */}
@@ -241,6 +306,106 @@ export default function SettingsPage() {
                         </button>
                     ))}
                 </div>
+
+                {/* 테마 미리보기 */}
+                <div className="mt-6 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl p-4">
+                    <p className="text-sm text-[#666] dark:text-gray-400 mb-3">📱 미리보기</p>
+                    <div
+                        className="rounded-xl p-4 text-white"
+                        style={{ background: `linear-gradient(135deg, ${themeColors[selectedTheme].primary}, ${themeColors[selectedTheme].secondary})` }}
+                    >
+                        <div className="flex items-center gap-3 mb-3">
+                            <span className="text-3xl">{useEmoji ? avatar : '👤'}</span>
+                            <div>
+                                <p className="font-bold">{displayName || '내 이름'}</p>
+                                <p className="text-sm opacity-80">@{handle || 'handle'}</p>
+                            </div>
+                        </div>
+                        <button
+                            className="w-full py-2 rounded-lg font-semibold"
+                            style={{ backgroundColor: themeColors[selectedTheme].secondary, color: '#333' }}
+                        >
+                            🍩 후원하기
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* 정산 계좌 설정 */}
+            <motion.div
+                className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+            >
+                <h3 className="text-lg font-bold text-[#333] dark:text-white mb-2 flex items-center gap-2">
+                    <span>🏦</span> 정산 계좌
+                </h3>
+                <p className="text-sm text-[#666] dark:text-gray-400 mb-6">
+                    후원금이 입금될 계좌 정보를 입력해주세요. <span className="text-[#FF6B6B] font-medium">매월 10일</span>에 자동 정산됩니다.
+                </p>
+
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                            은행
+                        </label>
+                        <select
+                            value={bankName}
+                            onChange={(e) => setBankName(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                        >
+                            <option value="">은행을 선택하세요</option>
+                            <option value="카카오뱅크">카카오뱅크</option>
+                            <option value="신한은행">신한은행</option>
+                            <option value="국민은행">KB국민은행</option>
+                            <option value="우리은행">우리은행</option>
+                            <option value="하나은행">하나은행</option>
+                            <option value="농협은행">NH농협은행</option>
+                            <option value="기업은행">IBK기업은행</option>
+                            <option value="토스뱅크">토스뱅크</option>
+                            <option value="케이뱅크">케이뱅크</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                            계좌번호
+                        </label>
+                        <input
+                            type="text"
+                            value={accountNumber}
+                            onChange={(e) => setAccountNumber(e.target.value.replace(/[^0-9-]/g, ''))}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                            placeholder="숫자만 입력"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                            예금주
+                        </label>
+                        <input
+                            type="text"
+                            value={accountHolder}
+                            onChange={(e) => setAccountHolder(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                            placeholder="예금주 이름"
+                        />
+                    </div>
+                </div>
+
+                {/* 등록된 계좌 표시 */}
+                {bankName && accountNumber && accountHolder && (
+                    <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                        <p className="text-sm text-green-700 dark:text-green-400 font-medium flex items-center gap-2">
+                            ✅ 등록된 계좌
+                        </p>
+                        <p className="text-green-600 dark:text-green-300 mt-1">
+                            {bankName} {accountNumber} ({accountHolder})
+                        </p>
+                    </div>
+                )}
             </motion.div>
 
             {/* 목표 설정 */}

@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import type { CreatorProfile, Donation } from "@/lib/supabase";
+import { toast } from "sonner";
 
 // Props 타입
 interface TipsTabProps {
@@ -12,6 +13,47 @@ interface TipsTabProps {
 
 // 수수료율
 const FEE_RATE = 0.05;
+
+// CSV 다운로드 함수
+const downloadCSV = (monthlyData: Array<{ month: string; fees: number; tips: number }>) => {
+    // CSV 헤더
+    const headers = ['월', '수수료(원)', '팁(원)', '합계(원)'];
+
+    // CSV 데이터 행
+    const rows = monthlyData.map(data => [
+        data.month,
+        data.fees,
+        data.tips,
+        data.fees + data.tips
+    ]);
+
+    // 합계 행 추가
+    const totalFees = monthlyData.reduce((sum, d) => sum + d.fees, 0);
+    const totalTips = monthlyData.reduce((sum, d) => sum + d.tips, 0);
+    rows.push(['합계', totalFees, totalTips, totalFees + totalTips]);
+
+    // CSV 문자열 생성
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    // BOM 추가 (한글 엑셀 호환)
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+    // 다운로드
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `도노트_수익리포트_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success('리포트가 다운로드되었습니다!');
+};
 
 export function TipsTab({ creators, donations }: TipsTabProps) {
     // 총 후원금
@@ -85,11 +127,13 @@ export function TipsTab({ creators, donations }: TipsTabProps) {
                 </motion.div>
             </div>
 
-            {/* 월별 수익 추이 */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-bold text-[#333]">📊 월별 수익 추이</h3>
-                    <button className="px-4 py-2 bg-[#FFD95A] text-[#333] rounded-lg text-sm hover:bg-[#FFCE3A] transition-colors">
+                    <button
+                        onClick={() => downloadCSV(monthlyData)}
+                        className="px-4 py-2 bg-[#FFD95A] text-[#333] rounded-lg text-sm hover:bg-[#FFCE3A] transition-colors"
+                    >
                         📥 리포트 다운로드
                     </button>
                 </div>
@@ -140,9 +184,9 @@ export function TipsTab({ creators, donations }: TipsTabProps) {
                     {creatorFees.slice(0, 10).map((creator, i) => (
                         <div key={creator.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
                             <span className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold ${i === 0 ? 'bg-[#FFD95A] text-[#333]' :
-                                    i === 1 ? 'bg-gray-300 text-[#333]' :
-                                        i === 2 ? 'bg-[#CD7F32] text-white' :
-                                            'bg-gray-100 text-[#666]'
+                                i === 1 ? 'bg-gray-300 text-[#333]' :
+                                    i === 2 ? 'bg-[#CD7F32] text-white' :
+                                        'bg-gray-100 text-[#666]'
                                 }`}>
                                 {i + 1}
                             </span>

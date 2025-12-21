@@ -1,6 +1,10 @@
 // 파비콘 생성 스크립트
-const sharp = require('sharp');
-const path = require('path');
+import sharp from 'sharp';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const inputPath = path.join(__dirname, '../public/logo-140.png');
 const publicDir = path.join(__dirname, '../public');

@@ -244,14 +244,14 @@ function renderMarkdown(content: string) {
     const elements: React.ReactNode[] = [];
     let inCodeBlock = false;
     let codeBlockContent: string[] = [];
-    let codeBlockLang = '';
+    let _codeBlockLang = '';
 
     lines.forEach((line, i) => {
         // 코드 블록 시작/끝
         if (line.startsWith('```')) {
             if (!inCodeBlock) {
                 inCodeBlock = true;
-                codeBlockLang = line.slice(3).trim();
+                _codeBlockLang = line.slice(3).trim();
                 codeBlockContent = [];
             } else {
                 elements.push(

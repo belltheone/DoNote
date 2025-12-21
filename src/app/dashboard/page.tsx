@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { realtimeManager } from "@/lib/realtime";
@@ -302,7 +303,7 @@ export default function DashboardPage() {
                         <div className="text-center mb-4">
                             <div className="w-20 h-20 mx-auto rounded-full bg-[#FFFACD] dark:bg-yellow-900/50 flex items-center justify-center text-4xl shadow-md mb-3 overflow-hidden">
                                 {typeof avatar === 'string' && avatar.startsWith('http') ? (
-                                    <img src={avatar} alt={displayName} className="w-full h-full rounded-full object-cover" />
+                                    <Image src={avatar} alt={displayName} width={80} height={80} className="w-full h-full rounded-full object-cover" />
                                 ) : (
                                     avatar
                                 )}

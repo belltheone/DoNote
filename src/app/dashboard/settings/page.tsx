@@ -89,7 +89,7 @@ export default function SettingsPage() {
                 setGoalTitle(data.goal_title || "");
                 setGoalTarget(data.goal_target || 500000);
                 if (data.social_links) {
-                    setSocialLinks({ ...socialLinks, ...data.social_links });
+                    setSocialLinks(prev => ({ ...prev, ...data.social_links }));
                 }
             }
             setIsLoading(false);

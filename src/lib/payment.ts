@@ -112,7 +112,7 @@ export async function requestPayment(params: PaymentRequest): Promise<PaymentRes
 }
 
 // 결제 취소 (환불)
-export async function cancelPayment(paymentId: string, reason: string): Promise<boolean> {
+export async function cancelPayment(paymentId: string, _reason: string): Promise<boolean> {
     try {
         // 실제로는 서버 사이드에서 PortOne API 호출 필요
         // 여기서는 DB 상태만 업데이트

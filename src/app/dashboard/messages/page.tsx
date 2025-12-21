@@ -4,7 +4,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { supabase, mockDonations, type Donation } from "@/lib/supabase";
+import { supabase, type Donation } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth";
 import { MessageWallSkeleton } from "@/components/ui/Skeleton";
 
@@ -38,8 +38,8 @@ export default function MessagesPage() {
     useEffect(() => {
         const loadDonations = async () => {
             if (!user?.id) {
-                // 로그인 안됨 - Mock 데이터 사용
-                setDonations(mockDonations);
+                // 로그인 안됨 - 빈 배열 (데모 모드는 별도 페이지에서만)
+                setDonations([]);
                 setIsLoading(false);
                 return;
             }
@@ -53,7 +53,7 @@ export default function MessagesPage() {
                     .single();
 
                 if (!creator) {
-                    setDonations(mockDonations);
+                    setDonations([]);
                     setIsLoading(false);
                     return;
                 }
@@ -66,8 +66,8 @@ export default function MessagesPage() {
                     .order('created_at', { ascending: false });
 
                 if (error || !donationsData || donationsData.length === 0) {
-                    // 실제 데이터가 없으면 Mock 사용
-                    setDonations(mockDonations);
+                    // 실제 데이터가 없으면 빈 배열
+                    setDonations([]);
                 } else {
                     // 실제 데이터 변환
                     setDonations(donationsData.map(d => ({
@@ -85,7 +85,7 @@ export default function MessagesPage() {
                 }
             } catch (error) {
                 console.error('Failed to load donations:', error);
-                setDonations(mockDonations);
+                setDonations([]);
             } finally {
                 setIsLoading(false);
             }

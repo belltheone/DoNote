@@ -92,6 +92,7 @@ export function RealtimeDonationAlert({
         return () => {
             supabase.removeChannel(channel);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [creatorId, enabled, soundEnabled]);
 
     return (

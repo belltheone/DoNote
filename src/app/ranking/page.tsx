@@ -5,7 +5,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAllCreators, getAllDonations, type CreatorProfile, type Donation } from "@/lib/supabase";
+import { getAllCreators, getAllDonations, type CreatorProfile } from "@/lib/supabase";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -126,8 +126,8 @@ export default function RankingPage() {
                                 key={value}
                                 onClick={() => setPeriod(value)}
                                 className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${period === value
-                                        ? 'bg-[#FF6B6B] text-white'
-                                        : 'bg-white dark:bg-gray-800 text-[#666] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    ? 'bg-[#FF6B6B] text-white'
+                                    : 'bg-white dark:bg-gray-800 text-[#666] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 {label}
@@ -159,8 +159,8 @@ export default function RankingPage() {
                                 <motion.div
                                     key={creator.id}
                                     className={`bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border ${index < 3
-                                            ? 'border-[#FFD95A] dark:border-yellow-600'
-                                            : 'border-gray-100 dark:border-gray-700'
+                                        ? 'border-[#FFD95A] dark:border-yellow-600'
+                                        : 'border-gray-100 dark:border-gray-700'
                                         }`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -169,9 +169,9 @@ export default function RankingPage() {
                                     <div className="flex items-center gap-4">
                                         {/* 순위 */}
                                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
-                                                index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
-                                                    index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
-                                                        'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-400'
+                                            index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white' :
+                                                index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' :
+                                                    'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-400'
                                             }`}>
                                             {index < 3 ? MEDALS[index] : index + 1}
                                         </div>

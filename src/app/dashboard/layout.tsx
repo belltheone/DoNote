@@ -30,7 +30,7 @@ export default function DashboardLayout({
     const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [isLoading, setIsLoading] = useState(true);
+    const [_isLoading, setIsLoading] = useState(true);
 
     // 사용자 정보 가져오기 및 관리자 리디렉션
     useEffect(() => {

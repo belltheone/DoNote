@@ -9,7 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function WidgetDemoPage() {
     const [widgetLoaded, setWidgetLoaded] = useState(false);
-    const widgetRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const _widgetRefs = useRef<(HTMLDivElement | null)[]>([]);
 
     // SDK 로드 및 위젯 생성
     useEffect(() => {

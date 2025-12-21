@@ -41,16 +41,6 @@ interface Note {
     sticker: string;
 }
 
-interface CreatorData {
-    username: string;
-    displayName: string;
-    avatar: string;
-    bio: string;
-    socialLinks: { name: string; url: string }[];
-    goal: { title: string; current: number; target: number };
-    notes: Note[];
-}
-
 // 포스트잇 색상
 const noteColors = [
     "bg-[#FFFACD]", // 노란색

@@ -172,3 +172,43 @@ export function ChartSkeleton({ className }: SkeletonProps) {
         </div>
     );
 }
+
+// 메시지월 Skeleton
+export function MessageWallSkeleton() {
+    return (
+        <div className="max-w-6xl mx-auto">
+            {/* 헤더 스켈레톤 */}
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <div>
+                    <Skeleton className="h-6 w-32 mb-2" />
+                    <Skeleton className="h-4 w-48" />
+                </div>
+                <div className="flex gap-2">
+                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-10 w-32" />
+                </div>
+            </div>
+
+            {/* 쪽지 그리드 스켈레톤 */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="p-5 rounded bg-[#FFFACD] shadow-md"
+                        style={{ transform: `rotate(${(i % 3) * 2 - 2}deg)` }}
+                    >
+                        <Skeleton className="h-5 w-16 mb-3 bg-white/50" />
+                        <div className="space-y-2 min-h-[60px]">
+                            <Skeleton className="h-4 w-full bg-white/50" />
+                            <Skeleton className="h-4 w-3/4 bg-white/50" />
+                        </div>
+                        <div className="flex justify-between mt-3">
+                            <Skeleton className="h-3 w-16 bg-white/50" />
+                            <Skeleton className="h-3 w-12 bg-white/50" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}

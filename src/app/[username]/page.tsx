@@ -4,9 +4,11 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { use } from "react";
+import { use, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { CreatorJsonLd } from "@/components/JsonLd";
 
-// 더미 데이터 - 실제로는 DB에서 가져옴
+// 더미 데이터 - 실제 데이터가 없을 때 폴백용
 const demoCreator = {
     username: "demo",
     displayName: "개발하는 민수",
@@ -22,7 +24,6 @@ const demoCreator = {
         current: 150000,
         target: 500000
     },
-    // Digital Wall - 받은 후원 메모지들
     notes: [
         { id: 1, nickname: "익명의 팬", message: "항상 좋은 글 감사합니다! ☕", amount: 5000, createdAt: "2024-12-14", sticker: "☕" },
         { id: 2, nickname: "코딩초보", message: "덕분에 리액트 배웠어요 💜", amount: 3000, createdAt: "2024-12-13", sticker: "🔥" },
@@ -32,6 +33,25 @@ const demoCreator = {
         { id: 6, nickname: "후원자A", message: "좋은 컨텐츠 감사합니다", amount: 5000, createdAt: "2024-12-09", sticker: "💌" },
     ]
 };
+
+interface Note {
+    id: number | string;
+    nickname: string;
+    message: string;
+    amount: number;
+    createdAt: string;
+    sticker: string;
+}
+
+interface CreatorData {
+    username: string;
+    displayName: string;
+    avatar: string;
+    bio: string;
+    socialLinks: { name: string; url: string }[];
+    goal: { title: string; current: number; target: number };
+    notes: Note[];
+}
 
 // 포스트잇 색상
 const noteColors = [

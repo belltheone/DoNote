@@ -4,9 +4,10 @@ import { type NextRequest, NextResponse } from 'next/server';
 const rateLimit = new Map<string, { count: number; resetTime: number }>();
 
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1분
-const MAX_REQUESTS = 10; // 분당 10회
+const MAX_REQUESTS = 60; // 분당 60회 (기본)
+const MAX_REQUESTS_API = 30; // 분당 30회 (API)
 
-export function rateLimiter(request: NextRequest) {
+export function rateLimiter(request: NextRequest, maxRequests: number = MAX_REQUESTS) {
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
     const now = Date.now();
 
@@ -18,7 +19,7 @@ export function rateLimiter(request: NextRequest) {
         return null;
     }
 
-    if (record.count >= MAX_REQUESTS) {
+    if (record.count >= maxRequests) {
         return NextResponse.json(
             { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
             { status: 429 }
@@ -29,16 +30,48 @@ export function rateLimiter(request: NextRequest) {
     return null;
 }
 
+// CSP 헤더 생성
+function getCSPHeaders(): Record<string, string> {
+    const csp = [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: blob: https: http:",
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com",
+        "frame-ancestors 'self'",
+        "form-action 'self'",
+    ].join('; ');
+
+    return {
+        'Content-Security-Policy': csp,
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+    };
+}
+
 export function middleware(request: NextRequest) {
-    // API 라우트에만 Rate Limiting 적용
+    const response = NextResponse.next();
+
+    // API 라우트에 Rate Limiting 적용
     if (request.nextUrl.pathname.startsWith('/api/')) {
-        const rateLimitResponse = rateLimiter(request);
+        const rateLimitResponse = rateLimiter(request, MAX_REQUESTS_API);
         if (rateLimitResponse) return rateLimitResponse;
     }
 
-    return NextResponse.next();
+    // 보안 헤더 추가
+    const securityHeaders = getCSPHeaders();
+    Object.entries(securityHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+    });
+
+    return response;
 }
 
 export const config = {
-    matcher: '/api/:path*',
+    matcher: [
+        '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    ],
 };

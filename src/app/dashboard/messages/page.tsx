@@ -3,8 +3,10 @@
 // 코르크보드 컨셉의 핀터레스트 스타일 레이아웃
 
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { mockDonations, type Donation } from "@/lib/supabase";
+import { useState, useEffect } from "react";
+import { supabase, mockDonations, type Donation } from "@/lib/supabase";
+import { useAuthStore } from "@/store/auth";
+import { MessageWallSkeleton } from "@/components/ui/Skeleton";
 
 // 포스트잇 색상
 const noteColors = [
@@ -26,9 +28,76 @@ const rotations = [
 ];
 
 export default function MessagesPage() {
-    const [donations, setDonations] = useState<Donation[]>(mockDonations);
+    const { user } = useAuthStore();
+    const [donations, setDonations] = useState<Donation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [filter, setFilter] = useState<'all' | 'pinned'>('all');
     const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
+
+    // 실제 데이터 로드
+    useEffect(() => {
+        const loadDonations = async () => {
+            if (!user?.id) {
+                // 로그인 안됨 - Mock 데이터 사용
+                setDonations(mockDonations);
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                // 1. 크리에이터 프로필 조회
+                const { data: creator } = await supabase
+                    .from('creators')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (!creator) {
+                    setDonations(mockDonations);
+                    setIsLoading(false);
+                    return;
+                }
+
+                // 2. 후원 데이터 조회
+                const { data: donationsData, error } = await supabase
+                    .from('donations')
+                    .select('*')
+                    .eq('creator_id', creator.id)
+                    .order('created_at', { ascending: false });
+
+                if (error || !donationsData || donationsData.length === 0) {
+                    // 실제 데이터가 없으면 Mock 사용
+                    setDonations(mockDonations);
+                } else {
+                    // 실제 데이터 변환
+                    setDonations(donationsData.map(d => ({
+                        id: d.id,
+                        creatorId: d.creator_id,
+                        donorName: d.donor_name,
+                        message: d.message,
+                        amount: d.amount,
+                        sticker: d.sticker || '☕',
+                        isTipIncluded: d.is_tip_included,
+                        status: d.status,
+                        createdAt: d.created_at,
+                        isPinned: d.is_pinned || false,
+                    })));
+                }
+            } catch (error) {
+                console.error('Failed to load donations:', error);
+                setDonations(mockDonations);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadDonations();
+    }, [user]);
+
+    // 로딩 중이면 스켈레톤 표시
+    if (isLoading) {
+        return <MessageWallSkeleton />;
+    }
 
     // 핀 토글
     const togglePin = (id: string) => {

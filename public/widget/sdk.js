@@ -1,6 +1,6 @@
 // 도노트 임베드 위젯 SDK
 // Vanilla JS + Shadow DOM으로 스타일 격리
-// 사용법: <script src="https://donote.kr/widget/sdk.js" data-handle="username"></script>
+// 사용법: <script src="https://donote.site/widget/sdk.js" data-handle="username"></script>
 
 (function () {
   'use strict';
@@ -188,7 +188,7 @@
       const styleType = this.getAttribute('style-type') || 'ticket';
       const theme = this.getAttribute('theme') || 'yellow';
       const text = this.getAttribute('text') || '커피 한 잔 ☕';
-      const url = `https://donote.kr/${handle}`;
+      const url = `https://donote.site/${handle}`;
 
       let widgetHTML = '';
 

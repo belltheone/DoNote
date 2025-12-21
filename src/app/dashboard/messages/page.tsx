@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { supabase, type Donation } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth";
 import { MessageWallSkeleton } from "@/components/ui/Skeleton";
+import { MessagesEmptyState } from "@/components/ui/EmptyState";
 
 // 포스트잇 색상
 const noteColors = [
@@ -230,14 +231,8 @@ export default function MessagesPage() {
 
                 {/* 빈 상태 */}
                 {sortedDonations.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                        <span className="text-6xl mb-4">📭</span>
-                        <p className="text-lg font-medium text-white/80 mb-2">
-                            아직 도착한 쪽지가 없어요
-                        </p>
-                        <p className="text-sm text-white/60">
-                            크리에이터 페이지를 공유해서 첫 쪽지를 받아보세요!
-                        </p>
+                    <div className="bg-white/10 backdrop-blur rounded-xl">
+                        <MessagesEmptyState />
                     </div>
                 )}
             </motion.div>

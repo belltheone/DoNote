@@ -4,11 +4,12 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-// 더미 데이터 - 실제 데이터가 없을 때 폴백용
+// 데모 데이터 - devminsu, demo 핸들 또는 DB에 없는 사용자용
 const demoCreator = {
-    username: "demo",
+    username: "devminsu",
     displayName: "개발하는 민수",
     avatar: "👨‍💻",
     bio: "프론트엔드 개발자 | 오픈소스 기여자 | 기술 블로거",
@@ -32,6 +33,9 @@ const demoCreator = {
     ]
 };
 
+// 데모 핸들 목록 (이 핸들들은 DB 조회 없이 데모 데이터 표시)
+const DEMO_HANDLES = ["devminsu", "demo"];
+
 interface Note {
     id: number | string;
     nickname: string;
@@ -39,6 +43,16 @@ interface Note {
     amount: number;
     createdAt: string;
     sticker: string;
+}
+
+interface Creator {
+    username: string;
+    displayName: string;
+    avatar: string;
+    bio: string;
+    socialLinks: { name: string; url: string }[];
+    goal: { title: string; current: number; target: number };
+    notes: Note[];
 }
 
 // 포스트잇 색상
@@ -66,9 +80,86 @@ export default function CreatorPage({
     params: Promise<{ username: string }>
 }) {
     const { username } = use(params);
+    const [creator, setCreator] = useState<Creator | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
-    // 실제로는 username으로 DB 조회
-    const creator = demoCreator;
+    useEffect(() => {
+        const loadCreator = async () => {
+            // 데모 핸들인 경우 바로 데모 데이터 사용
+            if (DEMO_HANDLES.includes(username.toLowerCase())) {
+                setCreator({ ...demoCreator, username });
+                setIsLoading(false);
+                return;
+            }
+
+            // DB에서 크리에이터 조회
+            const { data: creatorData, error } = await supabase
+                .from('creators')
+                .select('*')
+                .eq('handle', username)
+                .single();
+
+            if (error || !creatorData) {
+                setNotFound(true);
+                setIsLoading(false);
+                return;
+            }
+
+            // 후원 메시지 조회
+            const { data: donationsData } = await supabase
+                .from('donations')
+                .select('id, donor_name, message, amount, created_at, sticker')
+                .eq('creator_id', creatorData.id)
+                .eq('is_public', true)
+                .order('created_at', { ascending: false })
+                .limit(20);
+
+            setCreator({
+                username: creatorData.handle,
+                displayName: creatorData.display_name,
+                avatar: creatorData.avatar || '👨‍💻',
+                bio: creatorData.bio || '',
+                socialLinks: creatorData.social_links || [],
+                goal: creatorData.goal || { title: '목표 없음', current: 0, target: 100000 },
+                notes: (donationsData || []).map(d => ({
+                    id: d.id,
+                    nickname: d.donor_name,
+                    message: d.message || '',
+                    amount: d.amount,
+                    createdAt: d.created_at,
+                    sticker: d.sticker || '☕',
+                })),
+            });
+            setIsLoading(false);
+        };
+
+        loadCreator();
+    }, [username]);
+
+    // 로딩 상태
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex items-center justify-center">
+                <div className="animate-spin w-8 h-8 border-4 border-[#FF6B6B] border-t-transparent rounded-full" />
+            </div>
+        );
+    }
+
+    // 404 상태
+    if (notFound || !creator) {
+        return (
+            <div className="min-h-screen bg-[#F9F9F9] dark:bg-gray-900 flex flex-col items-center justify-center gap-4">
+                <span className="text-6xl">🍩</span>
+                <h1 className="text-2xl font-bold text-[#333] dark:text-white">크리에이터를 찾을 수 없어요</h1>
+                <p className="text-[#666]">@{username} 페이지가 존재하지 않습니다.</p>
+                <Link href="/" className="mt-4 px-6 py-3 bg-[#FF6B6B] text-white rounded-xl hover:bg-[#e55555]">
+                    홈으로 돌아가기
+                </Link>
+            </div>
+        );
+    }
+
     const goalPercent = Math.round((creator.goal.current / creator.goal.target) * 100);
 
     return (

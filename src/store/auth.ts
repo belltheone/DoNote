@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle(); // 데이터가 없어도 에러 발생하지 않음
 
             if (error || !data) {
                 // DB에 역할이 없으면 이메일로 폴백 체크

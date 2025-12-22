@@ -50,8 +50,9 @@ export async function POST(request: NextRequest) {
 
             // 에러 유형별 메시지
             if (data.type === "INVALID_REQUEST") {
+                console.error("PortOne INVALID_REQUEST 상세:", JSON.stringify(data, null, 2));
                 return NextResponse.json(
-                    { success: false, message: "계좌 정보가 올바르지 않습니다." },
+                    { success: false, message: data.message || "계좌번호와 은행을 다시 확인해주세요." },
                     { status: 400 }
                 );
             }

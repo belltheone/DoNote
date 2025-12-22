@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { AddressSearch } from "@/components/common/AddressSearch";
 import { verifyAccountHolder, BANK_LIST } from "@/lib/portone-verify";
+import { requestIdentityVerification } from "@/lib/portone-identity";
 
 export default function SettlementPage() {
     const { user } = useAuthStore();
@@ -49,6 +50,10 @@ export default function SettlementPage() {
     // 계좌 인증 상태
     const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
     const [accountVerified, setAccountVerified] = useState(false);
+
+    // 본인인증 상태
+    const [isVerifyingIdentity, setIsVerifyingIdentity] = useState(false);
+    const [identityVerified, setIdentityVerified] = useState(false);
 
     // 정산 가능 금액 계산
     const settledAmount = settlements.filter(s => s.status !== 'rejected').reduce((sum, s) => sum + s.amount, 0);
@@ -101,6 +106,31 @@ export default function SettlementPage() {
 
         loadData();
     }, [user]);
+
+    // 본인인증 처리
+    const handleVerifyIdentity = async () => {
+        setIsVerifyingIdentity(true);
+        try {
+            const result = await requestIdentityVerification();
+
+            if (result.success) {
+                // 인증된 정보로 폼 업데이트
+                setSettlementForm({
+                    ...settlementForm,
+                    realName: result.name || settlementForm.realName,
+                    phoneNumber: result.phoneNumber || settlementForm.phoneNumber,
+                });
+                setIdentityVerified(true);
+                toast.success(`본인인증 완료: ${result.name}`);
+            } else {
+                toast.error(result.message || '본인인증에 실패했습니다.');
+            }
+        } catch {
+            toast.error('본인인증 중 오류가 발생했습니다.');
+        } finally {
+            setIsVerifyingIdentity(false);
+        }
+    };
 
     // 계좌 인증 처리
     const handleVerifyAccount = async () => {
@@ -395,18 +425,44 @@ export default function SettlementPage() {
                                 />
                             </div>
 
-                            {/* 휴대폰 번호 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                                    휴대폰 번호 <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={settlementForm.phoneNumber}
-                                    onChange={(e) => setSettlementForm({ ...settlementForm, phoneNumber: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                    placeholder="010-0000-0000"
-                                />
+                            {/* 휴대폰 번호 + 본인인증 */}
+                            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                                <h4 className="font-medium text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                                    📱 본인인증
+                                    {identityVerified && (
+                                        <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">✓ 인증완료</span>
+                                    )}
+                                </h4>
+
+                                {!identityVerified ? (
+                                    <div className="text-center py-4">
+                                        <p className="text-sm text-[#666] dark:text-gray-400 mb-4">
+                                            정산을 받으시려면 본인인증이 필요합니다.
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={handleVerifyIdentity}
+                                            disabled={isVerifyingIdentity}
+                                            className="px-6 py-3 bg-[#FF6B6B] text-white rounded-xl font-medium hover:bg-[#FF5252] transition-colors disabled:opacity-50"
+                                        >
+                                            {isVerifyingIdentity ? '인증 중...' : '📱 본인인증 하기'}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                                                휴대폰 번호 (인증됨)
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                value={settlementForm.phoneNumber}
+                                                readOnly
+                                                className="w-full px-4 py-3 rounded-xl border-2 border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 text-[#333] dark:text-white cursor-not-allowed"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <hr className="border-gray-200 dark:border-gray-600 my-4" />

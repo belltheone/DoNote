@@ -79,6 +79,9 @@ export function Header() {
                         <Link href="/blog" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
                             블로그
                         </Link>
+                        <Link href="/notice" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                            공지
+                        </Link>
                     </nav>
 
                     {/* 우측 메뉴 */}

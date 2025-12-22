@@ -1,8 +1,8 @@
 "use client";
 // 다음 우편번호 검색 컴포넌트
-// next/script를 사용하여 외부 스크립트 로딩
+// next/script를 사용하여 외부 스크립트 로딩 + 모달 임베드
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,10 +13,10 @@ declare global {
             Postcode: new (options: {
                 oncomplete: (data: DaumPostcodeResult) => void;
                 onclose?: () => void;
-                width?: string;
-                height?: string;
+                width?: string | number;
+                height?: string | number;
             }) => {
-                embed: (element: HTMLElement) => void;
+                embed: (element: HTMLElement, options?: { autoClose?: boolean }) => void;
                 open: () => void;
             };
         };
@@ -51,13 +51,16 @@ export function AddressSearch({
 }: AddressSearchProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+    const embedRef = useRef<HTMLDivElement>(null);
 
-    // 주소 검색 실행
-    const openPostcode = useCallback(() => {
-        if (!isScriptLoaded || typeof window === "undefined" || !window.daum) {
-            console.error("다음 우편번호 스크립트가 로드되지 않았습니다.");
+    // 주소 검색 임베드
+    const embedPostcode = useCallback(() => {
+        if (!isScriptLoaded || typeof window === "undefined" || !window.daum || !embedRef.current) {
             return;
         }
+
+        // 기존 내용 초기화
+        embedRef.current.innerHTML = "";
 
         new window.daum.Postcode({
             oncomplete: (data: DaumPostcodeResult) => {
@@ -68,20 +71,21 @@ export function AddressSearch({
                 });
                 setIsOpen(false);
             },
-            onclose: () => {
-                setIsOpen(false);
-            },
             width: "100%",
             height: "100%",
-        }).open();
+        }).embed(embedRef.current, { autoClose: false });
     }, [isScriptLoaded, onComplete]);
 
-    // 모달 열릴 때 주소 검색 실행
+    // 모달 열릴 때 임베드 실행
     useEffect(() => {
         if (isOpen && isScriptLoaded) {
-            openPostcode();
+            // 약간의 딜레이 후 임베드 (DOM 렌더링 대기)
+            const timer = setTimeout(() => {
+                embedPostcode();
+            }, 100);
+            return () => clearTimeout(timer);
         }
-    }, [isOpen, isScriptLoaded, openPostcode]);
+    }, [isOpen, isScriptLoaded, embedPostcode]);
 
     return (
         <div className={className}>
@@ -110,6 +114,45 @@ export function AddressSearch({
                     🔍 주소 검색
                 </button>
             </div>
+
+            {/* 모달 */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <motion.div
+                            className="bg-white rounded-xl overflow-hidden w-full max-w-lg mx-4"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* 헤더 */}
+                            <div className="flex items-center justify-between p-4 border-b">
+                                <h3 className="text-lg font-bold text-[#333]">📍 주소 검색</h3>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* 다음 우편번호 임베드 영역 */}
+                            <div
+                                ref={embedRef}
+                                className="w-full"
+                                style={{ height: "450px" }}
+                            />
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -209,24 +209,30 @@ export default function GuidePage() {
                             <GuideStep
                                 step={1}
                                 title="정산 정보 등록"
-                                description="대시보드 > 정산 메뉴에서 실명, 계좌번호를 등록하세요. 개인정보는 안전하게 암호화됩니다."
-                            />
+                                description="대시보드 > 정산하기 메뉴에서 실명, 주소, 계좌 정보를 등록하세요."
+                            >
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-[#666] dark:text-gray-300 text-sm">
+                                    <p className="mb-2">📍 <b>주소 검색</b>: 다음 우편번호 서비스로 간편하게 입력</p>
+                                    <p className="mb-2">🏦 <b>계좌 인증</b>: 포트원 API로 예금주 실명 검증 (필수)</p>
+                                    <p>🔒 개인정보는 안전하게 암호화되어 저장됩니다</p>
+                                </div>
+                            </GuideStep>
 
                             <GuideStep
                                 step={2}
                                 title="정산 신청"
-                                description="누적 후원금이 10,000원 이상이면 정산을 신청할 수 있습니다."
+                                description="누적 후원금이 10,000원 이상이면 정산을 신청할 수 있습니다. 계좌 인증이 완료된 계좌로만 정산 가능합니다."
                             />
 
                             <GuideStep
                                 step={3}
                                 title="입금 확인"
-                                description="매월 1일에 전월 후원금을 정산하며, 영업일 기준 3-5일 내에 입금됩니다."
+                                description="정산 신청 후 관리자 승인을 거쳐 영업일 기준 3-5일 내에 입금됩니다."
                             >
                                 <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-4 text-white">
                                     <p className="text-sm opacity-80 mb-1">수수료 안내</p>
-                                    <p className="text-2xl font-bold">도노트 5% + PG수수료 약 3%</p>
-                                    <p className="text-sm opacity-80 mt-1">크리에이터는 약 92%를 수령합니다</p>
+                                    <p className="text-2xl font-bold">플랫폼 수수료 5%</p>
+                                    <p className="text-sm opacity-80 mt-1">결제 수수료(PG) 별도 / 크리에이터는 약 92% 수령</p>
                                 </div>
                             </GuideStep>
                         </motion.div>

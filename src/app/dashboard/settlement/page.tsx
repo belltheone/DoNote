@@ -16,6 +16,8 @@ import {
     SettlementInfo
 } from "@/lib/supabase";
 import { toast } from "sonner";
+import { AddressSearch } from "@/components/common/AddressSearch";
+import { verifyAccountHolder, BANK_LIST } from "@/lib/portone-verify";
 
 export default function SettlementPage() {
     const { user } = useAuthStore();
@@ -37,11 +39,16 @@ export default function SettlementPage() {
         ssnFront: '',
         ssnBack: '',
         address: '',
+        addressDetail: '',  // 상세주소 추가
         phoneNumber: '',
         bankName: '',
         accountNumber: '',
         accountHolder: '',
     });
+
+    // 계좌 인증 상태
+    const [isVerifyingAccount, setIsVerifyingAccount] = useState(false);
+    const [accountVerified, setAccountVerified] = useState(false);
 
     // 정산 가능 금액 계산
     const settledAmount = settlements.filter(s => s.status !== 'rejected').reduce((sum, s) => sum + s.amount, 0);
@@ -76,11 +83,13 @@ export default function SettlementPage() {
                         ssnFront: info.ssnFront || '',
                         ssnBack: '', // 보안상 뒤 7자리는 표시하지 않음
                         address: info.address || '',
+                        addressDetail: '', // 상세주소 (기존 데이터에는 없을 수 있음)
                         phoneNumber: info.phoneNumber || '',
                         bankName: info.bankName || '',
                         accountNumber: '', // 보안상 계좌번호는 표시하지 않음
                         accountHolder: info.accountHolder || '',
                     });
+                    setAccountVerified(true); // 기존 정보가 있으면 인증 완료 상태
                     setActiveTab('request'); // 정산 정보가 있으면 정산 신청 탭으로
                 }
             } catch (error) {
@@ -92,6 +101,47 @@ export default function SettlementPage() {
 
         loadData();
     }, [user]);
+
+    // 계좌 인증 처리
+    const handleVerifyAccount = async () => {
+        if (!settlementForm.bankName || !settlementForm.accountNumber) {
+            toast.error('은행과 계좌번호를 먼저 입력해주세요.');
+            return;
+        }
+
+        // 생년월일 추출 (주민번호 앞 6자리 → YYYY-MM-DD)
+        const ssnFront = settlementForm.ssnFront;
+        let birthdate = '';
+        if (ssnFront && ssnFront.length === 6) {
+            const yy = ssnFront.substring(0, 2);
+            const mm = ssnFront.substring(2, 4);
+            const dd = ssnFront.substring(4, 6);
+            // 2000년대생인지 1900년대생인지 판단 (간단히 80 이상이면 19xx)
+            const year = parseInt(yy) >= 50 ? `19${yy}` : `20${yy}`;
+            birthdate = `${year}-${mm}-${dd}`;
+        }
+
+        setIsVerifyingAccount(true);
+        try {
+            const result = await verifyAccountHolder(
+                settlementForm.bankName,
+                settlementForm.accountNumber,
+                birthdate || undefined
+            );
+
+            if (result.success && result.holderName) {
+                setSettlementForm({ ...settlementForm, accountHolder: result.holderName });
+                setAccountVerified(true);
+                toast.success(`예금주 확인 완료: ${result.holderName}`);
+            } else {
+                toast.error(result.message || '계좌 인증에 실패했습니다.');
+            }
+        } catch {
+            toast.error('계좌 인증 중 오류가 발생했습니다.');
+        } finally {
+            setIsVerifyingAccount(false);
+        }
+    };
 
     // 정산 정보 저장
     const handleSaveSettlementInfo = async () => {
@@ -110,14 +160,24 @@ export default function SettlementPage() {
             return;
         }
 
+        if (!accountVerified) {
+            toast.error('계좌 인증을 먼저 완료해주세요.');
+            return;
+        }
+
         setIsSavingInfo(true);
         try {
+            // 상세주소가 있으면 합치기
+            const fullAddress = settlementForm.addressDetail
+                ? `${settlementForm.address} ${settlementForm.addressDetail}`
+                : settlementForm.address;
+
             const success = await upsertSettlementInfo({
                 creatorId: user.id,
                 realName: settlementForm.realName,
                 ssnFront: settlementForm.ssnFront,
                 ssnBackEncrypted: settlementForm.ssnBack, // 실제로는 서버에서 암호화
-                address: settlementForm.address,
+                address: fullAddress,
                 phoneNumber: settlementForm.phoneNumber,
                 bankName: settlementForm.bankName,
                 accountNumberEncrypted: settlementForm.accountNumber, // 실제로는 서버에서 암호화
@@ -238,8 +298,8 @@ export default function SettlementPage() {
                 <button
                     onClick={() => setActiveTab('info')}
                     className={`flex-1 py-3 rounded-xl font-medium transition-all ${activeTab === 'info'
-                            ? 'bg-[#FF6B6B] text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-300'
+                        ? 'bg-[#FF6B6B] text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-300'
                         }`}
                 >
                     {hasSettlementInfo ? '✓ ' : ''}정산 정보 {hasSettlementInfo ? '(등록완료)' : '입력'}
@@ -247,8 +307,8 @@ export default function SettlementPage() {
                 <button
                     onClick={() => setActiveTab('request')}
                     className={`flex-1 py-3 rounded-xl font-medium transition-all ${activeTab === 'request'
-                            ? 'bg-[#FF6B6B] text-white'
-                            : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-300'
+                        ? 'bg-[#FF6B6B] text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-300'
                         }`}
                 >
                     정산 신청
@@ -317,12 +377,21 @@ export default function SettlementPage() {
                                 <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
                                     주소 <span className="text-red-500">*</span>
                                 </label>
+                                <AddressSearch
+                                    value={settlementForm.address}
+                                    placeholder="주소 검색을 클릭하세요"
+                                    onComplete={(data) => setSettlementForm({
+                                        ...settlementForm,
+                                        address: `(${data.zonecode}) ${data.address}`
+                                    })}
+                                />
+                                {/* 상세주소 */}
                                 <input
                                     type="text"
-                                    value={settlementForm.address}
-                                    onChange={(e) => setSettlementForm({ ...settlementForm, address: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                    placeholder="도로명 주소를 입력해주세요"
+                                    value={settlementForm.addressDetail}
+                                    onChange={(e) => setSettlementForm({ ...settlementForm, addressDetail: e.target.value })}
+                                    className="w-full mt-2 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                    placeholder="상세주소 입력 (동/호수 등)"
                                 />
                             </div>
 
@@ -342,55 +411,78 @@ export default function SettlementPage() {
 
                             <hr className="border-gray-200 dark:border-gray-600 my-4" />
 
-                            {/* 은행명 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                                    은행명 <span className="text-red-500">*</span>
-                                </label>
-                                <select
-                                    value={settlementForm.bankName}
-                                    onChange={(e) => setSettlementForm({ ...settlementForm, bankName: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                >
-                                    <option value="">은행을 선택해주세요</option>
-                                    <option value="카카오뱅크">카카오뱅크</option>
-                                    <option value="토스뱅크">토스뱅크</option>
-                                    <option value="케이뱅크">케이뱅크</option>
-                                    <option value="국민은행">국민은행</option>
-                                    <option value="신한은행">신한은행</option>
-                                    <option value="우리은행">우리은행</option>
-                                    <option value="하나은행">하나은행</option>
-                                    <option value="농협은행">농협은행</option>
-                                </select>
-                            </div>
+                            {/* 계좌 정보 섹션 */}
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                                <h4 className="font-medium text-[#333] dark:text-white mb-4 flex items-center gap-2">
+                                    🏦 계좌 정보
+                                    {accountVerified && (
+                                        <span className="text-xs px-2 py-1 bg-green-100 text-green-600 rounded-full">✓ 인증완료</span>
+                                    )}
+                                </h4>
 
-                            {/* 계좌번호 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                                    계좌번호 <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={settlementForm.accountNumber}
-                                    onChange={(e) => setSettlementForm({ ...settlementForm, accountNumber: e.target.value.replace(/\D/g, '') })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                    placeholder="-없이 숫자만 입력"
-                                />
-                            </div>
+                                {/* 은행명 */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                                        은행명 <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={settlementForm.bankName}
+                                        onChange={(e) => {
+                                            setSettlementForm({ ...settlementForm, bankName: e.target.value });
+                                            setAccountVerified(false); // 은행 변경 시 인증 해제
+                                        }}
+                                        disabled={accountVerified}
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors disabled:opacity-60"
+                                    >
+                                        <option value="">은행을 선택해주세요</option>
+                                        {BANK_LIST.map((bank) => (
+                                            <option key={bank} value={bank}>{bank}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                            {/* 예금주명 */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
-                                    예금주명 <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    value={settlementForm.accountHolder}
-                                    onChange={(e) => setSettlementForm({ ...settlementForm, accountHolder: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
-                                    placeholder="예금주명을 입력해주세요"
-                                />
-                                <p className="text-xs text-[#999] dark:text-gray-500 mt-1">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+                                {/* 계좌번호 */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                                        계좌번호 <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={settlementForm.accountNumber}
+                                            onChange={(e) => {
+                                                setSettlementForm({ ...settlementForm, accountNumber: e.target.value.replace(/\D/g, '') });
+                                                setAccountVerified(false); // 계좌번호 변경 시 인증 해제
+                                            }}
+                                            disabled={accountVerified}
+                                            className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors disabled:opacity-60"
+                                            placeholder="-없이 숫자만 입력"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleVerifyAccount}
+                                            disabled={isVerifyingAccount || accountVerified}
+                                            className="px-4 py-3 bg-[#FF6B6B] text-white rounded-xl font-medium hover:bg-[#FF5252] transition-colors disabled:opacity-50 whitespace-nowrap"
+                                        >
+                                            {isVerifyingAccount ? '인증 중...' : accountVerified ? '✓ 인증됨' : '🔍 계좌 인증'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* 예금주명 */}
+                                <div>
+                                    <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                                        예금주명 <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={settlementForm.accountHolder}
+                                        readOnly
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 text-[#333] dark:text-white cursor-not-allowed"
+                                        placeholder="계좌 인증 후 자동 입력됩니다"
+                                    />
+                                    <p className="text-xs text-[#999] dark:text-gray-500 mt-1">⚠️ 본인 명의 계좌만 등록 가능합니다.</p>
+                                </div>
                             </div>
 
                             {/* 저장 버튼 */}

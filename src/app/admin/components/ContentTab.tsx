@@ -28,14 +28,31 @@ interface Notice {
     createdAt: string;
 }
 
-// 콘텐츠는 실제 DB에서 로드 (현재 빈 상태)
-// TODO: Supabase에서 실제 데이터 로드
+// 실제 블로그 글 데이터 (blog/page.tsx와 동기화)
+const initialBlogPosts: BlogPost[] = [
+    { id: "1", title: "도노트, 마음을 전하는 새로운 방법", category: "서비스 소개", status: "published", createdAt: "2025-12-21" },
+    { id: "2", title: "후원을 받기 시작하는 5가지 방법", category: "크리에이터 팁", status: "published", createdAt: "2025-12-21" },
+    { id: "3", title: "도노트 정식 출시 및 주요 기능 안내", category: "업데이트", status: "published", createdAt: "2025-12-21" },
+];
+
+// FAQ 데이터 (faq/page.tsx와 동기화)
+const initialFaqs: FAQ[] = [
+    { id: "1", question: "도노트는 어떤 서비스인가요?", answer: "도노트는 크리에이터와 팬을 연결하는 후원 플랫폼입니다.", order: 1 },
+    { id: "2", question: "수수료는 얼마인가요?", answer: "후원 금액의 5%가 수수료로 부과됩니다.", order: 2 },
+    { id: "3", question: "정산은 어떻게 받나요?", answer: "최소 10,000원 이상 모이면 등록된 계좌로 정산 신청이 가능합니다.", order: 3 },
+];
+
+// 공지사항 데이터
+const initialNotices: Notice[] = [
+    { id: "1", title: "도노트 서비스 정식 오픈!", type: "success", active: true, createdAt: "2025-12-21" },
+    { id: "2", title: "연말 이벤트 진행 중", type: "info", active: true, createdAt: "2025-12-20" },
+];
 
 export function ContentTab() {
     const [activeSection, setActiveSection] = useState<"blog" | "faq" | "notice">("blog");
-    const [blogPosts] = useState<BlogPost[]>([]);
-    const [faqs] = useState<FAQ[]>([]);
-    const [notices] = useState<Notice[]>([]);
+    const [blogPosts] = useState<BlogPost[]>(initialBlogPosts);
+    const [faqs] = useState<FAQ[]>(initialFaqs);
+    const [notices] = useState<Notice[]>(initialNotices);
 
     return (
         <div className="space-y-6">

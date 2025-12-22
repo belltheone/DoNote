@@ -106,12 +106,12 @@ export default function CreatorPage({
                 return;
             }
 
-            // 후원 메시지 조회
+            // 후원 메시지 조회 (결제 완료된 것만)
             const { data: donationsData } = await supabase
                 .from('donations')
                 .select('id, donor_name, message, amount, created_at, sticker')
                 .eq('creator_id', creatorData.id)
-                .eq('is_public', true)
+                .eq('status', 'paid')
                 .order('created_at', { ascending: false })
                 .limit(20);
 

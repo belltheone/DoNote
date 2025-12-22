@@ -62,7 +62,7 @@ export async function requestIdentityVerification(): Promise<IdentityVerificatio
         const response = await PortOne.requestIdentityVerification({
             storeId: process.env.NEXT_PUBLIC_PORTONE_STORE_ID!,
             identityVerificationId,
-            channelKey: process.env.NEXT_PUBLIC_PORTONE_IDENTITY_CHANNEL_KEY!,
+            channelKey: process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY!,
         });
 
         // 응답 확인

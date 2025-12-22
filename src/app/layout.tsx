@@ -151,7 +151,7 @@ export default function RootLayout({
         {/* PWA 매니페스트 */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#FF6B6B" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="도노트" />
         <link rel="apple-touch-icon" href="/logo-140.png" />

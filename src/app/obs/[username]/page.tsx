@@ -198,36 +198,58 @@ export default function OBSOverlayPage({
         setDonutKey(prev => prev + 1);
     }, []);
 
-    // Supabase Realtime 연결
+    // Supabase Realtime 연결 (크리에이터 조회 후 필터링)
     useEffect(() => {
-        const channel = supabase
-            .channel(`obs-${username}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'donations',
-                    filter: `creatorId=eq.${username}`
-                },
-                (payload) => {
-                    const newDonation = payload.new;
-                    setCurrentAlert({
-                        id: Date.now(),
-                        donorName: newDonation.donorName || '익명',
-                        message: newDonation.message || '',
-                        amount: newDonation.amount || 0,
-                        sticker: newDonation.sticker || '🍩',
-                    });
-                    spawnDonuts(newDonation.amount || 0);
-                }
-            )
-            .subscribe((status) => {
-                setIsConnected(status === 'SUBSCRIBED');
-            });
+        let channel: ReturnType<typeof supabase.channel> | null = null;
+
+        // 크리에이터 정보 조회 후 Realtime 연결
+        async function setupRealtime() {
+            // handle로 크리에이터 조회
+            const { data: creator, error } = await supabase
+                .from('creators')
+                .select('id')
+                .eq('handle', username)
+                .single();
+
+            if (error || !creator) {
+                console.log('크리에이터를 찾을 수 없습니다:', username);
+                return;
+            }
+
+            // Realtime 채널 연결
+            channel = supabase
+                .channel(`obs-${username}`)
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'donations',
+                        filter: `creator_id=eq.${creator.id}`
+                    },
+                    (payload) => {
+                        const newDonation = payload.new;
+                        setCurrentAlert({
+                            id: Date.now(),
+                            donorName: newDonation.donor_name || '익명',
+                            message: newDonation.message || '',
+                            amount: newDonation.amount || 0,
+                            sticker: newDonation.sticker || '🍩',
+                        });
+                        spawnDonuts(newDonation.amount || 0);
+                    }
+                )
+                .subscribe((status) => {
+                    setIsConnected(status === 'SUBSCRIBED');
+                });
+        }
+
+        setupRealtime();
 
         return () => {
-            supabase.removeChannel(channel);
+            if (channel) {
+                supabase.removeChannel(channel);
+            }
         };
     }, [username, spawnDonuts]);
 

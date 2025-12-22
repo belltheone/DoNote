@@ -145,9 +145,9 @@ export async function getDonations(creatorId: string): Promise<Donation[]> {
     const { data, error } = await supabase
         .from('donations')
         .select('*')
-        .eq('creatorId', creatorId)
+        .eq('creator_id', creatorId)
         .eq('status', 'paid')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error('후원 목록 조회 오류:', error);
@@ -474,7 +474,7 @@ export async function getMySettlements(creatorId: string): Promise<{
         .from('settlements')
         .select('*')
         .eq('creator_id', creatorId)
-        .order('created_at', { ascending: false });
+        .order('requested_at', { ascending: false });
 
     if (error) {
         console.error('내 정산 내역 조회 오류:', error);
@@ -486,7 +486,7 @@ export async function getMySettlements(creatorId: string): Promise<{
         amount: s.amount,
         netAmount: s.net_amount,
         status: s.status as SettlementStatus,
-        requestedAt: s.created_at,
+        requestedAt: s.requested_at,
         completedAt: s.completed_at,
     }));
 }

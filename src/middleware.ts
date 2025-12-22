@@ -34,11 +34,12 @@ export function rateLimiter(request: NextRequest, maxRequests: number = MAX_REQU
 function getCSPHeaders(): Record<string, string> {
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://t1.daumcdn.net https://ssl.daumcdn.net https://postcode.map.daum.net",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https: http:",
-        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com",
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io",
+        "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net",
         "frame-ancestors 'self'",
         "form-action 'self'",
     ].join('; ');

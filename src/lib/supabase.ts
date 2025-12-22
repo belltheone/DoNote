@@ -400,14 +400,14 @@ export async function getSettlementInfo(creatorId: string): Promise<SettlementIn
         .from('creator_settlement_info')
         .select('*')
         .eq('creator_id', creatorId)
-        .single();
+        .maybeSingle(); // 데이터가 없어도 에러 발생하지 않음
 
     if (error) {
-        if (error.code !== 'PGRST116') {
-            console.error('정산 정보 조회 오류:', error);
-        }
+        console.error('정산 정보 조회 오류:', error);
         return null;
     }
+
+    if (!data) return null;
 
     return {
         id: data.id,

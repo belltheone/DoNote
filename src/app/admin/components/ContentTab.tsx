@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { getAllNotices, Notice } from "@/data/notices";
 
 // 콘텐츠 타입
 interface BlogPost {
@@ -20,14 +21,6 @@ interface FAQ {
     order: number;
 }
 
-interface Notice {
-    id: string;
-    title: string;
-    type: "info" | "warning" | "success";
-    active: boolean;
-    createdAt: string;
-}
-
 // 실제 블로그 글 데이터 (blog/page.tsx와 동기화)
 const initialBlogPosts: BlogPost[] = [
     { id: "1", title: "도노트, 마음을 전하는 새로운 방법", category: "서비스 소개", status: "published", createdAt: "2025-12-21" },
@@ -42,17 +35,11 @@ const initialFaqs: FAQ[] = [
     { id: "3", question: "정산은 어떻게 받나요?", answer: "최소 10,000원 이상 모이면 등록된 계좌로 정산 신청이 가능합니다.", order: 3 },
 ];
 
-// 공지사항 데이터
-const initialNotices: Notice[] = [
-    { id: "1", title: "도노트 서비스 정식 오픈!", type: "success", active: true, createdAt: "2025-12-21" },
-    { id: "2", title: "연말 이벤트 진행 중", type: "info", active: true, createdAt: "2025-12-20" },
-];
-
 export function ContentTab() {
     const [activeSection, setActiveSection] = useState<"blog" | "faq" | "notice">("blog");
     const [blogPosts] = useState<BlogPost[]>(initialBlogPosts);
     const [faqs] = useState<FAQ[]>(initialFaqs);
-    const [notices] = useState<Notice[]>(initialNotices);
+    const [notices] = useState<Notice[]>(getAllNotices());
 
     return (
         <div className="space-y-6">

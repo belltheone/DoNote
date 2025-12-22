@@ -62,24 +62,24 @@ export function Header() {
                         </span>
                     </Link>
 
-                    {/* 네비게이션 - 중앙 정렬, 동일 크기 버튼 */}
-                    <nav className="hidden md:flex items-center absolute left-1/2 -translate-x-1/2">
-                        <Link href="/about" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                    {/* 네비게이션 - 중앙 정렬 */}
+                    <nav className="hidden md:flex items-center justify-center gap-1 absolute left-1/2 -translate-x-1/2">
+                        <Link href="/about" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             서비스 소개
                         </Link>
-                        <Link href="/widget" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
-                            위젯 미리보기
+                        <Link href="/widget" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
+                            위젯
                         </Link>
-                        <Link href="/guide" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/guide" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             시작가이드
                         </Link>
-                        <Link href="/faq" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/faq" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             FAQ
                         </Link>
-                        <Link href="/blog" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/blog" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             블로그
                         </Link>
-                        <Link href="/notice" className="w-28 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center">
+                        <Link href="/notice" className="px-3 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-sm text-center whitespace-nowrap">
                             공지
                         </Link>
                     </nav>

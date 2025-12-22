@@ -54,6 +54,15 @@ export default function SettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    // 계정 관리 모달 상태
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
+
     // 프로필 이미지 업로드 핸들러
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -124,6 +133,61 @@ export default function SettingsPage() {
         } finally {
             setIsSaving(false);
         }
+    };
+
+    // 비밀번호 변경 처리
+    const handlePasswordChange = async () => {
+        if (newPassword.length < 6) {
+            toast.error("비밀번호는 6자 이상이어야 합니다");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            toast.error("비밀번호가 일치하지 않습니다");
+            return;
+        }
+
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+
+            toast.success("비밀번호가 변경되었습니다! 🔐");
+            setShowPasswordModal(false);
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch {
+            toast.error("비밀번호 변경에 실패했습니다");
+        }
+    };
+
+    // 이메일 변경 처리
+    const handleEmailChange = async () => {
+        if (!newEmail || !newEmail.includes('@')) {
+            toast.error("올바른 이메일을 입력해주세요");
+            return;
+        }
+
+        try {
+            const { error } = await supabase.auth.updateUser({ email: newEmail });
+            if (error) throw error;
+
+            toast.success("인증 메일이 발송되었습니다. 확인해주세요! 📧");
+            setShowEmailModal(false);
+            setNewEmail('');
+        } catch {
+            toast.error("이메일 변경에 실패했습니다");
+        }
+    };
+
+    // 계정 삭제 처리 (확인 문구 필요)
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmText !== '삭제합니다') {
+            toast.error("'삭제합니다'를 정확히 입력해주세요");
+            return;
+        }
+
+        toast.error("계정 삭제는 관리자에게 문의해주세요");
+        setShowDeleteModal(false);
+        setDeleteConfirmText('');
     };
 
     if (isLoading) {
@@ -389,7 +453,7 @@ export default function SettingsPage() {
                     {[
                         { key: 'github', label: 'GitHub', placeholder: 'https://github.com/username' },
                         { key: 'blog', label: '블로그', placeholder: 'https://blog.example.com' },
-                        { key: 'twitter', label: 'Twitter', placeholder: 'https://twitter.com/username' },
+                        { key: 'twitter', label: 'X (Twitter)', placeholder: 'https://x.com/username' },
                         { key: 'youtube', label: 'YouTube', placeholder: 'https://youtube.com/@channel' },
                         { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/username' },
                     ].map((link) => (
@@ -481,20 +545,145 @@ export default function SettingsPage() {
                 </h3>
 
                 <div className="space-y-3">
-                    <button className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 transition-colors text-left px-4 flex items-center justify-between">
+                    <button
+                        onClick={() => setShowPasswordModal(true)}
+                        className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 transition-colors text-left px-4 flex items-center justify-between"
+                    >
                         <span>🔒 비밀번호 변경</span>
                         <span>→</span>
                     </button>
-                    <button className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 transition-colors text-left px-4 flex items-center justify-between">
+                    <button
+                        onClick={() => setShowEmailModal(true)}
+                        className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium border border-gray-200 dark:border-gray-600 hover:border-gray-300 transition-colors text-left px-4 flex items-center justify-between"
+                    >
                         <span>📧 이메일 변경</span>
                         <span>→</span>
                     </button>
-                    <button className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-red-500 font-medium border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left px-4 flex items-center justify-between">
+                    <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="w-full py-3 bg-white dark:bg-gray-700 rounded-xl text-red-500 font-medium border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left px-4 flex items-center justify-between"
+                    >
                         <span>🗑️ 계정 삭제</span>
                         <span>→</span>
                     </button>
                 </div>
             </motion.div>
+
+            {/* 비밀번호 변경 모달 */}
+            {showPasswordModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <motion.div
+                        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <h3 className="text-xl font-bold text-[#333] dark:text-white mb-4">🔒 비밀번호 변경</h3>
+                        <div className="space-y-4">
+                            <input
+                                type="password"
+                                placeholder="새 비밀번호 (6자 이상)"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none"
+                            />
+                            <input
+                                type="password"
+                                placeholder="비밀번호 확인"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none"
+                            />
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); }}
+                                className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handlePasswordChange}
+                                className="flex-1 py-3 bg-[#FF6B6B] rounded-xl text-white font-medium hover:bg-[#FF5252]"
+                            >
+                                변경
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* 이메일 변경 모달 */}
+            {showEmailModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <motion.div
+                        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <h3 className="text-xl font-bold text-[#333] dark:text-white mb-4">📧 이메일 변경</h3>
+                        <p className="text-sm text-[#666] dark:text-gray-400 mb-4">새 이메일로 인증 메일이 발송됩니다.</p>
+                        <input
+                            type="email"
+                            placeholder="새 이메일 주소"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none"
+                        />
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => { setShowEmailModal(false); setNewEmail(''); }}
+                                className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleEmailChange}
+                                className="flex-1 py-3 bg-[#FF6B6B] rounded-xl text-white font-medium hover:bg-[#FF5252]"
+                            >
+                                변경
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* 계정 삭제 모달 */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <motion.div
+                        className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-xl"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                    >
+                        <h3 className="text-xl font-bold text-red-500 mb-4">🗑️ 계정 삭제</h3>
+                        <p className="text-sm text-[#666] dark:text-gray-400 mb-4">
+                            계정을 삭제하면 모든 데이터가 영구적으로 삭제됩니다.<br />
+                            계속하려면 아래에 <strong>&apos;삭제합니다&apos;</strong>를 입력하세요.
+                        </p>
+                        <input
+                            type="text"
+                            placeholder="삭제합니다"
+                            value={deleteConfirmText}
+                            onChange={(e) => setDeleteConfirmText(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl border-2 border-red-200 dark:border-red-900 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-red-500 focus:outline-none"
+                        />
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(''); }}
+                                className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 rounded-xl text-[#666] dark:text-gray-300 font-medium"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={handleDeleteAccount}
+                                className="flex-1 py-3 bg-red-500 rounded-xl text-white font-medium hover:bg-red-600"
+                            >
+                                삭제
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 }

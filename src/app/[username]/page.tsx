@@ -115,6 +115,9 @@ export default function CreatorPage({
                 .order('created_at', { ascending: false })
                 .limit(20);
 
+            // 총 후원금 계산 (목표 현재 금액)
+            const totalDonations = (donationsData || []).reduce((sum, d) => sum + (d.amount || 0), 0);
+
             // social_links 객체를 배열로 변환하는 헬퍼
             const parseSocialLinks = (links: unknown): { name: string; url: string }[] => {
                 if (!links) return [];
@@ -137,7 +140,11 @@ export default function CreatorPage({
                 avatar: creatorData.avatar || '👨‍💻',
                 bio: creatorData.bio || '',
                 socialLinks: parseSocialLinks(creatorData.social_links),
-                goal: creatorData.goal || { title: '목표 없음', current: 0, target: 100000 },
+                goal: {
+                    title: creatorData.goal_title || '목표 없음',
+                    current: totalDonations, // donations 합계로 계산
+                    target: creatorData.goal_target || 100000,
+                },
                 notes: (donationsData || []).map(d => ({
                     id: d.id,
                     nickname: d.donor_name,

@@ -268,7 +268,7 @@ export default function GuidePage() {
                             <GuideStep
                                 step={2}
                                 title="팁 선택 (선택사항)"
-                                description="결제 시 도노트에 대한 감사의 팁을 추가할 수 있습니다. 기본값은 0원이며, 1,000원/2,000원/5,000원 중 선택 가능합니다."
+                                description="결제 시 도노트에 대한 감사의 팁을 추가할 수 있습니다. 기본값은 0원이며, 500원의 작은 감사를 보낼 수 있습니다."
                             >
                                 <div className="bg-gradient-to-r from-[#FF6B6B]/10 to-[#FFD95A]/10 rounded-xl p-4 border border-[#FFD95A]/30">
                                     <p className="text-sm text-[#666] dark:text-gray-400">

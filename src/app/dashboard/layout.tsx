@@ -127,7 +127,7 @@ export default function DashboardLayout({
                     {user && (
                         <div className={`flex items-center gap-3 ${sidebarOpen ? '' : 'justify-center'}`}>
                             <div className="w-10 h-10 rounded-full bg-[#FFFACD] dark:bg-yellow-900/50 flex items-center justify-center text-xl overflow-hidden">
-                                {user.avatar.startsWith('http') ? (
+                                {user.avatar && (user.avatar.startsWith('http://') || user.avatar.startsWith('https://')) ? (
                                     <Image
                                         src={user.avatar}
                                         alt={user.displayName}
@@ -136,7 +136,7 @@ export default function DashboardLayout({
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    user.avatar
+                                    <span>{user.avatar || '👨‍💻'}</span>
                                 )}
                             </div>
                             {sidebarOpen && (

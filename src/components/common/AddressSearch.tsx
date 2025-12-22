@@ -1,10 +1,36 @@
 "use client";
 // 다음 우편번호 검색 컴포넌트
-// react-daum-postcode 사용
+// next/script를 사용하여 외부 스크립트 로딩
 
-import { useState } from "react";
-import DaumPostcodeEmbed, { Address } from "react-daum-postcode";
+import { useState, useEffect, useCallback } from "react";
+import Script from "next/script";
 import { motion, AnimatePresence } from "framer-motion";
+
+// 다음 우편번호 글로벌 타입 정의
+declare global {
+    interface Window {
+        daum: {
+            Postcode: new (options: {
+                oncomplete: (data: DaumPostcodeResult) => void;
+                onclose?: () => void;
+                width?: string;
+                height?: string;
+            }) => {
+                embed: (element: HTMLElement) => void;
+                open: () => void;
+            };
+        };
+    }
+}
+
+// 다음 우편번호 결과 타입
+interface DaumPostcodeResult {
+    zonecode: string;
+    address: string;
+    roadAddress: string;
+    jibunAddress: string;
+    addressType: string;
+}
 
 interface AddressSearchProps {
     onComplete: (data: {
@@ -24,19 +50,48 @@ export function AddressSearch({
     value = "",
 }: AddressSearchProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
-    // 주소 선택 완료 핸들러
-    const handleComplete = (data: Address) => {
-        onComplete({
-            zonecode: data.zonecode,
-            address: data.roadAddress || data.jibunAddress,
-            addressType: data.addressType,
-        });
-        setIsOpen(false);
-    };
+    // 주소 검색 실행
+    const openPostcode = useCallback(() => {
+        if (!isScriptLoaded || typeof window === "undefined" || !window.daum) {
+            console.error("다음 우편번호 스크립트가 로드되지 않았습니다.");
+            return;
+        }
+
+        new window.daum.Postcode({
+            oncomplete: (data: DaumPostcodeResult) => {
+                onComplete({
+                    zonecode: data.zonecode,
+                    address: data.roadAddress || data.jibunAddress,
+                    addressType: data.addressType,
+                });
+                setIsOpen(false);
+            },
+            onclose: () => {
+                setIsOpen(false);
+            },
+            width: "100%",
+            height: "100%",
+        }).open();
+    }, [isScriptLoaded, onComplete]);
+
+    // 모달 열릴 때 주소 검색 실행
+    useEffect(() => {
+        if (isOpen && isScriptLoaded) {
+            openPostcode();
+        }
+    }, [isOpen, isScriptLoaded, openPostcode]);
 
     return (
         <div className={className}>
+            {/* 다음 우편번호 스크립트 로드 */}
+            <Script
+                src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+                strategy="lazyOnload"
+                onLoad={() => setIsScriptLoaded(true)}
+            />
+
             {/* 주소 표시 및 검색 버튼 */}
             <div className="flex gap-2">
                 <input
@@ -55,47 +110,6 @@ export function AddressSearch({
                     🔍 주소 검색
                 </button>
             </div>
-
-            {/* 모달 */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setIsOpen(false)}
-                    >
-                        <motion.div
-                            className="bg-white rounded-xl p-4 w-full max-w-lg mx-4 max-h-[80vh] overflow-hidden"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            {/* 헤더 */}
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-[#333]">📍 주소 검색</h3>
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-
-                            {/* 다음 우편번호 검색 */}
-                            <div className="h-[400px]">
-                                <DaumPostcodeEmbed
-                                    onComplete={handleComplete}
-                                    style={{ width: "100%", height: "100%" }}
-                                    autoClose={false}
-                                />
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }

@@ -41,6 +41,7 @@ export default function WidgetPage() {
     const [copied, setCopied] = useState(false);
     const [copiedType, setCopiedType] = useState<string | null>(null);
     const [handle, setHandle] = useState('demo');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isLoadingHandle, setIsLoadingHandle] = useState(true);
 
     // 실제 핸들 가져오기

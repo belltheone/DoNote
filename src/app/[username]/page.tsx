@@ -64,8 +64,8 @@ const noteColors = [
     "bg-[#F3E5F5]", // 보라색
 ];
 
-// 랜덤 회전 각도
-const rotations = [
+// 랜덤 회전 각도 (추후 사용 예정)
+const _rotations = [
     "rotate-[-4deg]",
     "rotate-[3deg]",
     "rotate-[-2deg]",

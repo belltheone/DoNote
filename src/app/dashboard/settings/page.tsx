@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth";
 import { supabase, upsertCreatorProfile } from "@/lib/supabase";
 import { toast } from "sonner";
+import Image from "next/image";
 
 // 아바타 옵션
 const avatarOptions = ["👨‍💻", "👩‍💻", "🧑‍🎨", "👨‍🎤", "👩‍🎤", "🐱", "🐶", "🦊", "🐻", "🐼", "🐨", "🦁", "🦄", "🌟", "🎮", "🎨"];
@@ -259,9 +260,15 @@ export default function SettingsPage() {
                     ) : (
                         <div className="flex items-center gap-4">
                             {/* 프로필 이미지 미리보기 */}
-                            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
+                            <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center relative">
                                 {profileImage ? (
-                                    <img src={profileImage} alt="프로필" className="w-full h-full object-cover" />
+                                    <Image
+                                        src={profileImage}
+                                        alt="프로필"
+                                        fill
+                                        sizes="80px"
+                                        className="object-cover"
+                                    />
                                 ) : (
                                     <span className="text-4xl text-gray-400">👤</span>
                                 )}

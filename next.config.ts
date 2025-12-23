@@ -26,6 +26,30 @@ const nextConfig: NextConfig = {
         hostname: '*.googleusercontent.com',
         pathname: '/**',
       },
+      {
+        // Kakao 프로필 이미지
+        protocol: 'https',
+        hostname: 'k.kakaocdn.net',
+        pathname: '/**',
+      },
+      {
+        // Kakao 프로필 이미지 (대체 도메인)
+        protocol: 'https',
+        hostname: 'img1.kakaocdn.net',
+        pathname: '/**',
+      },
+      {
+        // GitHub 아바타
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+        pathname: '/**',
+      },
+      {
+        // Supabase Storage
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/**',
+      },
     ],
   },
 

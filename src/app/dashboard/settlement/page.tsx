@@ -12,8 +12,7 @@ import {
     getSettlementInfo,
     upsertSettlementInfo,
     getRealStats,
-    SettlementStatus,
-    SettlementInfo
+    SettlementStatus
 } from "@/lib/supabase";
 import { toast } from "sonner";
 import { AddressSearch } from "@/components/common/AddressSearch";

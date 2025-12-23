@@ -46,7 +46,7 @@ export default function DonatePage({
 
     // 크리에이터 정보
     const [creator, setCreator] = useState<Creator | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingCreator, setIsLoadingCreator] = useState(true);
 
     // 스텝 상태 (1: 메시지, 2: 금액, 3: 닉네임, 4: 결제, 5: 완료)
     const [step, setStep] = useState(1);
@@ -57,8 +57,8 @@ export default function DonatePage({
     const [amount, setAmount] = useState<number | null>(null);
     const [customAmount, setCustomAmount] = useState("");
     const [nickname, setNickname] = useState("");
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [paymentError, setPaymentError] = useState("");
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+    const [paymentErrorMsg, setPaymentErrorMsg] = useState("");
     const [tipEnabled, setTipEnabled] = useState(true); // 도노트 팁 500원 기본 활성화
 
     // 도노트 팁 금액
@@ -88,7 +88,7 @@ export default function DonatePage({
                     avatar: data.avatar || '👨‍💻',
                 });
             }
-            setIsLoading(false);
+            setIsLoadingCreator(false);
         };
         loadCreator();
     }, [username]);
@@ -119,8 +119,8 @@ export default function DonatePage({
             return;
         }
 
-        setIsProcessing(true);
-        setPaymentError("");
+        setIsProcessingPayment(true);
+        setPaymentErrorMsg("");
         setStep(4); // 결제 중 화면
 
         try {
@@ -144,17 +144,17 @@ export default function DonatePage({
                 toast.success('후원이 완료되었습니다! 🎉');
                 setStep(5); // 완료 화면
             } else {
-                setPaymentError(result.error || '결제에 실패했습니다');
+                setPaymentErrorMsg(result.error || '결제에 실패했습니다');
                 toast.error(result.error || '결제에 실패했습니다');
                 setStep(3); // 다시 결제 시도
             }
         } catch (error) {
             console.error('결제 오류:', error);
-            setPaymentError('결제 처리 중 오류가 발생했습니다');
+            setPaymentErrorMsg('결제 처리 중 오류가 발생했습니다');
             toast.error('결제 처리 중 오류가 발생했습니다');
             setStep(3);
         } finally {
-            setIsProcessing(false);
+            setIsProcessingPayment(false);
         }
     };
 
@@ -186,8 +186,15 @@ export default function DonatePage({
                     )}
                 </div>
 
+                {/* 로딩 상태 */}
+                {isLoadingCreator && (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin w-8 h-8 border-4 border-[#FFD95A] border-t-transparent rounded-full"></div>
+                    </div>
+                )}
+
                 {/* 크리에이터 미니 프로필 */}
-                {step < 5 && (
+                {!isLoadingCreator && step < 5 && (
                     <motion.div
                         className="flex items-center gap-4 mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100"
                         initial={{ opacity: 0, y: -10 }}
@@ -201,6 +208,23 @@ export default function DonatePage({
                             <p className="text-sm text-[#666]">님에게 쪽지 보내기 ✉️</p>
                         </div>
                     </motion.div>
+                )}
+
+                {/* 결제 에러 표시 */}
+                {paymentErrorMsg && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                        ⚠️ {paymentErrorMsg}
+                    </div>
+                )}
+
+                {/* 결제 처리 중 오버레이 */}
+                {isProcessingPayment && step !== 4 && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                        <div className="bg-white p-6 rounded-xl shadow-xl text-center">
+                            <div className="animate-spin w-8 h-8 border-4 border-[#FF6B6B] border-t-transparent rounded-full mx-auto mb-4"></div>
+                            <p className="text-[#333]">결제 처리 중...</p>
+                        </div>
+                    </div>
                 )}
 
                 {/* 스텝별 컨텐츠 */}

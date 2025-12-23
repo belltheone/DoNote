@@ -4,7 +4,7 @@
 import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { getActiveNotices, Notice } from "@/data/notices";
+import { getActiveNotices } from "@/data/notices";
 import { BellIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 

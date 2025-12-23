@@ -234,19 +234,17 @@ export default function DashboardLayout({
                             {/* 내 페이지 보기 */}
                             <Link
                                 href={`/${user?.handle || 'demo'}`}
-                                className="px-2 md:px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors flex items-center gap-2 text-sm md:text-base"
+                                className="px-3 md:px-4 py-2 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white transition-colors text-sm md:text-base"
                             >
-                                <span className="hidden md:inline">내 페이지 보기</span>
-                                <span className="md:hidden">👤</span>
+                                내 페이지
                             </Link>
 
                             {/* 로그아웃 */}
                             <button
                                 onClick={handleLogout}
-                                className="px-2 md:px-4 py-2 text-[#999] dark:text-gray-500 hover:text-[#FF6B6B] transition-colors text-sm md:text-base"
+                                className="px-3 md:px-4 py-2 text-[#999] dark:text-gray-500 hover:text-[#FF6B6B] transition-colors text-sm md:text-base"
                             >
-                                <span className="hidden md:inline">로그아웃</span>
-                                <span className="md:hidden">🚪</span>
+                                로그아웃
                             </button>
                         </div>
                     </div>

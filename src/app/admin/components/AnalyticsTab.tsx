@@ -1,9 +1,10 @@
 "use client";
-// 분석/통계 탭 - 방문자, 인기 크리에이터, 차트
+// 분석/통계 탭 - 방문자, 인기 크리에이터, 차트, 결제 알림
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import type { CreatorProfile, Donation } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 // Props 타입
 interface AnalyticsTabProps {
@@ -20,11 +21,33 @@ interface GA4Stats {
     bounceRate: string;
 }
 
+// 웹훅 로그 타입
+interface WebhookLog {
+    id: string;
+    event_type: string;
+    payment_id: string | null;
+    status: 'received' | 'processed' | 'error';
+    error_message: string | null;
+    created_at: string;
+}
+
+// 이벤트 타입별 한글 라벨
+const eventTypeLabels: Record<string, { label: string; emoji: string; color: string }> = {
+    'Transaction.Paid': { label: '결제 완료', emoji: '✅', color: 'text-green-600' },
+    'Transaction.Cancelled': { label: '결제 취소', emoji: '❌', color: 'text-red-600' },
+    'Transaction.PartialCancelled': { label: '부분 취소', emoji: '⚠️', color: 'text-orange-600' },
+    'Transaction.Failed': { label: '결제 실패', emoji: '💔', color: 'text-red-500' },
+};
+
 export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
     // GA4 방문자 통계 상태
     const [visitorStats, setVisitorStats] = useState<GA4Stats | null>(null);
     const [ga4Loading, setGa4Loading] = useState(true);
     const [ga4Error, setGa4Error] = useState<string | null>(null);
+
+    // 웹훅 로그 상태
+    const [webhookLogs, setWebhookLogs] = useState<WebhookLog[]>([]);
+    const [logsLoading, setLogsLoading] = useState(true);
 
     // GA4 데이터 로드
     useEffect(() => {
@@ -48,6 +71,42 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
 
         fetchGA4Data();
     }, []);
+
+    // 웹훅 로그 로드
+    useEffect(() => {
+        const fetchWebhookLogs = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('webhook_logs')
+                    .select('id, event_type, payment_id, status, error_message, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                if (!error && data) {
+                    setWebhookLogs(data);
+                }
+            } catch (err) {
+                console.error('웹훅 로그 로드 오류:', err);
+            } finally {
+                setLogsLoading(false);
+            }
+        };
+
+        fetchWebhookLogs();
+    }, []);
+
+    // 시간 포맷
+    const formatTime = (dateStr: string) => {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        if (minutes < 1) return '방금';
+        if (minutes < 60) return `${minutes}분 전`;
+        if (hours < 24) return `${hours}시간 전`;
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+    };
 
     // 크리에이터별 통계 - 실제 데이터
     const creatorStats = creators.map(creator => {
@@ -242,6 +301,51 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     </div>
                 </div>
             )}
+
+            {/* 결제 알림 (최근 웹훅 로그) */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-[#333] mb-4">🔔 최근 결제 알림</h3>
+                {logsLoading ? (
+                    <div className="text-center py-4">
+                        <div className="animate-spin w-6 h-6 border-2 border-[#FF6B6B] border-t-transparent rounded-full mx-auto" />
+                    </div>
+                ) : webhookLogs.length === 0 ? (
+                    <p className="text-[#999] text-sm text-center py-4">
+                        아직 수신된 결제 알림이 없습니다.
+                    </p>
+                ) : (
+                    <div className="space-y-2">
+                        {webhookLogs.map((log) => {
+                            const eventInfo = eventTypeLabels[log.event_type] || {
+                                label: log.event_type,
+                                emoji: '📌',
+                                color: 'text-gray-600',
+                            };
+                            return (
+                                <div
+                                    key={log.id}
+                                    className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span>{eventInfo.emoji}</span>
+                                        <span className={`font-medium ${eventInfo.color}`}>
+                                            {eventInfo.label}
+                                        </span>
+                                        {log.payment_id && (
+                                            <code className="text-xs bg-gray-200 px-1 rounded">
+                                                {log.payment_id.substring(0, 20)}...
+                                            </code>
+                                        )}
+                                    </div>
+                                    <span className="text-xs text-[#999]">
+                                        {formatTime(log.created_at)}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

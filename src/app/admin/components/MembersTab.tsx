@@ -153,37 +153,6 @@ export function MembersTab({ creators, donations }: MembersTabProps) {
                 </div>
             )}
 
-            {/* 후원자 목록 */}
-            {(memberType === "all" || memberType === "donor") && (
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
-                    <div className="bg-green-50 px-6 py-3 border-b">
-                        <h4 className="font-bold text-green-700">💚 후원자</h4>
-                    </div>
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="text-left text-[#666] font-medium px-6 py-3">닉네임</th>
-                                <th className="text-right text-[#666] font-medium px-6 py-3">총 후원금</th>
-                                <th className="text-right text-[#666] font-medium px-6 py-3">후원 횟수</th>
-                                <th className="text-left text-[#666] font-medium px-6 py-3">최근 후원</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {donors.filter(d => d.nickname.includes(searchTerm)).map((donor, idx) => (
-                                <tr key={idx} className="border-t border-gray-100">
-                                    <td className="px-6 py-4 font-medium text-[#333]">🎁 {donor.nickname}</td>
-                                    <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">
-                                        ₩{donor.totalAmount.toLocaleString()}
-                                    </td>
-                                    <td className="px-6 py-4 text-right text-[#666]">{donor.count}건</td>
-                                    <td className="px-6 py-4 text-[#666]">{new Date(donor.lastDonation).toLocaleDateString('ko-KR')}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
             {/* 크리에이터 목록 */}
             {(memberType === "all" || memberType === "creator") && (
                 <>
@@ -330,6 +299,37 @@ export function MembersTab({ creators, donations }: MembersTabProps) {
                         </div>
                     )}
                 </>
+            )}
+
+            {/* 후원자 목록 */}
+            {(memberType === "all" || memberType === "donor") && (
+                <div className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                    <div className="bg-green-50 px-6 py-3 border-b">
+                        <h4 className="font-bold text-green-700">💚 후원자</h4>
+                    </div>
+                    <table className="w-full">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th className="text-left text-[#666] font-medium px-6 py-3">닉네임</th>
+                                <th className="text-right text-[#666] font-medium px-6 py-3">총 후원금</th>
+                                <th className="text-right text-[#666] font-medium px-6 py-3">후원 횟수</th>
+                                <th className="text-left text-[#666] font-medium px-6 py-3">최근 후원</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {donors.filter(d => d.nickname.includes(searchTerm)).map((donor, idx) => (
+                                <tr key={idx} className="border-t border-gray-100">
+                                    <td className="px-6 py-4 font-medium text-[#333]">🎁 {donor.nickname}</td>
+                                    <td className="px-6 py-4 text-right text-[#FF6B6B] font-bold">
+                                        ₩{donor.totalAmount.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4 text-right text-[#666]">{donor.count}건</td>
+                                    <td className="px-6 py-4 text-[#666]">{new Date(donor.lastDonation).toLocaleDateString('ko-KR')}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );

@@ -1,6 +1,6 @@
 "use client";
-// 정산 신청 페이지 - 정산하기 (Settlement)
-// 정산 정보 입력 + 정산 신청 통합 페이지
+// 정산 관리 페이지 - 정산 정보 등록 및 정산 내역 확인
+// 매월 자동 정산 시스템
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -293,9 +293,9 @@ export default function SettlementPage() {
                 animate={{ opacity: 1, y: 0 }}
             >
                 <h2 className="text-2xl font-bold text-[#333] dark:text-white flex items-center gap-2">
-                    <span>💳</span> 정산하기
+                    <span>💳</span> 정산 관리
                 </h2>
-                <p className="text-[#666] dark:text-gray-400 mt-1">받은 후원금을 정산받으세요</p>
+                <p className="text-[#666] dark:text-gray-400 mt-1">정산 정보를 등록하고 정산 내역을 확인하세요</p>
             </motion.div>
 
             {/* 정산 가능 금액 카드 */}
@@ -340,9 +340,27 @@ export default function SettlementPage() {
                         : 'bg-gray-100 dark:bg-gray-700 text-[#666] dark:text-gray-300'
                         }`}
                 >
-                    정산 신청
+                    정산 내역
                 </button>
             </div>
+
+            {/* 매월 자동 정산 안내 배너 */}
+            <motion.div
+                className="bg-gradient-to-r from-[#E8F5E9] to-[#C8E6C9] dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-4 border border-green-200 dark:border-green-700 mb-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                <div className="flex items-start gap-3">
+                    <span className="text-2xl">📅</span>
+                    <div>
+                        <h4 className="font-bold text-green-800 dark:text-green-300">매월 자동 정산 시스템</h4>
+                        <p className="text-sm text-green-700 dark:text-green-400 mt-1">
+                            모든 크리에이터에게 <strong>매월 15일</strong>에 자동으로 정산됩니다.<br />
+                            최소 정산 금액(₩10,000) 미만은 다음달로 이월됩니다.
+                        </p>
+                    </div>
+                </div>
+            </motion.div>
 
             {/* 정산 정보 입력 탭 */}
             {activeTab === 'info' && (
@@ -655,10 +673,10 @@ export default function SettlementPage() {
                     {/* 안내 */}
                     <div className="bg-[#FFFACD] dark:bg-yellow-900/20 rounded-xl p-4 border-2 border-dashed border-[#FFD95A]">
                         <p className="text-sm text-[#666] dark:text-gray-300">
-                            💡 <strong>정산 안내</strong>: 정산 신청 후 영업일 기준 3-5일 이내에 입금됩니다. 최소 정산 금액은 ₩1,000입니다.
+                            💡 <strong>자동 정산 안내</strong>: 매월 15일에 자동으로 정산이 진행됩니다. 정산 정보가 등록되어 있어야 합니다.
                         </p>
                         <p className="text-xs text-[#999] dark:text-gray-500 mt-2">
-                            ※ 플랫폼 수수료 5%가 차감됩니다.
+                            ※ 플랫폼 수수료 5%가 차감됩니다. 최소 정산 금액은 ₩10,000입니다.
                         </p>
                     </div>
                 </motion.div>

@@ -11,6 +11,7 @@ interface SiteSettings {
     feeRate: number;
     minSettlementAmount: number;
     autoSettlement: boolean;
+    autoSettlementDay: number; // 매월 자동 정산일 (1-28)
     emailNotifications: boolean;
 }
 
@@ -28,6 +29,7 @@ export function SettingsTab() {
         feeRate: 5,
         minSettlementAmount: 10000,
         autoSettlement: true,
+        autoSettlementDay: 15, // 기본값: 매월 15일
         emailNotifications: true,
     });
 
@@ -90,9 +92,9 @@ export function SettingsTab() {
                 transition={{ delay: 0.1 }}
             >
                 <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-2">
-                    💰 수수료 및 정산
+                    💰 수수료 및 자동 정산
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-[#333] mb-2">수수료율 (%)</label>
                         <input
@@ -115,19 +117,35 @@ export function SettingsTab() {
                             step={1000}
                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#FFD95A] focus:outline-none"
                         />
-                        <p className="text-xs text-[#999] mt-1">현재: ₩{settings.minSettlementAmount.toLocaleString()} 이상</p>
+                        <p className="text-xs text-[#999] mt-1">미만은 다음달로 이월</p>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-[#333] mb-2">자동 정산일</label>
+                        <select
+                            value={settings.autoSettlementDay}
+                            onChange={(e) => setSettings({ ...settings, autoSettlementDay: Number(e.target.value) })}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#FFD95A] focus:outline-none"
+                        >
+                            {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
+                                <option key={day} value={day}>매월 {day}일</option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-[#999] mt-1">매월 해당일에 자동 정산</p>
                     </div>
                 </div>
-                <div className="mt-4 flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={settings.autoSettlement}
-                            onChange={(e) => setSettings({ ...settings, autoSettlement: e.target.checked })}
-                            className="w-5 h-5 rounded border-gray-300 text-[#FF6B6B] focus:ring-[#FFD95A]"
-                        />
-                        <span className="text-[#333]">매월 자동 정산 활성화</span>
-                    </label>
+
+                {/* 자동 정산 안내 */}
+                <div className="mt-4 p-4 bg-gradient-to-r from-[#FF6B6B]/10 to-[#FFD95A]/10 rounded-xl border border-[#FFD95A]/30">
+                    <div className="flex items-start gap-3">
+                        <span className="text-2xl">📅</span>
+                        <div>
+                            <h4 className="font-bold text-[#333]">매월 자동 정산 시스템</h4>
+                            <p className="text-sm text-[#666] mt-1">
+                                모든 크리에이터에게 매월 {settings.autoSettlementDay}일에 자동으로 정산됩니다.<br />
+                                최소 정산 금액(₩{settings.minSettlementAmount.toLocaleString()}) 미만은 다음달로 이월됩니다.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </motion.div>
 

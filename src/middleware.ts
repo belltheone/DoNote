@@ -34,12 +34,15 @@ export function rateLimiter(request: NextRequest, maxRequests: number = MAX_REQU
 function getCSPHeaders(): Record<string, string> {
     const csp = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://t1.daumcdn.net https://ssl.daumcdn.net https://postcode.map.daum.net",
+        // script-src: 포트원 SDK, Google Analytics, Daum 주소 API
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.portone.io https://www.googletagmanager.com https://www.google-analytics.com https://t1.daumcdn.net https://ssl.daumcdn.net https://postcode.map.daum.net",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https: http:",
-        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io",
-        "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net",
+        // connect-src: 포트원 API, Supabase, Google Analytics
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io https://*.portone.io",
+        // frame-src: 포트원 결제창, Daum 주소 API, PG사 결제창
+        "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net https://*.portone.io https://*.kcp.co.kr https://*.nicepay.co.kr https://*.inicis.com https://*.kakaopay.com https://*.tosspayments.com https://*.naverpay.com https://*.danal.co.kr",
         "frame-ancestors 'self'",
         "form-action 'self'",
     ].join('; ');

@@ -27,6 +27,14 @@ interface WebhookBodyV2 {
 }
 
 export async function POST(request: Request) {
+    // Supabase 클라이언트 초기화 (상단에서)
+    const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    let logId: string | null = null;
+
     try {
         // 1. 웹훅 본문 가져오기
         const bodyText = await request.text();
@@ -37,6 +45,24 @@ export async function POST(request: Request) {
             paymentId: body.data?.paymentId,
             timestamp: body.timestamp,
         });
+
+        // 1-1. 웹훅 로그 저장 (수신 즉시)
+        const { data: logData, error: logError } = await supabaseAdmin
+            .from('webhook_logs')
+            .insert({
+                event_type: body.type,
+                payment_id: body.data?.paymentId || null,
+                data: body,
+                status: 'received',
+            })
+            .select('id')
+            .single();
+
+        if (logError) {
+            console.warn('[Webhook V2] 로그 저장 실패 (무시):', logError.message);
+        } else {
+            logId = logData?.id;
+        }
 
         // 2. 웹훅 시그니처 검증 (선택사항 - 시크릿이 있는 경우)
         if (PORTONE_WEBHOOK_SECRET) {
@@ -69,13 +95,7 @@ export async function POST(request: Request) {
 
         const { paymentId } = body.data;
 
-        // 3. Supabase 클라이언트 초기화
-        const supabaseAdmin = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-        );
-
-        // 4. 포트원 API로 결제 정보 조회 (검증용)
+        // 3. 포트원 API로 결제 정보 조회 (검증용)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let paymentData: any = null;
         if (PORTONE_API_SECRET) {
@@ -148,6 +168,14 @@ export async function POST(request: Request) {
                     console.log('[Webhook V2] 결제 완료 처리 성공:', donation.id);
                 }
 
+                // 로그 상태 업데이트
+                if (logId) {
+                    await supabaseAdmin
+                        .from('webhook_logs')
+                        .update({ status: 'processed', processed_at: new Date().toISOString() })
+                        .eq('id', logId);
+                }
+
                 return NextResponse.json({ status: 'success', message: '결제 완료 처리됨' });
             }
 
@@ -207,6 +235,19 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error('[Webhook V2] 처리 오류:', error);
+
+        // 로그 상태를 error로 업데이트
+        if (logId) {
+            await supabaseAdmin
+                .from('webhook_logs')
+                .update({
+                    status: 'error',
+                    error_message: String(error),
+                    processed_at: new Date().toISOString(),
+                })
+                .eq('id', logId);
+        }
+
         return NextResponse.json(
             { error: '웹훅 처리 중 오류 발생', details: String(error) },
             { status: 500 }

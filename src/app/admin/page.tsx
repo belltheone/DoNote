@@ -28,6 +28,7 @@ import { SettingsTab } from "./components/SettingsTab";
 import { AnalyticsTab } from "./components/AnalyticsTab";
 import { SystemTab } from "./components/SystemTab";
 import { RevenueTab } from "./components/RevenueTab";
+import { NotificationsTab } from "./components/NotificationsTab";
 
 // 관리자 이메일
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
@@ -44,7 +45,7 @@ interface Settlement {
 }
 
 // 탭 타입
-type TabId = 'dashboard' | 'members' | 'donations' | 'tips' | 'settlements' | 'content' | 'settings' | 'analytics' | 'system' | 'revenue';
+type TabId = 'dashboard' | 'members' | 'donations' | 'tips' | 'settlements' | 'content' | 'settings' | 'analytics' | 'system' | 'revenue' | 'notifications';
 
 // 탭 설정
 const tabs: { id: TabId; label: string; icon: string }[] = [
@@ -58,6 +59,7 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
     { id: 'analytics', label: '분석', icon: '📈' },
     { id: 'system', label: '시스템', icon: '🖥️' },
     { id: 'revenue', label: '수익', icon: '💰' },
+    { id: 'notifications', label: '알림', icon: '🔔' },
 ];
 
 export default function AdminPage() {
@@ -316,6 +318,9 @@ export default function AdminPage() {
                     {activeTab === 'system' && <SystemTab />}
                     {activeTab === 'revenue' && (
                         <RevenueTab creators={creators} donations={donations} />
+                    )}
+                    {activeTab === 'notifications' && (
+                        <NotificationsTab supabaseClient={supabase} />
                     )}
                 </motion.div>
             </div>

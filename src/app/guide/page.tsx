@@ -209,7 +209,7 @@ export default function GuidePage() {
                             <GuideStep
                                 step={1}
                                 title="정산 정보 등록"
-                                description="대시보드 > 정산하기 메뉴에서 실명, 주소, 계좌 정보를 등록하세요."
+                                description="대시보드 > 정산 메뉴에서 실명, 주소, 계좌 정보를 등록하세요."
                             >
                                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-[#666] dark:text-gray-300 text-sm">
                                     <p className="mb-2">📍 <b>주소 검색</b>: 다음 우편번호 서비스로 간편하게 입력</p>
@@ -220,14 +220,21 @@ export default function GuidePage() {
 
                             <GuideStep
                                 step={2}
-                                title="정산 신청"
-                                description="누적 후원금이 10,000원 이상이면 정산을 신청할 수 있습니다. 계좌 인증이 완료된 계좌로만 정산 가능합니다."
-                            />
+                                title="매월 자동 정산"
+                                description="매월 15일에 자동으로 정산됩니다. 정산 정보가 등록되어 있어야 합니다."
+                            >
+                                <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 border border-green-200 dark:border-green-700">
+                                    <p className="text-sm text-green-700 dark:text-green-400">
+                                        📅 <strong>매월 15일</strong> 자동 정산<br />
+                                        최소 정산 금액(₩10,000) 미만은 다음달로 이월됩니다.
+                                    </p>
+                                </div>
+                            </GuideStep>
 
                             <GuideStep
                                 step={3}
                                 title="입금 확인"
-                                description="정산 신청 후 관리자 승인을 거쳐 영업일 기준 3-5일 내에 입금됩니다."
+                                description="정산일 후 영업일 기준 3-5일 내에 등록된 계좌로 입금됩니다."
                             >
                                 <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-4 text-white">
                                     <p className="text-sm opacity-80 mb-1">수수료 안내</p>

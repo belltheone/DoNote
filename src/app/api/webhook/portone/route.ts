@@ -1,80 +1,73 @@
-// 포트원 결제 웹훅 API
+// 포트원 V2 결제 웹훅 API
 // 결제 완료, 취소 등 이벤트 발생 시 포트원에서 호출하는 엔드포인트
-// 참고: https://developers.portone.io/opi/ko/integration/webhook/readme-v1
+// 참고: https://developers.portone.io/opi/ko/integration/webhook/readme-v2
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import * as PortOne from '@portone/server-sdk';
 
 // 동적 라우트로 설정 (빌드 시 실행 방지)
 export const dynamic = 'force-dynamic';
 
 // 포트원 API 설정
-const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET;
+const PORTONE_API_SECRET = process.env.PORTONE_V2_API_SECRET || process.env.PORTONE_API_SECRET;
+const PORTONE_WEBHOOK_SECRET = process.env.PORTONE_WEBHOOK_SECRET;
 
-// 웹훅 요청 본문 타입
-interface WebhookBody {
-    imp_uid: string;      // 포트원 결제 고유번호
-    merchant_uid: string; // 주문번호
-    status: 'ready' | 'paid' | 'cancelled' | 'failed'; // 결제 상태
-    cancellation_id?: string; // 취소 시 취소 ID
-}
-
-// 포트원 액세스 토큰 발급
-async function getPortOneAccessToken(): Promise<string> {
-    const response = await fetch('https://api.iamport.kr/users/getToken', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            imp_key: process.env.NEXT_PUBLIC_PORTONE_IMP_CODE,
-            imp_secret: PORTONE_API_SECRET,
-        }),
-    });
-
-    const data = await response.json();
-    if (data.code !== 0) {
-        throw new Error(`포트원 토큰 발급 실패: ${data.message}`);
-    }
-    return data.response.access_token;
-}
-
-// 포트원에서 결제 정보 조회
-async function getPaymentData(impUid: string, accessToken: string) {
-    const response = await fetch(`https://api.iamport.kr/payments/${impUid}`, {
-        headers: { 'Authorization': accessToken },
-    });
-
-    const data = await response.json();
-    if (data.code !== 0) {
-        throw new Error(`결제 정보 조회 실패: ${data.message}`);
-    }
-    return data.response;
+// V2 웹훅 요청 본문 타입 (2024-04-25 버전)
+interface WebhookBodyV2 {
+    type: string;           // Transaction.Paid, Transaction.Cancelled 등
+    timestamp: string;      // RFC 3339 형식
+    data: {
+        storeId: string;    // 상점 ID
+        paymentId?: string; // 결제 고유 번호 (고객사 채번)
+        transactionId?: string; // 포트원 결제 시도 번호
+        cancellationId?: string; // 취소 ID (optional)
+        billingKey?: string; // 빌링키 (optional)
+    };
 }
 
 export async function POST(request: Request) {
     try {
-        // 1. 웹훅 요청 본문 파싱
-        const body: WebhookBody = await request.json();
-        const { imp_uid, merchant_uid, status } = body;
+        // 1. 웹훅 본문 가져오기
+        const bodyText = await request.text();
+        const body: WebhookBodyV2 = JSON.parse(bodyText);
 
-        console.log('[Webhook] 수신:', { imp_uid, merchant_uid, status });
+        console.log('[Webhook V2] 수신:', {
+            type: body.type,
+            paymentId: body.data?.paymentId,
+            timestamp: body.timestamp,
+        });
 
-        // 필수 값 확인
-        if (!imp_uid || !merchant_uid) {
-            return NextResponse.json(
-                { error: 'imp_uid와 merchant_uid가 필요합니다.' },
-                { status: 400 }
-            );
+        // 2. 웹훅 시그니처 검증 (선택사항 - 시크릿이 있는 경우)
+        if (PORTONE_WEBHOOK_SECRET) {
+            try {
+                const headers: Record<string, string> = {};
+                request.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+
+                await PortOne.Webhook.verify(
+                    PORTONE_WEBHOOK_SECRET,
+                    bodyText,
+                    headers
+                );
+                console.log('[Webhook V2] 시그니처 검증 성공');
+            } catch (verifyError) {
+                console.error('[Webhook V2] 시그니처 검증 실패:', verifyError);
+                return NextResponse.json(
+                    { error: '웹훅 시그니처 검증 실패' },
+                    { status: 400 }
+                );
+            }
         }
 
-        // 2. 포트원에서 실제 결제 정보 조회 (웹훅 검증)
-        const accessToken = await getPortOneAccessToken();
-        const paymentData = await getPaymentData(imp_uid, accessToken);
+        // 결제 관련 이벤트가 아니면 무시
+        if (!body.data?.paymentId) {
+            console.log('[Webhook V2] 결제 관련 이벤트 아님:', body.type);
+            return NextResponse.json({ status: 'ignored' });
+        }
 
-        console.log('[Webhook] 결제 정보:', {
-            imp_uid: paymentData.imp_uid,
-            amount: paymentData.amount,
-            status: paymentData.status,
-        });
+        const { paymentId } = body.data;
 
         // 3. Supabase 클라이언트 초기화
         const supabaseAdmin = createClient(
@@ -82,45 +75,58 @@ export async function POST(request: Request) {
             process.env.SUPABASE_SERVICE_ROLE_KEY!
         );
 
-        // 4. 결제 상태에 따라 처리
-        switch (paymentData.status) {
-            case 'paid': {
-                // 결제 완료 처리
-                console.log('[Webhook] 결제 완료 처리:', merchant_uid);
-
-                // merchant_uid에서 정보 추출 (형식: donation_{creatorId}_{timestamp})
-                const parts = merchant_uid.split('_');
-                if (parts.length < 3 || parts[0] !== 'donation') {
-                    console.log('[Webhook] 후원 결제가 아닌 건:', merchant_uid);
-                    return NextResponse.json({ status: 'ignored', message: '후원 결제가 아님' });
+        // 4. 포트원 API로 결제 정보 조회 (검증용)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let paymentData: any = null;
+        if (PORTONE_API_SECRET) {
+            try {
+                const apiResponse = await fetch(`https://api.portone.io/payments/${paymentId}`, {
+                    headers: {
+                        'Authorization': `PortOne ${PORTONE_API_SECRET}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if (apiResponse.ok) {
+                    paymentData = await apiResponse.json();
+                    console.log('[Webhook V2] 포트원 결제 조회:', paymentData?.status);
                 }
+            } catch (apiError) {
+                console.error('[Webhook V2] 포트원 API 오류:', apiError);
+            }
+        }
 
-                // donations 테이블에서 해당 주문 확인 및 상태 업데이트
+        // 5. 이벤트 타입에 따라 처리
+        switch (body.type) {
+            case 'Transaction.Paid': {
+                // 결제 완료
+                console.log('[Webhook V2] 결제 완료:', paymentId);
+
+                // donations 테이블에서 해당 결제 찾기
                 const { data: donation, error: findError } = await supabaseAdmin
                     .from('donations')
                     .select('*')
-                    .eq('payment_id', imp_uid)
+                    .eq('payment_id', paymentId)
                     .single();
 
                 if (findError && findError.code !== 'PGRST116') {
-                    console.error('[Webhook] 후원 조회 오류:', findError);
+                    console.error('[Webhook V2] 후원 조회 오류:', findError);
                 }
 
                 if (donation) {
-                    // 이미 결제된 건인지 확인
+                    // 이미 처리된 건인지 확인
                     if (donation.status === 'completed') {
-                        console.log('[Webhook] 이미 처리된 결제:', imp_uid);
+                        console.log('[Webhook V2] 이미 처리된 결제:', paymentId);
                         return NextResponse.json({ status: 'already_processed' });
                     }
 
-                    // 금액 검증
-                    if (donation.amount !== paymentData.amount) {
-                        console.error('[Webhook] 금액 불일치!', {
+                    // 금액 검증 (포트원 API 응답이 있는 경우)
+                    if (paymentData && donation.amount !== paymentData.amount?.total) {
+                        console.error('[Webhook V2] 금액 불일치!', {
                             expected: donation.amount,
-                            actual: paymentData.amount,
+                            actual: paymentData.amount?.total,
                         });
                         return NextResponse.json(
-                            { error: '결제 금액 불일치 - 위변조 의심' },
+                            { error: '결제 금액 불일치' },
                             { status: 400 }
                         );
                     }
@@ -135,25 +141,20 @@ export async function POST(request: Request) {
                         .eq('id', donation.id);
 
                     if (updateError) {
-                        console.error('[Webhook] 상태 업데이트 오류:', updateError);
+                        console.error('[Webhook V2] 상태 업데이트 오류:', updateError);
                         throw updateError;
                     }
 
-                    console.log('[Webhook] 결제 완료 처리 성공:', donation.id);
-                } else {
-                    // 새로운 후원 건 생성 (클라이언트에서 미리 생성하지 않은 경우)
-                    console.log('[Webhook] 새 후원 건 - 미구현');
+                    console.log('[Webhook V2] 결제 완료 처리 성공:', donation.id);
                 }
 
-                return NextResponse.json({
-                    status: 'success',
-                    message: '결제 완료 처리됨',
-                });
+                return NextResponse.json({ status: 'success', message: '결제 완료 처리됨' });
             }
 
-            case 'cancelled': {
-                // 결제 취소 처리
-                console.log('[Webhook] 결제 취소 처리:', merchant_uid);
+            case 'Transaction.Cancelled':
+            case 'Transaction.PartialCancelled': {
+                // 결제 취소 (전체/부분)
+                console.log('[Webhook V2] 결제 취소:', paymentId);
 
                 const { error: cancelError } = await supabaseAdmin
                     .from('donations')
@@ -161,57 +162,51 @@ export async function POST(request: Request) {
                         status: 'cancelled',
                         cancelled_at: new Date().toISOString(),
                     })
-                    .eq('payment_id', imp_uid);
+                    .eq('payment_id', paymentId);
 
                 if (cancelError) {
-                    console.error('[Webhook] 취소 처리 오류:', cancelError);
+                    console.error('[Webhook V2] 취소 처리 오류:', cancelError);
                     throw cancelError;
                 }
 
-                return NextResponse.json({
-                    status: 'success',
-                    message: '결제 취소 처리됨',
-                });
+                return NextResponse.json({ status: 'success', message: '결제 취소 처리됨' });
             }
 
-            case 'ready': {
-                // 가상계좌 발급 (현재 미사용)
-                console.log('[Webhook] 가상계좌 발급:', merchant_uid);
-                return NextResponse.json({
-                    status: 'success',
-                    message: '가상계좌 발급 처리됨',
-                });
-            }
-
-            case 'failed': {
+            case 'Transaction.Failed': {
                 // 결제 실패
-                console.log('[Webhook] 결제 실패:', merchant_uid);
+                console.log('[Webhook V2] 결제 실패:', paymentId);
 
                 const { error: failError } = await supabaseAdmin
                     .from('donations')
                     .update({ status: 'failed' })
-                    .eq('payment_id', imp_uid);
+                    .eq('payment_id', paymentId);
 
                 if (failError) {
-                    console.error('[Webhook] 실패 처리 오류:', failError);
+                    console.error('[Webhook V2] 실패 처리 오류:', failError);
                 }
 
-                return NextResponse.json({
-                    status: 'success',
-                    message: '결제 실패 처리됨',
-                });
+                return NextResponse.json({ status: 'success', message: '결제 실패 처리됨' });
+            }
+
+            case 'Transaction.VirtualAccountIssued': {
+                // 가상계좌 발급
+                console.log('[Webhook V2] 가상계좌 발급:', paymentId);
+                return NextResponse.json({ status: 'success', message: '가상계좌 발급 처리됨' });
+            }
+
+            case 'Transaction.Ready': {
+                // 결제창 열림 (우리는 처리하지 않음)
+                console.log('[Webhook V2] 결제창 열림:', paymentId);
+                return NextResponse.json({ status: 'ignored' });
             }
 
             default:
-                console.log('[Webhook] 알 수 없는 상태:', paymentData.status);
-                return NextResponse.json({
-                    status: 'unknown',
-                    message: `처리되지 않은 상태: ${paymentData.status}`,
-                });
+                console.log('[Webhook V2] 처리하지 않는 이벤트:', body.type);
+                return NextResponse.json({ status: 'ignored', type: body.type });
         }
 
     } catch (error) {
-        console.error('[Webhook] 처리 오류:', error);
+        console.error('[Webhook V2] 처리 오류:', error);
         return NextResponse.json(
             { error: '웹훅 처리 중 오류 발생', details: String(error) },
             { status: 500 }

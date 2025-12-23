@@ -18,6 +18,7 @@
     ]
   },
   "dependencies": {
+    "@google-analytics/data": "^5.2.1",
     "@heroicons/react": "^2.2.0",
     "@portone/browser-sdk": "^0.1.1",
     "@radix-ui/react-avatar": "^1.1.11",

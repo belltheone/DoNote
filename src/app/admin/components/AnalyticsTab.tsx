@@ -2,6 +2,7 @@
 // 분석/통계 탭 - 방문자, 인기 크리에이터, 차트
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import type { CreatorProfile, Donation } from "@/lib/supabase";
 
 // Props 타입
@@ -10,7 +11,44 @@ interface AnalyticsTabProps {
     donations: Donation[];
 }
 
+// GA4 통계 타입
+interface GA4Stats {
+    today: number;
+    week: number;
+    month: number;
+    avgSessionDuration: string;
+    bounceRate: string;
+}
+
 export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
+    // GA4 방문자 통계 상태
+    const [visitorStats, setVisitorStats] = useState<GA4Stats | null>(null);
+    const [ga4Loading, setGa4Loading] = useState(true);
+    const [ga4Error, setGa4Error] = useState<string | null>(null);
+
+    // GA4 데이터 로드
+    useEffect(() => {
+        const fetchGA4Data = async () => {
+            try {
+                const response = await fetch('/api/admin/analytics');
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    setVisitorStats(result.data);
+                } else {
+                    setGa4Error(result.error || 'GA4 데이터를 가져오지 못했습니다.');
+                }
+            } catch (error) {
+                console.error('GA4 API 오류:', error);
+                setGa4Error('GA4 API 호출 중 오류가 발생했습니다.');
+            } finally {
+                setGa4Loading(false);
+            }
+        };
+
+        fetchGA4Data();
+    }, []);
+
     // 크리에이터별 통계 - 실제 데이터
     const creatorStats = creators.map(creator => {
         const creatorDonations = donations.filter(d => d.creatorId === creator.id);
@@ -34,13 +72,13 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
         };
     });
 
-    // 방문자 통계 - GA4 연동 전까지 "데이터 없음" 표시
-    const visitorStats = {
-        today: '-',
-        week: '-',
-        month: '-',
-        avgSessionDuration: '-',
-        bounceRate: '-',
+    // 방문자 통계 표시 값
+    const displayStats = {
+        today: ga4Loading ? '...' : (visitorStats?.today?.toLocaleString() || '-'),
+        week: ga4Loading ? '...' : (visitorStats?.week?.toLocaleString() || '-'),
+        month: ga4Loading ? '...' : (visitorStats?.month?.toLocaleString() || '-'),
+        avgSessionDuration: ga4Loading ? '...' : (visitorStats?.avgSessionDuration || '-'),
+        bounceRate: ga4Loading ? '...' : (visitorStats?.bounceRate || '-'),
     };
 
     return (
@@ -53,7 +91,7 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     animate={{ opacity: 1, y: 0 }}
                 >
                     <p className="text-sm text-[#666]">오늘 방문자</p>
-                    <p className="text-2xl font-bold text-[#333] mt-1">{visitorStats.today}</p>
+                    <p className="text-2xl font-bold text-[#333] mt-1">{displayStats.today}</p>
                 </motion.div>
                 <motion.div
                     className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -62,7 +100,7 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     transition={{ delay: 0.05 }}
                 >
                     <p className="text-sm text-[#666]">주간 방문자</p>
-                    <p className="text-2xl font-bold text-[#333] mt-1">{visitorStats.week}</p>
+                    <p className="text-2xl font-bold text-[#333] mt-1">{displayStats.week}</p>
                 </motion.div>
                 <motion.div
                     className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -71,7 +109,7 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     transition={{ delay: 0.1 }}
                 >
                     <p className="text-sm text-[#666]">월간 방문자</p>
-                    <p className="text-2xl font-bold text-[#333] mt-1">{visitorStats.month}</p>
+                    <p className="text-2xl font-bold text-[#333] mt-1">{displayStats.month}</p>
                 </motion.div>
                 <motion.div
                     className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -80,7 +118,7 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     transition={{ delay: 0.15 }}
                 >
                     <p className="text-sm text-[#666]">평균 체류시간</p>
-                    <p className="text-2xl font-bold text-[#333] mt-1">{visitorStats.avgSessionDuration}</p>
+                    <p className="text-2xl font-bold text-[#333] mt-1">{displayStats.avgSessionDuration}</p>
                 </motion.div>
                 <motion.div
                     className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
@@ -89,7 +127,7 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                     transition={{ delay: 0.2 }}
                 >
                     <p className="text-sm text-[#666]">이탈률</p>
-                    <p className="text-2xl font-bold text-[#333] mt-1">{visitorStats.bounceRate}</p>
+                    <p className="text-2xl font-bold text-[#333] mt-1">{displayStats.bounceRate}</p>
                 </motion.div>
             </div>
 
@@ -167,26 +205,43 @@ export function AnalyticsTab({ creators, donations }: AnalyticsTabProps) {
                 </div>
             </div>
 
-            {/* GA4 연동 안내 */}
-            <div className="bg-gradient-to-r from-[#FF6B6B]/10 to-[#FFD95A]/10 rounded-xl p-6 border border-[#FFD95A]/30">
-                <div className="flex items-start gap-4">
-                    <span className="text-3xl">📊</span>
-                    <div>
-                        <h4 className="font-bold text-[#333]">Google Analytics 4 연동</h4>
-                        <p className="text-sm text-[#666] mt-1">
-                            GA4가 연동되어 있습니다. 더 자세한 분석은 Google Analytics 대시보드에서 확인하세요.
-                        </p>
-                        <a
-                            href="https://analytics.google.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-block mt-3 px-4 py-2 bg-[#FF6B6B] text-white rounded-lg text-sm hover:bg-[#e55555] transition-colors"
-                        >
-                            GA4 대시보드 열기 →
-                        </a>
+            {/* GA4 연동 상태 */}
+            {ga4Error ? (
+                <div className="bg-red-50 rounded-xl p-6 border border-red-200">
+                    <div className="flex items-start gap-4">
+                        <span className="text-3xl">⚠️</span>
+                        <div>
+                            <h4 className="font-bold text-red-600">GA4 연동 오류</h4>
+                            <p className="text-sm text-red-500 mt-1">
+                                {ga4Error}
+                            </p>
+                            <p className="text-xs text-[#999] mt-2">
+                                환경변수(GA4_PROPERTY_ID, GOOGLE_APPLICATION_CREDENTIALS_JSON)를 확인해주세요.
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            ) : (
+                <div className="bg-gradient-to-r from-[#4CAF50]/10 to-[#8BC34A]/10 rounded-xl p-6 border border-[#4CAF50]/30">
+                    <div className="flex items-start gap-4">
+                        <span className="text-3xl">✅</span>
+                        <div>
+                            <h4 className="font-bold text-[#333]">Google Analytics 4 연동 완료</h4>
+                            <p className="text-sm text-[#666] mt-1">
+                                GA4 데이터를 실시간으로 가져오고 있습니다. 더 자세한 분석은 GA4 대시보드에서 확인하세요.
+                            </p>
+                            <a
+                                href="https://analytics.google.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block mt-3 px-4 py-2 bg-[#4CAF50] text-white rounded-lg text-sm hover:bg-[#45a049] transition-colors"
+                            >
+                                GA4 대시보드 열기 →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

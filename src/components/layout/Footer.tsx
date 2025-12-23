@@ -75,7 +75,7 @@ export function Footer() {
 
                 {/* 사업자 정보 */}
                 <div className="pt-8 border-t border-white/10 mb-6">
-                    <div className="text-white/50 text-xs space-y-1">
+                    <div className="text-white/50 text-xs space-y-1 text-center">
                         <p>
                             <span className="text-white/70 font-medium">상호명:</span> 모두의 악보 |
                             <span className="text-white/70 font-medium ml-2">대표자:</span> 홍종원 |

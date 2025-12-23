@@ -41,8 +41,8 @@ function getCSPHeaders(): Record<string, string> {
         "img-src 'self' data: blob: https: http:",
         // connect-src: 포트원 API, Supabase, Google Analytics, 아임포트
         "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io https://*.portone.io https://*.iamport.co",
-        // frame-src: 포트원 결제창, Daum 주소 API, PG사 결제창
-        "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net https://*.portone.io https://*.kcp.co.kr https://*.nicepay.co.kr https://*.inicis.com https://*.kakaopay.com https://*.tosspayments.com https://*.naverpay.com https://*.danal.co.kr",
+        // frame-src: 포트원 결제창, Daum 주소 API, PG사 결제창, 아임포트
+        "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net https://*.portone.io https://*.iamport.co https://*.kcp.co.kr https://*.nicepay.co.kr https://*.inicis.com https://*.kakaopay.com https://*.tosspayments.com https://*.naverpay.com https://*.danal.co.kr",
         "frame-ancestors 'self'",
         "form-action 'self'",
     ].join('; ');

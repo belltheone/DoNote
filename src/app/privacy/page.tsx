@@ -73,9 +73,10 @@ export default function PrivacyPage() {
                             <h2 className="text-xl font-bold text-[#333] dark:text-white mb-4">4. 개인정보보호 책임자</h2>
                             <div className="bg-[#FFFACD] dark:bg-yellow-900/30 rounded-lg p-4">
                                 <p className="text-[#666] dark:text-gray-400">
-                                    담당부서: 개인정보보호팀<br />
-                                    이메일: privacy@donote.site<br />
-                                    전화: 문의하기 페이지 이용
+                                    상호명: 모두의 악보<br />
+                                    대표자: 홍종원<br />
+                                    이메일: moduakbo@moduakbo.com<br />
+                                    전화: 070-7954-2194
                                 </p>
                             </div>
                         </section>
@@ -83,7 +84,7 @@ export default function PrivacyPage() {
                         <section className="pt-6 border-t border-gray-200 dark:border-gray-700">
                             <p className="text-[#999] dark:text-gray-500 text-sm">
                                 시행일: 2024년 12월 1일<br />
-                                최종 수정일: 2024년 12월 18일
+                                최종 수정일: 2024년 12월 23일
                             </p>
                         </section>
                     </div>

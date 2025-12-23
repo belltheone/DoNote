@@ -73,8 +73,26 @@ export function Footer() {
                     </div>
                 </div>
 
+                {/* 사업자 정보 */}
+                <div className="pt-8 border-t border-white/10 mb-6">
+                    <div className="text-white/50 text-xs space-y-1">
+                        <p>
+                            <span className="text-white/70 font-medium">상호명:</span> 모두의 악보 |
+                            <span className="text-white/70 font-medium ml-2">대표자:</span> 홍종원 |
+                            <span className="text-white/70 font-medium ml-2">사업자등록번호:</span> 360-01-03089
+                        </p>
+                        <p>
+                            <span className="text-white/70 font-medium">주소:</span> 대구광역시 남구 중앙대로45길 41 지하
+                        </p>
+                        <p>
+                            <span className="text-white/70 font-medium">이메일:</span> moduakbo@moduakbo.com |
+                            <span className="text-white/70 font-medium ml-2">전화:</span> 070-7954-2194
+                        </p>
+                    </div>
+                </div>
+
                 {/* 하단 */}
-                <div className="pt-8 border-t border-white/10 text-center text-white/50 text-sm">
+                <div className="text-center text-white/50 text-sm">
                     © 2024 Donote. Made with 💌 in Korea
                 </div>
             </div>

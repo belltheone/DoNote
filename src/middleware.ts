@@ -39,8 +39,8 @@ function getCSPHeaders(): Record<string, string> {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src 'self' https://fonts.gstatic.com data:",
         "img-src 'self' data: blob: https: http:",
-        // connect-src: 포트원 API, Supabase, Google Analytics
-        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io https://*.portone.io",
+        // connect-src: 포트원 API, Supabase, Google Analytics, 아임포트
+        "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.portone.io https://*.portone.io https://*.iamport.co",
         // frame-src: 포트원 결제창, Daum 주소 API, PG사 결제창
         "frame-src 'self' https://t1.daumcdn.net https://postcode.map.daum.net https://*.portone.io https://*.kcp.co.kr https://*.nicepay.co.kr https://*.inicis.com https://*.kakaopay.com https://*.tosspayments.com https://*.naverpay.com https://*.danal.co.kr",
         "frame-ancestors 'self'",

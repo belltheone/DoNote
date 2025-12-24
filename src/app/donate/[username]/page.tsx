@@ -533,6 +533,26 @@ export default function DonatePage({
                                 </p>
                             </motion.div>
 
+                            {/* 데모일 경우 CTA 버튼 */}
+                            {username === 'demo' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="mb-6"
+                                >
+                                    <Link
+                                        href="/auth"
+                                        className="block w-full py-4 bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl text-white font-bold text-lg text-center hover:shadow-lg transition-all"
+                                    >
+                                        🍩 나도 내 우체통 만들기
+                                    </Link>
+                                    <p className="text-center text-sm text-[#999] mt-2">
+                                        3초면 시작할 수 있어요!
+                                    </p>
+                                </motion.div>
+                            )}
+
                             {/* 버튼들 */}
                             <div className="flex gap-4">
                                 <Link

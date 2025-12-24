@@ -1,11 +1,12 @@
 "use client";
 // 공통 헤더 컴포넌트
-// 로그인 상태에 따라 다르게 표시 + 다크 모드 지원
+// 로그인 상태에 따라 다르게 표시 + 다크 모드 지원 + 모바일 햄버거 메뉴
 
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore } from "@/store/auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,10 +18,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export function Header() {
     const router = useRouter();
     const { user, isLoading, signOut } = useAuthStore();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // 관리자 이메일 체크
     const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@admin.admin';
@@ -85,7 +88,20 @@ export function Header() {
                     </nav>
 
                     {/* 우측 메뉴 */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
+                        {/* 모바일 햄버거 버튼 */}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="md:hidden p-2 rounded-lg text-[#666] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            aria-label="메뉴 열기"
+                        >
+                            {isMobileMenuOpen ? (
+                                <XMarkIcon className="w-6 h-6" />
+                            ) : (
+                                <Bars3Icon className="w-6 h-6" />
+                            )}
+                        </button>
+
                         {/* 다크 모드 토글 */}
                         <ThemeToggle />
 
@@ -193,6 +209,64 @@ export function Header() {
                     </div>
                 </div>
             </div>
+
+            {/* 모바일 메뉴 패널 */}
+            <AnimatePresence>
+                {isMobileMenuOpen && (
+                    <motion.nav
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="md:hidden overflow-hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
+                    >
+                        <div className="px-6 py-4 space-y-1">
+                            <Link
+                                href="/about"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                서비스 소개
+                            </Link>
+                            <Link
+                                href="/widget"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                위젯
+                            </Link>
+                            <Link
+                                href="/guide"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                시작가이드
+                            </Link>
+                            <Link
+                                href="/faq"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                FAQ
+                            </Link>
+                            <Link
+                                href="/blog"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                블로그
+                            </Link>
+                            <Link
+                                href="/notice"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-[#666] dark:text-gray-400 hover:text-[#333] dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                공지
+                            </Link>
+                        </div>
+                    </motion.nav>
+                )}
+            </AnimatePresence>
         </motion.header>
     );
 }

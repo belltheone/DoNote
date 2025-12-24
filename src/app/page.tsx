@@ -329,25 +329,31 @@ export default function Home() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#333] dark:text-white">
-              도노트 수수료 <span className="text-[#FF6B6B]">5%</span>
+              수수료 <span className="text-[#FF6B6B]">딱 5%</span>만
             </h2>
             <p className="text-lg text-[#666] dark:text-gray-300 mb-8">
-              투명한 수수료 정책으로 운영됩니다.<br />
-              <span className="text-2xl font-bold text-[#333] dark:text-white">후원금의 95%가 크리에이터에게 전달됩니다.</span> 💸
+              투명하고 간단한 수수료 정책
             </p>
 
             <div className="inline-block bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
               <div className="text-center">
                 <p className="text-sm text-[#999] dark:text-gray-500 mb-2">플랫폼 수수료</p>
-                <p className="text-6xl font-bold text-[#FF6B6B] mb-4">5%</p>
-                <p className="text-green-500 font-bold text-xl">
+                <p className="text-7xl font-bold text-[#FF6B6B] mb-2">5%</p>
+                <p className="text-green-500 font-bold text-2xl mb-4">
                   크리에이터 수령: 95%
                 </p>
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <p className="text-xs text-[#999] dark:text-gray-500 leading-relaxed">
+                    * 결제 시 PG사 수수료(토스 약 2.8%)가 별도 적용됩니다.<br />
+                    * 개인 크리에이터의 경우 원천징수세 3.3%가 정산 시 공제됩니다.<br />
+                    * 사업자는 세금계산서 발행으로 원천징수 없이 정산받을 수 있습니다.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <p className="text-sm text-[#999] dark:text-gray-500 mt-6">
-              * 별도 PG 수수료(약 3%)가 추가로 발생할 수 있습니다.
+            <p className="text-sm text-[#666] dark:text-gray-400 mt-6">
+              💡 숨겨진 비용 없이, 투명하게 운영합니다
             </p>
           </motion.div>
         </div>

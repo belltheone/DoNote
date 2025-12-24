@@ -238,8 +238,9 @@ export default function GuidePage() {
                             >
                                 <div className="bg-gradient-to-r from-[#FF6B6B] to-[#FFD95A] rounded-xl p-4 text-white">
                                     <p className="text-sm opacity-80 mb-1">수수료 안내</p>
-                                    <p className="text-2xl font-bold">플랫폼 수수료 5% + 원천징수 3.3%</p>
-                                    <p className="text-sm opacity-80 mt-1">개인 크리에이터는 약 92% 수령 / 사업자는 원천징수 없이 95% 수령</p>
+                                    <p className="text-2xl font-bold">플랫폼 5% + PG 약 2.8%</p>
+                                    <p className="text-sm opacity-80 mt-1">개인: 원천징수 3.3% 추가 → 약 89% 수령</p>
+                                    <p className="text-sm opacity-80">사업자: 세금계산서 발행 → 약 92% 수령</p>
                                 </div>
                             </GuideStep>
                         </motion.div>

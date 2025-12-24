@@ -35,9 +35,11 @@ export default function SettlementPage() {
 
     // 정산 정보 폼 상태
     const [settlementForm, setSettlementForm] = useState({
+        creatorType: 'individual' as 'individual' | 'business',  // 크리에이터 유형
         realName: '',
         ssnFront: '',
         ssnBack: '',
+        businessRegistrationNumber: '',  // 사업자등록번호
         address: '',
         addressDetail: '',  // 상세주소 추가
         phoneNumber: '',
@@ -83,9 +85,11 @@ export default function SettlementPage() {
                 if (info) {
                     setHasSettlementInfo(true);
                     setSettlementForm({
+                        creatorType: info.creatorType || 'individual',
                         realName: info.realName || '',
                         ssnFront: info.ssnFront || '',
                         ssnBack: '', // 보안상 뒤 7자리는 표시하지 않음
+                        businessRegistrationNumber: info.businessRegistrationNumber || '',
                         address: info.address || '',
                         addressDetail: '', // 상세주소 (기존 데이터에는 없을 수 있음)
                         phoneNumber: info.phoneNumber || '',
@@ -184,6 +188,12 @@ export default function SettlementPage() {
             return;
         }
 
+        // 사업자인 경우 사업자등록번호 필수
+        if (settlementForm.creatorType === 'business' && !settlementForm.businessRegistrationNumber) {
+            toast.error('사업자등록번호를 입력해주세요.');
+            return;
+        }
+
         if (settlementForm.ssnFront.length !== 6 || settlementForm.ssnBack.length !== 7) {
             toast.error('주민등록번호를 정확히 입력해주세요.');
             return;
@@ -203,9 +213,13 @@ export default function SettlementPage() {
 
             const success = await upsertSettlementInfo({
                 creatorId: user.id,
+                creatorType: settlementForm.creatorType,
                 realName: settlementForm.realName,
                 ssnFront: settlementForm.ssnFront,
                 ssnBackEncrypted: settlementForm.ssnBack, // 실제로는 서버에서 암호화
+                businessRegistrationNumber: settlementForm.creatorType === 'business'
+                    ? settlementForm.businessRegistrationNumber
+                    : undefined,
                 address: fullAddress,
                 phoneNumber: settlementForm.phoneNumber,
                 bankName: settlementForm.bankName,
@@ -378,6 +392,82 @@ export default function SettlementPage() {
                         </p>
 
                         <div className="space-y-4">
+                            {/* 크리에이터 유형 선택 */}
+                            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                                <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-3">
+                                    크리에이터 유형 <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex gap-4">
+                                    <label className={`flex-1 flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${settlementForm.creatorType === 'individual'
+                                        ? 'border-[#FF6B6B] bg-[#FF6B6B]/10'
+                                        : 'border-gray-200 dark:border-gray-600 hover:border-[#FF6B6B]/50'
+                                        }`}>
+                                        <input
+                                            type="radio"
+                                            name="creatorType"
+                                            value="individual"
+                                            checked={settlementForm.creatorType === 'individual'}
+                                            onChange={() => setSettlementForm({ ...settlementForm, creatorType: 'individual', businessRegistrationNumber: '' })}
+                                            className="w-4 h-4 text-[#FF6B6B]"
+                                        />
+                                        <div>
+                                            <p className="font-medium text-[#333] dark:text-white">👤 개인 (프리랜서)</p>
+                                            <p className="text-xs text-[#999] dark:text-gray-500">원천징수 3.3% 적용</p>
+                                        </div>
+                                    </label>
+                                    <label className={`flex-1 flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${settlementForm.creatorType === 'business'
+                                        ? 'border-[#FF6B6B] bg-[#FF6B6B]/10'
+                                        : 'border-gray-200 dark:border-gray-600 hover:border-[#FF6B6B]/50'
+                                        }`}>
+                                        <input
+                                            type="radio"
+                                            name="creatorType"
+                                            value="business"
+                                            checked={settlementForm.creatorType === 'business'}
+                                            onChange={() => setSettlementForm({ ...settlementForm, creatorType: 'business' })}
+                                            className="w-4 h-4 text-[#FF6B6B]"
+                                        />
+                                        <div>
+                                            <p className="font-medium text-[#333] dark:text-white">🏢 사업자</p>
+                                            <p className="text-xs text-[#999] dark:text-gray-500">세금계산서 발행</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                {settlementForm.creatorType === 'individual' && (
+                                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-3">
+                                        ℹ️ 개인 크리에이터는 정산 시 원천징수세(소득세 3% + 주민세 0.3%)가 공제됩니다.
+                                    </p>
+                                )}
+                                {settlementForm.creatorType === 'business' && (
+                                    <p className="text-xs text-green-600 dark:text-green-400 mt-3">
+                                        ℹ️ 사업자는 원천징수 없이 세금계산서를 발행하여 정산받을 수 있습니다.
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* 사업자등록번호 (사업자인 경우만) */}
+                            {settlementForm.creatorType === 'business' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">
+                                        사업자등록번호 <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={settlementForm.businessRegistrationNumber}
+                                        onChange={(e) => setSettlementForm({
+                                            ...settlementForm,
+                                            businessRegistrationNumber: e.target.value.replace(/[^0-9-]/g, '')
+                                        })}
+                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-[#333] dark:text-white focus:border-[#FFD95A] focus:outline-none transition-colors"
+                                        placeholder="000-00-00000"
+                                        maxLength={12}
+                                    />
+                                    <p className="text-xs text-[#999] dark:text-gray-500 mt-1">
+                                        세금계산서 발행을 위해 필요합니다. 정산 시 별도로 세금계산서를 요청드립니다.
+                                    </p>
+                                </div>
+                            )}
+
                             {/* 성명 */}
                             <div>
                                 <label className="block text-sm font-medium text-[#666] dark:text-gray-400 mb-2">

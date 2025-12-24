@@ -360,9 +360,11 @@ export async function getAllSettlements(): Promise<{
 export interface SettlementInfo {
     id?: string;
     creatorId: string;
+    creatorType: 'individual' | 'business';  // 크리에이터 유형
     realName: string;
     ssnFront: string;
     ssnBackEncrypted: string;
+    businessRegistrationNumber?: string;  // 사업자등록번호 (사업자인 경우)
     address: string;
     phoneNumber: string;
     bankName: string;
@@ -377,9 +379,11 @@ export async function upsertSettlementInfo(info: SettlementInfo): Promise<boolea
         .from('creator_settlement_info')
         .upsert({
             creator_id: info.creatorId,
+            creator_type: info.creatorType,
             real_name: info.realName,
             ssn_front: info.ssnFront,
             ssn_back_encrypted: info.ssnBackEncrypted,
+            business_registration_number: info.businessRegistrationNumber || null,
             address: info.address,
             phone_number: info.phoneNumber,
             bank_name: info.bankName,
@@ -412,9 +416,11 @@ export async function getSettlementInfo(creatorId: string): Promise<SettlementIn
     return {
         id: data.id,
         creatorId: data.creator_id,
+        creatorType: data.creator_type || 'individual',
         realName: data.real_name,
         ssnFront: data.ssn_front,
         ssnBackEncrypted: data.ssn_back_encrypted,
+        businessRegistrationNumber: data.business_registration_number,
         address: data.address,
         phoneNumber: data.phone_number,
         bankName: data.bank_name,

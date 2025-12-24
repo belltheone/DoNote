@@ -62,7 +62,12 @@ export default function SettlementPage() {
 
     // 수수료 계산 (플랫폼 5%)
     const platformFee = Math.round(availableAmount * 0.05);
-    const netAmount = availableAmount - platformFee;
+    const afterPlatformFee = availableAmount - platformFee;
+
+    // 원천징수세 계산 (개인만 3.3%, 사업자는 0%)
+    const withholdingTaxRate = settlementForm.creatorType === 'individual' ? 0.033 : 0;
+    const withholdingTax = Math.round(afterPlatformFee * withholdingTaxRate);
+    const netAmount = afterPlatformFee - withholdingTax;
 
     // 데이터 로드
     useEffect(() => {
@@ -699,10 +704,27 @@ export default function SettlementPage() {
                                     <span>플랫폼 수수료 (5%)</span>
                                     <span className="text-red-500">-₩{platformFee.toLocaleString()}</span>
                                 </div>
+                                {settlementForm.creatorType === 'individual' && withholdingTax > 0 && (
+                                    <div className="flex justify-between text-[#999] dark:text-gray-500 text-sm">
+                                        <span>원천징수세 (3.3%)</span>
+                                        <span className="text-red-500">-₩{withholdingTax.toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {settlementForm.creatorType === 'business' && (
+                                    <div className="flex justify-between text-green-600 dark:text-green-400 text-sm">
+                                        <span>원천징수세</span>
+                                        <span>₩0 (세금계산서 발행)</span>
+                                    </div>
+                                )}
                                 <div className="pt-3 border-t border-dashed border-gray-300 dark:border-gray-600 flex justify-between font-bold text-[#333] dark:text-white">
                                     <span>실 입금액</span>
                                     <span className="text-[#FF6B6B]">₩{netAmount.toLocaleString()}</span>
                                 </div>
+                                {settlementForm.creatorType === 'individual' && (
+                                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                                        ℹ️ 원천징수된 세금은 연말 원천징수영수증으로 확인하실 수 있습니다.
+                                    </p>
+                                )}
                             </div>
                         </div>
                     )}

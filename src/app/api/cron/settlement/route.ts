@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
         // 1. 정산 정보가 등록된 크리에이터 목록 조회
         const { data: settlementInfos, error: infoError } = await supabaseAdmin
-            .from('settlement_info')
+            .from('creator_settlement_info')
             .select('*');
 
         if (infoError) {
@@ -88,9 +88,15 @@ export async function GET(request: Request) {
                     continue;
                 }
 
-                // 6. 수수료 계산
+                // 6. 수수료 및 원천징수 계산
                 const fee = Math.round(availableAmount * FEE_RATE);
-                const netAmount = availableAmount - fee;
+                const afterFee = availableAmount - fee;
+
+                // 원천징수: 개인(individual)만 3.3%, 사업자(business)는 0%
+                const creatorType = info.creator_type || 'individual';
+                const withholdingTaxRate = creatorType === 'individual' ? 0.033 : 0;
+                const withholdingTax = Math.round(afterFee * withholdingTaxRate);
+                const netAmount = afterFee - withholdingTax;
 
                 // 7. 정산 레코드 생성
                 const { error: insertError } = await supabaseAdmin
@@ -99,6 +105,7 @@ export async function GET(request: Request) {
                         creator_id: creatorId,
                         amount: availableAmount,
                         fee: fee,
+                        withholding_tax: withholdingTax,
                         net_amount: netAmount,
                         status: 'approved', // 자동 정산은 바로 승인 상태
                         requested_at: new Date().toISOString(),
@@ -108,7 +115,7 @@ export async function GET(request: Request) {
 
                 processedCount++;
                 totalSettledAmount += netAmount;
-                console.log(`[Auto Settlement] ${creatorId}: ₩${availableAmount} → ₩${netAmount} (수수료 ₩${fee})`);
+                console.log(`[Auto Settlement] ${creatorId}: ₩${availableAmount} → ₩${netAmount} (수수료 ₩${fee}, 원천징수 ₩${withholdingTax})`);
 
                 // TODO: 이메일 알림 발송
                 // await sendSettlementNotificationEmail(info.email, netAmount);

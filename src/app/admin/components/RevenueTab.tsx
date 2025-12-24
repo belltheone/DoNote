@@ -1,6 +1,7 @@
 "use client";
-// 수익 현황 탭 - 도노트 총 수익, 크리에이터별 수수료
+// 수익 현황 탭 - 도노트 총 수익, 크리에이터별 수수료, 세금 보고서
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import type { CreatorProfile, Donation } from "@/lib/supabase";
 
@@ -14,6 +15,51 @@ interface RevenueTabProps {
 const FEE_RATE = 0.05;
 
 export function RevenueTab({ creators, donations }: RevenueTabProps) {
+    // 세금 보고서 상태
+    const [reportYear, setReportYear] = useState(new Date().getFullYear());
+    const [reportMonth, setReportMonth] = useState<number | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    // 세금 보고서 다운로드 함수
+    const handleDownloadTaxReport = async (format: 'csv' | 'json') => {
+        setIsDownloading(true);
+        try {
+            const monthParam = reportMonth ? `&month=${reportMonth}` : '';
+            const url = `/api/admin/tax-report?year=${reportYear}${monthParam}&format=${format}`;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('보고서 생성 실패');
+
+            if (format === 'csv') {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `tax_report_${reportYear}${reportMonth ? '_' + reportMonth : ''}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+            } else {
+                const data = await response.json();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `tax_report_${reportYear}${reportMonth ? '_' + reportMonth : ''}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+            }
+        } catch (error) {
+            console.error('세금 보고서 다운로드 오류:', error);
+            alert('세금 보고서 다운로드에 실패했습니다.');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     // 통계 계산 - 실제 데이터 기반
     const totalDonations = donations.reduce((sum, d) => sum + d.amount, 0);
     const totalFee = Math.floor(totalDonations * FEE_RATE);
@@ -197,6 +243,76 @@ export function RevenueTab({ creators, donations }: RevenueTabProps) {
                             </tr>
                         </tfoot>
                     </table>
+                </div>
+            </div>
+
+            {/* 세금 보고서 다운로드 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-bold text-[#333] mb-4">📋 세금 보고서 다운로드</h3>
+                <p className="text-sm text-[#666] mb-4">
+                    크리에이터별 정산 내역 및 원천징수 현황을 다운로드합니다. 홈택스 신고 시 사용할 수 있습니다.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                    {/* 년도 선택 */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-[#666]">년도:</label>
+                        <select
+                            value={reportYear}
+                            onChange={(e) => setReportYear(parseInt(e.target.value))}
+                            className="px-3 py-2 border border-gray-200 rounded-lg text-[#333] focus:border-[#FF6B6B] focus:outline-none"
+                        >
+                            {[2024, 2025, 2026].map(year => (
+                                <option key={year} value={year}>{year}년</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* 월 선택 */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-[#666]">월:</label>
+                        <select
+                            value={reportMonth || ''}
+                            onChange={(e) => setReportMonth(e.target.value ? parseInt(e.target.value) : null)}
+                            className="px-3 py-2 border border-gray-200 rounded-lg text-[#333] focus:border-[#FF6B6B] focus:outline-none"
+                        >
+                            <option value="">전체 (연간)</option>
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map(month => (
+                                <option key={month} value={month}>{month}월</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => handleDownloadTaxReport('csv')}
+                        disabled={isDownloading}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#48BB78] text-white rounded-lg hover:bg-[#38A169] transition-colors disabled:opacity-50"
+                    >
+                        {isDownloading ? (
+                            <motion.span
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            >⏳</motion.span>
+                        ) : (
+                            <>📥 CSV 다운로드</>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => handleDownloadTaxReport('json')}
+                        disabled={isDownloading}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#4299E1] text-white rounded-lg hover:bg-[#3182CE] transition-colors disabled:opacity-50"
+                    >
+                        📥 JSON 다운로드
+                    </button>
+                </div>
+
+                <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p className="text-xs text-yellow-700">
+                        ⚠️ 보고서에는 크리에이터 정보(이름, 주민번호 앞자리 등)가 포함됩니다.
+                        개인정보 보호에 유의하여 관리해주세요.
+                    </p>
                 </div>
             </div>
         </div>

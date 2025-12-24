@@ -416,7 +416,9 @@ export default function SettlementPage() {
                                         placeholder="뒤 7자리"
                                     />
                                 </div>
-                                <p className="text-xs text-[#999] dark:text-gray-500 mt-1">⚠️ 세금 신고를 위해 필요합니다.</p>
+                                <p className="text-xs text-[#999] dark:text-gray-500 mt-1">
+                                    ⚠️ 원천징수세(3.3%) 신고를 위해 필요합니다. 개인정보는 암호화되어 안전하게 보관됩니다.
+                                </p>
                             </div>
 
                             {/* 주소 */}

@@ -66,9 +66,11 @@ export default function TermsPage() {
                             <h2 className="text-xl font-bold text-[#333] dark:text-white mb-4">제5조 (정산)</h2>
                             <ul className="text-[#666] dark:text-gray-400 space-y-2 list-disc list-inside">
                                 <li>크리에이터는 누적 후원금이 10,000원 이상인 경우 정산을 신청할 수 있습니다.</li>
-                                <li>정산은 신청일로부터 영업일 기준 3일 이내에 처리됩니다.</li>
+                                <li>정산은 매월 15일 자동으로 처리되며, 영업일 기준 3-5일 내에 입금됩니다.</li>
                                 <li>정산금은 크리에이터가 등록한 계좌로 입금됩니다.</li>
-                                <li>정산 시 원천징수 및 관련 세금이 적용될 수 있습니다.</li>
+                                <li><strong>원천징수:</strong> 개인 크리에이터의 경우 소득세 3% + 주민세 0.3%(총 3.3%)가 공제됩니다.</li>
+                                <li>사업자 등록된 크리에이터는 원천징수 없이 세금계산서 발행으로 대체할 수 있습니다.</li>
+                                <li>연간 지급 총액이 500만원 이상인 경우 국세청에 지급명세서가 제출됩니다.</li>
                             </ul>
                         </section>
 

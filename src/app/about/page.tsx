@@ -115,30 +115,36 @@ export default function AboutPage() {
                         </div>
 
                         <div className="relative z-10">
-                            <div className="flex items-center justify-center gap-12 mb-8">
+                            <div className="flex items-center justify-center gap-8 mb-6">
                                 <div className="text-center">
-                                    <p className="text-sm opacity-80 mb-2">도노트 수수료</p>
-                                    <p className="text-6xl font-extrabold tabular-nums">5<span className="text-4xl">%</span></p>
+                                    <p className="text-sm opacity-80 mb-2">플랫폼 수수료</p>
+                                    <p className="text-5xl font-extrabold tabular-nums">5<span className="text-3xl">%</span></p>
                                 </div>
-                                <div className="w-px h-20 bg-white/40" />
+                                <div className="w-px h-16 bg-white/40" />
                                 <div className="text-center">
-                                    <p className="text-sm opacity-80 mb-2">크리에이터 수령</p>
-                                    <p className="text-6xl font-extrabold tabular-nums">95<span className="text-4xl">%</span></p>
+                                    <p className="text-sm opacity-80 mb-2">예상 수령률</p>
+                                    <div className="flex gap-4">
+                                        <div>
+                                            <p className="text-3xl font-extrabold">~89%</p>
+                                            <p className="text-xs opacity-70">개인</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-3xl font-extrabold">~92%</p>
+                                            <p className="text-xs opacity-70">사업자</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* 프로그레스 바 */}
-                            <div className="w-full h-4 bg-white/30 rounded-full overflow-hidden mb-4">
-                                <motion.div
-                                    className="h-full bg-white rounded-full"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: "95%" }}
-                                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
-                                />
+                            {/* 수수료 상세 */}
+                            <div className="text-xs opacity-80 space-y-1 mb-4">
+                                <p>• 플랫폼 수수료 5% + PG사 수수료 약 2.8%</p>
+                                <p>• 개인: 원천징수세 3.3% 추가 공제</p>
+                                <p>• 사업자: 세금계산서 발행 (원천징수 없음)</p>
                             </div>
-                            <div className="flex justify-between text-xs opacity-70">
-                                <span>투명한 수수료 정책</span>
-                                <span>* 별도 PG 수수료(약 3%) 발생 가능</span>
+
+                            <div className="text-center text-xs opacity-70">
+                                💡 숨겨진 비용 없이 투명하게 운영합니다
                             </div>
                         </div>
                     </div>

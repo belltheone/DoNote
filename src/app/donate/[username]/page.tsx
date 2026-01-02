@@ -193,6 +193,19 @@ export default function DonatePage({
                     </div>
                 )}
 
+                {/* 데모 안내 배너 */}
+                {!isLoadingCreator && username === 'demo' && step < 5 && (
+                    <motion.div
+                        className="mb-4 p-4 bg-gradient-to-r from-[#E8F4FD] to-[#FFF0F5] rounded-xl border-2 border-dashed border-[#87CEEB] text-center"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                    >
+                        <span className="text-lg">🧪</span>
+                        <span className="font-bold text-[#333] ml-2">데모 페이지</span>
+                        <p className="text-sm text-[#666] mt-1">모든 기능을 자유롭게 둘러보세요!</p>
+                    </motion.div>
+                )}
+
                 {/* 크리에이터 미니 프로필 */}
                 {!isLoadingCreator && step < 5 && (
                     <motion.div
@@ -442,6 +455,15 @@ export default function DonatePage({
                                     <span className="text-[#FF6B6B]">₩{finalAmount.toLocaleString()}</span>
                                 </div>
                             </div>
+
+                            {/* 데모 모드 결제 안내 */}
+                            {username === 'demo' && (
+                                <div className="mt-4 p-3 bg-[#E8F4FD] rounded-lg border border-[#87CEEB] text-center">
+                                    <p className="text-sm text-[#333]">
+                                        💳 <span className="font-medium">안심하세요!</span> 데모 모드에서는 실제 결제가 이루어지지 않습니다.
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="flex gap-3 mt-6">
                                 <button
